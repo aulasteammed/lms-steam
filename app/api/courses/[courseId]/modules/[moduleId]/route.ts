@@ -46,6 +46,28 @@ export async function DELETE(
     return new NextResponse("Not Found", { status:404 });
   }
 
+  // Clean up evaluation and its nested records before deleting the module
+  const evaluation = await db.evaluation.findUnique({
+    where: { moduleId },
+    select: { id: true },
+  });
+
+  if (evaluation) {
+    const questions = await db.question.findMany({
+      where: { evaluationId: evaluation.id },
+      select: { id: true },
+    });
+    const questionIds = questions.map((q) => q.id);
+
+    await db.selectedAnswer.deleteMany({ where: { questionId: { in: questionIds } } });
+    await db.evaluationResult.deleteMany({ where: { evaluationId: evaluation.id } });
+    await db.answer.deleteMany({ where: { questionId: { in: questionIds } } });
+    await db.question.deleteMany({ where: { evaluationId: evaluation.id } });
+    await db.evaluation.delete({ where: { id: evaluation.id } });
+  }
+
+  await db.userProgress.deleteMany({ where: { moduleId } });
+
   const deletedModule = await db.module.delete({
     where: {
       id: moduleId
