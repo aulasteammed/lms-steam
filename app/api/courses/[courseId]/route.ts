@@ -36,6 +36,17 @@ export async function DELETE(
       return new NextResponse("Not Found", { status: 404 });
     }
 
+    const certificateCount = await db.certificate.count({
+      where: { courseId: params.courseId },
+    });
+
+    if (certificateCount > 0) {
+      return new NextResponse(
+        "No se puede eliminar el curso porque al menos un estudiante lo ha completado.",
+        { status: 403 }
+      );
+    }
+
     const moduleIds = course.modules.map((m) => m.id);
 
     // Get all evaluations for these modules
