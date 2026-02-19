@@ -157,7 +157,8 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
         }),
       };
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("[GET_CERTIFICATES_FACETS]", error);
     return [];
   }
