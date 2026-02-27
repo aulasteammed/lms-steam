@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { isTeacher } from "@/lib/teacher";
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 
 type FacetYear = { year: number; count: number };
@@ -29,7 +30,8 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
     if (!user) return [];
 
     const role = user.publicMetadata?.role || user.privateMetadata?.role;
-    if (role !== "teacher") {
+    const isUserTeacher = role === "teacher" || isTeacher(userId);
+    if (!isUserTeacher) {
       console.warn("[GET_CERTIFICATES_FACETS] Usuario no es profesor.");
       return [];
     }
@@ -137,8 +139,8 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
 
       // Agregar info del estudiante con todos los datos necesarios
       courseFacet.students.push({
-        certificateId: cert.id,        // ✅ ID del certificado
-        userId: cert.userId,           // ✅ ID del usuario
+        certificateId: cert.id,        
+        userId: cert.userId,           
         fullName: userMap[cert.userId] || "Usuario desconocido",
         certificateUrl: cert.certificateUrl,
         issuedAt: cert.issuedAt,
@@ -157,7 +159,8 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
         }),
       };
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("[GET_CERTIFICATES_FACETS]", error);
     return [];
   }

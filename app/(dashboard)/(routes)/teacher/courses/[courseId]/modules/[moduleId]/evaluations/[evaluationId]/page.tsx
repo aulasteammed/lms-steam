@@ -63,10 +63,6 @@ export default async function EvaluationIdPage({
 
     return (
         <>
-            {!evaluation.isPublished && (
-                <Banner label="Esta evaluación no está publicada. No será visible para los estudiantes." />
-            )}
-
             <div className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="w-full">
