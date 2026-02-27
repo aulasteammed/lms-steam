@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+﻿import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Eye, LayoutDashboard, Video, BookOpenCheck } from "lucide-react";
@@ -56,13 +56,14 @@ export default async function ModuleIdPage({
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields}/${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
+  const needsEvaluation = !evaluation?.isPublished;
 
   return (
       <>
-        {!module.isPublished && (
+        {needsEvaluation && (
             <Banner
                 variant="warning"
-                label="Este módulo no está publicado. No será visible en el curso."
+                label="Debes crear y publicar la evaluación del módulo para completarlo."
             />
         )}
 
@@ -150,3 +151,4 @@ export default async function ModuleIdPage({
       </>
   );
 }
+
