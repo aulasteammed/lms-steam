@@ -88,7 +88,7 @@ export default async function ModuleIdPage({
                 )}
             </div>
 
-            {module.position === 0 && (
+            {module.position <= 1 && (
                 <div className="px-4 pt-4">
                     <CoursePresentationBanner
                         courseTitle={course.title}
