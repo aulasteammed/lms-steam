@@ -5,14 +5,15 @@ import CourseCertificateUser from "./_components/course-certificate-user";
 import { randomUUID } from "crypto";
 
 interface CertificatePageProps {
-  params: {
+  params: Promise<{
     courseId: string;
-    completionDate: Date;
-  };
+    certificateId: string;
+  }>;
 }
 
 const CertificatePage = async ({ params }: CertificatePageProps) => {
-  console.log("Params:", params);
+  const { courseId } = await params;
+  console.log("Params:", { courseId });
 
   const { userId } = await auth();
   console.log("Auth userId:", userId);
@@ -22,7 +23,7 @@ const CertificatePage = async ({ params }: CertificatePageProps) => {
   console.log("Current user:", user?.id);
   if (!user) return redirect("/sign-in");
 
-  const course = await db.course.findUnique({ where: { id: params.courseId } });
+  const course = await db.course.findUnique({ where: { id: courseId } });
   console.log("Course found:", course);
   if (!course) return <p>No existe el curso</p>;
 
@@ -56,7 +57,7 @@ const CertificatePage = async ({ params }: CertificatePageProps) => {
       data: {
         courseId: course.id,
         userId,
-        certificateUrl: `${params.courseId}-${randomUUID()}`, 
+        certificateUrl: `${courseId}-${randomUUID()}`,
       },
     });
     console.log("Nuevo certificado generado:", certificate);

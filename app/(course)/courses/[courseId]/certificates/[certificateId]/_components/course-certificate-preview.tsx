@@ -15,7 +15,7 @@ interface Props {
   userName: string;
   userEmail?: string;
   logoUrl: string;
-  firma: string;
+  firma?: string;
 }
 
 const pxToMm = (px: number) => {

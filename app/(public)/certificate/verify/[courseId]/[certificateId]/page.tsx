@@ -7,14 +7,14 @@ import { Check, Award, Calendar, User, BookOpen } from "lucide-react";
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
 interface VerifyCertificatePageProps {
-  params: {
+  params: Promise<{
     courseId: string;
     certificateId: string;
-  };
+  }>;
 }
 
 export default async function VerifyCertificatePage({ params }: VerifyCertificatePageProps) {
-  const { courseId, certificateId } = params;
+  const { courseId, certificateId } = await params;
 
   const certificate = await db.certificate.findFirst({
     where: {
