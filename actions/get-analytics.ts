@@ -16,7 +16,6 @@ type RegistrationWithCourse = Registration & {
         developedSkills: string | null;
         level: string | null;
         isPublished: boolean;
-        categoryId: string | null;
     };
 };
 

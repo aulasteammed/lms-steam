@@ -49,6 +49,11 @@ export default async function CourseIdPage(
       userId,
     },
     include: {
+      courseCategories: {
+        include: {
+          category: true,
+        },
+      },
       modules: {
         orderBy: {
           position: "asc",
@@ -79,7 +84,7 @@ export default async function CourseIdPage(
     course.previousSkills,
     course.developedSkills,
     course.imageUrl,
-    course.categoryId,
+    course.courseCategories.length > 0,
     course.modules.some((module: { isPublished: boolean }) => module.isPublished),
     course.price !== null,
   ];
@@ -127,7 +132,7 @@ export default async function CourseIdPage(
               <PreviousSkillsForm initialData={course} courseId={course.id} />
               <DevelopedSkillsForm initialData={course} courseId={course.id} />
               <CategoryForm
-                initialData={course}
+                initialCategoryIds={course.courseCategories.map((courseCategory) => courseCategory.categoryId)}
                 courseId={course.id}
                 options={categories.map((category: { id: string; name: string }) => ({
                   label: category.name,

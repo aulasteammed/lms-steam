@@ -81,6 +81,7 @@ export const SequenceChoiceForm = ({
             await axios.post(
                 `/api/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}/questions`,
                 {
+                    type: "sequence",
                     title: values.question,
                     answers: orderedSteps,
                 }

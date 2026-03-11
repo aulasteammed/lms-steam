@@ -121,7 +121,7 @@ export const TypeForm = ({
                             )}
                         />
                         <div className="flex items-center text-sm gap-x-2">
-                            <span>Cambiar el tipo de evaluación eliminará todas las preguntas y respuestas actuales.</span>
+                            <span>Este tipo funciona como configuración general; puedes mezclar tipos por pregunta.</span>
                         </div>
                         <div className="flex items-center gap-x-2">
                             <Button

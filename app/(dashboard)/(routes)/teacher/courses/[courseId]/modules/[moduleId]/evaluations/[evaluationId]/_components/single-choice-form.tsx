@@ -79,6 +79,7 @@ export const SingleChoiceForm = ({
             await axios.post(
                 `/api/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}/questions`,
                 {
+                    type: "single",
                     title: values.question,
                     answers: values.answers,
                 }

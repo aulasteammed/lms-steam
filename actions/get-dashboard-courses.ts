@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { getProgressBatch } from '@/actions/get-progress-batch';
 
 type CourseWithProgressWithCategory = Course & {
-    category: Category;
+    courseCategories: { category: Category }[];
     modules: Module[];
     progress: number | null;
 };
@@ -25,7 +25,11 @@ export const getDashboardCourses = async (
             select: {
                 course: {
                     include: {
-                        category: true,
+                        courseCategories: {
+                            include: {
+                                category: true,
+                            },
+                        },
                         modules: {
                             where: {
                                 isPublished: true,
@@ -36,9 +40,9 @@ export const getDashboardCourses = async (
             },
         });
 
-        const courses = registeredCourses.map(
-            (r) => r.course
-        ) as CourseWithProgressWithCategory[];
+        const courses = registeredCourses.flatMap((registration) =>
+            registration.course ? [registration.course] : []
+        );
 
         const courseIds = courses.map(course => course.id);
 

@@ -2,7 +2,7 @@ import { Category, Course } from "@prisma/client";
 import { AllCourseCard } from '@/components/all-course-card';
 
 type CourseWithCategory = Course & {
-    category: Category | null;
+    courseCategories: { category: Category }[];
     modules: { id: string }[];
 };
 
@@ -24,7 +24,7 @@ export const AllCoursesList = ({
                         title={item.title}
                         imageUrl={item.imageUrl!}
                         modulesLength={item.modules.length}
-                        category={item?.category?.name!}
+                        categories={item.courseCategories.map((courseCategory) => courseCategory.category.name).join(", ")}
                         level={item.level!}
                     />
                 ))}

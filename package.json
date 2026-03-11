@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "db:seed": "tsx scripts/seed.ts",
+    "db:migrate-course-categories": "tsx scripts/migrate-course-categories.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

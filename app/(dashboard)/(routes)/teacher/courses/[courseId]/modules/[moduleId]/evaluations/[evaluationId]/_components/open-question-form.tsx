@@ -57,6 +57,7 @@ export const OpenQuestionForm = ({
             await axios.post(
                 `/api/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}/questions`,
                 {
+                    type: "open",
                     title: values.question,
                     answers: [
                         {

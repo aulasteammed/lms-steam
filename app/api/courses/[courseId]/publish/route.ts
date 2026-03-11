@@ -28,7 +28,10 @@ export async function PATCH(
                 userId,
             },
             include: {
-                modules: true
+                modules: true,
+                courseCategories: {
+                    select: { id: true },
+                },
             }
         });
 
@@ -38,7 +41,17 @@ export async function PATCH(
 
         const hasPublishedModule = course.modules.some((module) => module.isPublished);
 
-        if (!course.title || !course.description || !course.level || !course.previousSkills || !course.developedSkills || !course.imageUrl || !course.categoryId || !hasPublishedModule || !course.price == null) {
+        if (
+            !course.title ||
+            !course.description ||
+            !course.level ||
+            !course.previousSkills ||
+            !course.developedSkills ||
+            !course.imageUrl ||
+            course.courseCategories.length === 0 ||
+            !hasPublishedModule ||
+            course.price === null
+        ) {
             return new NextResponse("Missing required fields", { status:401 });
         }
 

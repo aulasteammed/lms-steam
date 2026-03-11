@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, Send } from "lucide-react";
-import { EvaluationType } from '@prisma/client';
-import { Key, useMemo } from 'react';
+import { QuestionType } from '@prisma/client';
+import { Key, useEffect, useMemo } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { GripVertical } from 'lucide-react';
+import { normalizeQuestionType } from "@/lib/evaluation";
 
 
 type Answer = {
@@ -22,6 +23,7 @@ type Answer = {
 type Question = {
     id: string;
     title: string;
+    type: QuestionType | null;
     evaluationId: string;
     answers: Answer[];
 };
@@ -29,7 +31,7 @@ type Question = {
 interface QuestionFormProps {
     questions: Question[];
     responses: Record<string, any>;
-    evaluationType: EvaluationType;
+    evaluationTypeFallback: null;
     index: number;
     onChange: (value: any) => void;
     prev: () => void;
@@ -52,7 +54,7 @@ interface QuestionFormProps {
 const QuestionForm = ({
                           questions,
                           responses,
-                          evaluationType,
+                          evaluationTypeFallback,
                           index,
                           onChange,
                           prev,
@@ -61,11 +63,9 @@ const QuestionForm = ({
                           total,
                       }: QuestionFormProps) => {
     const q = questions[index];
-    let answerOrder = responses[q.id];
-
-    if (!answerOrder) {
-        answerOrder = shuffleArray(q.answers.map((a) => a.id));
-    }
+    const currentQuestionType = normalizeQuestionType(q.type, evaluationTypeFallback);
+    const currentResponse = responses[q.id];
+    let answerOrder: string[] = Array.isArray(currentResponse) ? currentResponse : [];
     const list = answerOrder.map((id: string) => ({ id }));
 
 
@@ -73,21 +73,23 @@ const QuestionForm = ({
     const isFormComplete = useMemo(() => {
         return questions.every(question => {
             const response = responses[question.id];
+            const questionType = normalizeQuestionType(question.type, evaluationTypeFallback);
 
-            if (evaluationType === 'multiple') {
+            if (questionType === 'multiple' || questionType === 'sequence') {
                 return Array.isArray(response) && response.length > 0;
             } else {
                 return response !== undefined && response !== '';
             }
         });
-    }, [responses, questions, evaluationType]);
+    }, [responses, questions, evaluationTypeFallback]);
 
     // Calculate progress based on completed answers
     const progressPercent = useMemo(() => {
         const answeredQuestions = questions.filter(question => {
             const response = responses[question.id];
+            const questionType = normalizeQuestionType(question.type, evaluationTypeFallback);
 
-            if (evaluationType === 'multiple') {
+            if (questionType === 'multiple' || questionType === 'sequence') {
                 return Array.isArray(response) && response.length > 0;
             } else {
                 return response !== undefined && response !== '';
@@ -95,7 +97,7 @@ const QuestionForm = ({
         });
 
         return (answeredQuestions.length / total) * 100;
-    }, [responses, questions, total, evaluationType]);
+    }, [responses, questions, total, evaluationTypeFallback]);
 
     function shuffleArray<T>(array: T[]): T[] {
         const shuffled = [...array];
@@ -105,6 +107,37 @@ const QuestionForm = ({
         }
         return shuffled;
     }
+
+    const countMismatches = (a: string[], b: string[]) =>
+        a.reduce((acc, value, idx) => acc + (value !== b[idx] ? 1 : 0), 0);
+
+    // Inicializa preguntas de secuencia en orden aleatorio (nunca el correcto).
+    useEffect(() => {
+        if (currentQuestionType !== "sequence") return;
+        if (Array.isArray(currentResponse) && currentResponse.length > 0) return;
+
+        const correctOrder = q.answers.map((answer) => answer.id);
+
+        if (correctOrder.length <= 1) {
+            onChange(correctOrder);
+            return;
+        }
+
+        let randomized = shuffleArray(correctOrder);
+        let attempts = 0;
+
+        while (attempts < 40 && countMismatches(randomized, correctOrder) < 2) {
+            randomized = shuffleArray(correctOrder);
+            attempts += 1;
+        }
+
+        // Garantiza al menos 2 posiciones incorrectas.
+        if (countMismatches(randomized, correctOrder) < 2) {
+            randomized = [...correctOrder.slice(1), correctOrder[0]];
+        }
+
+        onChange(randomized);
+    }, [currentQuestionType, currentResponse, onChange, q.answers]);
 
     return (
         <div
@@ -128,7 +161,7 @@ const QuestionForm = ({
             </div>
 
             <div className="py-4">
-                {evaluationType === 'single' ? (
+                {currentQuestionType === 'single' ? (
                     <RadioGroup
                         value={responses[q.id] || ''}
                         onValueChange={onChange}
@@ -149,7 +182,7 @@ const QuestionForm = ({
                             </div>
                         ))}
                     </RadioGroup>
-                ) : evaluationType === 'multiple' ? (
+                ) : currentQuestionType === 'multiple' ? (
                     <div className="space-y-3">
                         {q.answers.map((a) => (
                             <div
@@ -174,7 +207,7 @@ const QuestionForm = ({
                             </div>
                         ))}
                     </div>
-                ) : evaluationType === 'sequence' ? (
+                ) : currentQuestionType === 'sequence' ? (
                     <div className="space-y-2">
                         <Label>Ordena los pasos correctamente:</Label>
                         <ReactSortable

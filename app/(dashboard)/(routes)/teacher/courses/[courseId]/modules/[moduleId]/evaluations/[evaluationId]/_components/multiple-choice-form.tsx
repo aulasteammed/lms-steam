@@ -75,6 +75,7 @@ export const MultipleChoiceForm = ({
             await axios.post(
                 `/api/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}/questions`,
                 {
+                    type: "multiple",
                     title: values.question,
                     answers: values.answers,
                 }

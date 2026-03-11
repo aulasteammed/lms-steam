@@ -104,20 +104,67 @@ export async function PATCH(
   try {
     const params = await props.params;
     const { userId } = await auth();
-    const values = await req.json();
+    const payload = await req.json();
+    const {
+      categoryIds,
+      categoryId: _legacyCategoryId,
+      ...values
+    } = payload as {
+      categoryIds?: string[];
+      categoryId?: string;
+      [key: string]: unknown;
+    };
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const course = await db.course.update({
+    const existingCourse = await db.course.findUnique({
       where: {
         id: params.courseId,
         userId,
       },
-      data: {
-        ...values,
-      },
+    });
+
+    if (!existingCourse) {
+      return new NextResponse("Not Found", { status: 404 });
+    }
+
+    const course = await db.$transaction(async (tx) => {
+      const updatedCourse = await tx.course.update({
+        where: {
+          id: params.courseId,
+          userId,
+        },
+        data: {
+          ...values,
+        },
+      });
+
+      if (Array.isArray(categoryIds)) {
+        const uniqueCategoryIds = Array.from(
+          new Set(
+            categoryIds.filter(
+              (id): id is string => typeof id === "string" && id.trim().length > 0
+            )
+          )
+        );
+
+        await tx.courseCategory.deleteMany({
+          where: { courseId: params.courseId },
+        });
+
+        if (uniqueCategoryIds.length > 0) {
+          await tx.courseCategory.createMany({
+            data: uniqueCategoryIds.map((categoryId) => ({
+              courseId: params.courseId,
+              categoryId,
+            })),
+          });
+        }
+      }
+
+      return updatedCourse;
     });
 
     return NextResponse.json(course);
