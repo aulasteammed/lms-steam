@@ -8,6 +8,7 @@ import {
   Newspaper,
   Calendar,
   Award,
+  BookOpen,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SidebarItem } from "./sidebar-item";
@@ -43,6 +44,11 @@ const guestRoutes = [
     label: "Agendate",
     href: "/feed",
   },
+  {
+    icon: BookOpen,
+    label: "Blog",
+    href: "/blog",
+  },
 ];
 
 const authenticatedRoutes = [
@@ -71,6 +77,11 @@ const authenticatedRoutes = [
     label: "Agendate",
     href: "/feed",
   },
+  {
+    icon: BookOpen,
+    label: "Blog",
+    href: "/blog",
+  },
 ];
 
 const teacherRoutes = [
@@ -93,6 +104,11 @@ const teacherRoutes = [
     icon: Calendar,
     label: "Agendate",
     href: "/teacher/feed",
+  },
+  {
+    icon: BookOpen,
+    label: "Blog",
+    href: "/teacher/blog",
   },
 ];
 

@@ -30,7 +30,7 @@ export async function GET(req: Request) {
             take: limit + 1,
             ...(cursor && { cursor: { id: cursor }, skip: 1 }),
             select: {
-                id: true, slug: true, title: true, subtitle: true,
+                id: true, slug: true, title: true, subtitle: true, hookPhrase: true,
                 coverImage: true, authorName: true, authorPhoto: true,
                 template: true, accentColor: true, publishedAt: true,
                 _count: { select: { views: true } },

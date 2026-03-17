@@ -1,16 +1,17 @@
-export type BlockType      = "paragraph" | "pullquote" | "image" | "divider";
+export type BlockType      = "paragraph" | "pullquote" | "image" | "divider" | "list";
 export type ImagePosition  = "fw" | "fl" | "fr";
 export type Template       = "cover_person" | "full_article" | "profile_simple" | "news_short";
 export type SocialPlatform = "instagram" | "facebook" | "linkedin" | "x" | "github" | "website";
 
 export interface Block {
-    id: string;
-    type: BlockType;
-    content?: string;
-    imageUrl?: string;
+    id:            string;
+    type:          BlockType;
+    content?:      string;
+    items?:        string[];   // usado por type === "list"
+    imageUrl?:     string;
     imagePosition?: ImagePosition;
-    caption?: string;
-    position: number;
+    caption?:      string;
+    position:      number;
 }
 
 export const CHAR_LIMITS = {
@@ -19,7 +20,12 @@ export const CHAR_LIMITS = {
     paragraph: 800,
     pullquote: 200,
     caption:   150,
+    listItem:   80,  // máximo por ítem de lista
+    hookPhrase: 80,  // frase de gancho para el feed
 } as const;
+
+export const LIST_ITEM_MIN = 3;   // mínimo de caracteres por ítem
+export const LIST_MAX_ITEMS = 5;  // máximo de ítems por bloque
 
 export const MAX_IMAGES = 3;
 

@@ -2,8 +2,6 @@
 
 import { Template, BlockType, ACCENT_SWATCHES, DARK_SWATCHES, TEMPLATE_LABELS, CHAR_LIMITS, MAX_IMAGES } from "./types";
 
-// ─── Mini template previews ───────────────────────────────────────────────────
-
 function MiniCover({ dark, accent }: { dark: string; accent: string }) {
     return (
         <div className="h-[50px] grid grid-cols-2 overflow-hidden">
@@ -50,14 +48,13 @@ function MiniNews({ accent }: { accent: string }) {
     );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface PanelLeftProps {
-    template:    Template;
-    accentColor: string;
-    darkColor:   string;
-    imageCount:  number; // current image blocks (excluding cover)
-    coverImageUrl: string; // empty string = no cover yet
+    template:      Template;
+    accentColor:   string;
+    darkColor:     string;
+    imageCount:    number;
+    coverImageUrl: string;
+    isLocked:      boolean;
     onTemplateChange:    (t: Template)  => void;
     onAccentColorChange: (c: string)    => void;
     onDarkColorChange:   (c: string)    => void;
@@ -65,28 +62,39 @@ interface PanelLeftProps {
 }
 
 export function PanelLeft({
-    template, accentColor, darkColor, imageCount, coverImageUrl,
+    template, accentColor, darkColor, imageCount, coverImageUrl, isLocked,
     onTemplateChange, onAccentColorChange, onDarkColorChange, onAddBlock,
 }: PanelLeftProps) {
 
-    // Max 3 images total (cover + blocks). Remaining slots for image blocks:
-    const imageBlocksAllowed = MAX_IMAGES - 1 - imageCount; // -1 for cover
-    const canAddImage = imageBlocksAllowed > 0;
+    const imageBlocksAllowed = MAX_IMAGES - 1 - imageCount;
+    const canAddImage        = imageBlocksAllowed > 0;
 
     const BLOCKS: { type: BlockType; icon: string; label: string; disabled?: boolean; hint?: string }[] = [
-        { type: "paragraph", icon: "¶",  label: "Párrafo"   },
-        { type: "image",     icon: "🖼",  label: "Imagen",
+        { type: "paragraph", icon: "¶", label: "Párrafo" },
+        { type: "image",     icon: "🖼", label: "Imagen",
           disabled: !canAddImage,
-          hint: !canAddImage ? `Máx. ${MAX_IMAGES} imágenes (incluida portada)` : `${imageBlocksAllowed} imagen${imageBlocksAllowed !== 1 ? "es" : ""} restante${imageBlocksAllowed !== 1 ? "s" : ""}` },
-        { type: "pullquote", icon: '"',  label: "Pull Quote" },
-        { type: "divider",   icon: "—",  label: "Separador"  },
+          hint: !canAddImage
+            ? `Máx. ${MAX_IMAGES} imágenes (incluida portada)`
+            : `${imageBlocksAllowed} imagen${imageBlocksAllowed !== 1 ? "es" : ""} restante${imageBlocksAllowed !== 1 ? "s" : ""}` },
+        { type: "pullquote", icon: '"', label: "Pull Quote" },
+        { type: "divider",   icon: "—", label: "Separador"  },
+        { type: "list",      icon: "•", label: "Lista"       },
     ];
+
+    const lockedCls = isLocked ? "opacity-40 pointer-events-none select-none" : "";
 
     return (
         <aside className="w-[240px] flex-shrink-0 bg-white border-r border-slate-200 overflow-y-auto flex flex-col min-h-0">
 
-            {/* Plantilla */}
-            <div className="p-4 border-b border-slate-200">
+            {isLocked && (
+                <div className="px-4 py-2.5 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
+                    <span className="text-[11px] text-emerald-700 font-medium leading-tight">
+                        Artículo publicado · solo lectura
+                    </span>
+                </div>
+            )}
+
+            <div className={`p-4 border-b border-slate-200 ${lockedCls}`}>
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3 block">Plantilla</span>
                 <div className="grid grid-cols-2 gap-1.5">
                     {(["cover_person", "full_article", "profile_simple", "news_short"] as Template[]).map((tpl) => (
@@ -110,8 +118,7 @@ export function PanelLeft({
                 </div>
             </div>
 
-            {/* Bloques */}
-            <div className="p-4 border-b border-slate-200">
+            <div className={`p-4 border-b border-slate-200 ${lockedCls}`}>
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3 block">Agregar bloque</span>
                 <div className="flex flex-col gap-1.5">
                     {BLOCKS.map(({ type, icon, label, disabled, hint }) => (
@@ -140,8 +147,7 @@ export function PanelLeft({
                 </div>
             </div>
 
-            {/* Colores */}
-            <div className="p-4 border-b border-slate-200">
+            <div className={`p-4 border-b border-slate-200 ${lockedCls}`}>
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3 block">Colores</span>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
@@ -159,7 +165,6 @@ export function PanelLeft({
                             </label>
                         </div>
                     </div>
-
                     <div className={["flex flex-col gap-1.5 transition-opacity",
                         template !== "cover_person" ? "opacity-30 pointer-events-none" : ""
                     ].join(" ")}>
@@ -182,9 +187,8 @@ export function PanelLeft({
                 </div>
             </div>
 
-            {/* Límites */}
             <div className="p-4 flex-1">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3 block">Límites - carácteres </span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-3 block">Límites - carácteres</span>
                 <div className="text-xs text-slate-500 space-y-0.5">
                     {Object.entries(CHAR_LIMITS).map(([k, v]) => (
                         <div key={k} className="flex justify-between py-1 border-b border-slate-100 last:border-0">
@@ -195,7 +199,7 @@ export function PanelLeft({
                                 k === "paragraph" ? "Párrafo"    :
                                 k === "caption"   ? "Descripción" : k
                             }</span>
-                            <span className="font-medium text-slate-700">{v.toLocaleString()} </span>
+                            <span className="font-medium text-slate-700">{v.toLocaleString()}</span>
                         </div>
                     ))}
                     <div className="flex justify-between py-1 border-b border-slate-100">

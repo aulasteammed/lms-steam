@@ -6,6 +6,16 @@ import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
 import { ArticleStatus } from "@prisma/client";
 
+function buildHookPhrase(source: string): string | null {
+    const text = source.trim().replace(/\s+/g, " ");
+    if (!text) return null;
+    const max = 80;
+    if (text.length <= max) return text;
+    const cut = text.slice(0, max - 1);
+    const lastSpace = cut.lastIndexOf(" ");
+    return (lastSpace > 30 ? cut.slice(0, lastSpace) : cut).trim() + "...";
+}
+
 export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ slug: string }> }
@@ -41,6 +51,10 @@ export async function PATCH(
 
         let status: ArticleStatus;
         let publishedAt: Date | null = article.publishedAt;
+        const generatedHookPhrase =
+            !article.hookPhrase?.trim()
+                ? buildHookPhrase(article.subtitle ?? article.title ?? "")
+                : null;
 
         if (action === "publish") {
             status = ArticleStatus.published;
@@ -56,6 +70,7 @@ export async function PATCH(
             data: {
                 status,
                 ...(publishedAt !== article.publishedAt && { publishedAt }),
+                ...(generatedHookPhrase && { hookPhrase: generatedHookPhrase }),
             },
         });
 

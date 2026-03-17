@@ -6,7 +6,7 @@ import {
     TEMPLATE_LABELS,
     ProgressBar, ImageOverlay, BlockRenderer,
     Byline, PrevNext, KeyboardBar, TopBar,
-    SocialIcon, useReaderState, type ReaderProps,
+    useReaderState, type ReaderProps,
 } from "./shared";
 
 export function ReaderProfileSimple({ article, viewCount, articleId, prev, next }: ReaderProps) {
@@ -26,7 +26,7 @@ export function ReaderProfileSimple({ article, viewCount, articleId, prev, next 
     } = useReaderState({ articleId, blocks, prev, next, router });
 
     return (
-        <div id="reader-scroll" className="h-screen overflow-y-auto" style={{ background: "#fafaf8" }}>
+        <div id="reader-scroll" className="min-h-full" style={{ background: "#fafaf8" }}>
             <ProgressBar accent={accent} />
             <TopBar article={article} focusMode={focusMode} onToggleFocus={() => setFocusMode(v => !v)} />
 

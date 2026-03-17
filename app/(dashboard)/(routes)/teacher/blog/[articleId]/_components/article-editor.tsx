@@ -21,6 +21,7 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
     // ── State ──────────────────────────────────────────────────────────────────
     const [title,                setTitle]                = useState(article.title);
     const [subtitle,             setSubtitle]             = useState(article.subtitle ?? "");
+    const [hookPhrase,           setHookPhrase]           = useState(article.hookPhrase ?? "");
     const [authorName,           setAuthorName]           = useState(article.authorName);
     const [authorBio,            setAuthorBio]            = useState(article.authorBio ?? "");
     const [authorPhoto,          setAuthorPhoto]          = useState(article.authorPhoto ?? "");
@@ -44,12 +45,14 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
     const [dragOver,     setDragOver]     = useState<string | null>(null);
 
     const saveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
-    // Slug actual en ref — no dispara re-renders pero siempre tiene el valor
-    // mas reciente, incluso despues de que el servidor lo regenere
     const currentSlug = useRef<string>(article.slug);
 
-    // ── Auto-save ──────────────────────────────────────────────────────────────
+    // Artículo publicado = solo lectura, no se puede editar
+    const isLocked = status === "published";
+
+    // ── Auto-save — solo si no está bloqueado ──────────────────────────────────
     const triggerSave = useCallback(() => {
+        if (isLocked) return;
         if (saveTimer.current) clearTimeout(saveTimer.current);
         saveTimer.current = setTimeout(async () => {
             try {
@@ -57,7 +60,7 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 const res = await axios.put(
                     `/api/blog/articles/${currentSlug.current}`,
                     {
-                        title, subtitle,
+                        title, subtitle, hookPhrase,
                         authorName, authorBio, authorPhoto,
                         authorSocialPlatform: authorSocialPlatform || null,
                         authorSocialUrl:      authorSocialUrl      || null,
@@ -66,17 +69,10 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                         blocks: blocks.map((b, i) => ({ ...b, position: i })),
                     }
                 );
-
-                // El servidor regenera el slug cuando el articulo es borrador
-                // y el titulo cambia — actualizar URL sin recargar la pagina
                 if (res.data.newSlug && res.data.newSlug !== currentSlug.current) {
                     currentSlug.current = res.data.newSlug;
-                    router.replace(
-                        `/teacher/blog/${res.data.newSlug}`,
-                        { scroll: false }
-                    );
+                    router.replace(`/teacher/blog/${res.data.newSlug}`, { scroll: false });
                 }
-
                 setLastSaved(new Date());
             } catch {
                 toast.error("Error al guardar");
@@ -85,36 +81,45 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
             }
         }, 1500);
     }, [
-        title, subtitle, authorName, authorBio, authorPhoto,
+        isLocked,
+        title, subtitle, hookPhrase, authorName, authorBio, authorPhoto,
         coverImage, authorSocialPlatform, authorSocialUrl,
         template, accentColor, darkColor, blocks,
     ]);
 
     useEffect(() => { triggerSave(); }, [triggerSave]);
 
-    // ── Block operations ───────────────────────────────────────────────────────
+    // ── Block operations — no-op si está bloqueado ─────────────────────────────
     const imageBlockCount = blocks.filter((b) => b.type === "image").length;
 
     const addBlock = (type: BlockType) => {
+        if (isLocked) return;
         if (type === "image" && imageBlockCount + 1 >= MAX_IMAGES) {
             toast.error(`Maximo ${MAX_IMAGES} imagenes por articulo (incluida la portada)`);
             return;
         }
         setBlocks((prev) => [...prev, {
-            id: uid(), type,
-            content: "",
+            id:            uid(),
+            type,
+            content:       "",
+            items:         type === "list" ? [""] : undefined,
             imagePosition: type === "image" ? "fw" : undefined,
-            position: prev.length,
+            position:      prev.length,
         }]);
     };
 
-    const updateBlock = (id: string, patch: Partial<Block>) =>
+    const updateBlock = (id: string, patch: Partial<Block>) => {
+        if (isLocked) return;
         setBlocks((prev) => prev.map((b) => b.id === id ? { ...b, ...patch } : b));
+    };
 
-    const removeBlock = (id: string) =>
+    const removeBlock = (id: string) => {
+        if (isLocked) return;
         setBlocks((prev) => prev.filter((b) => b.id !== id));
+    };
 
     const moveBlock = (id: string, dir: -1 | 1) => {
+        if (isLocked) return;
         setBlocks((prev) => {
             const idx    = prev.findIndex((b) => b.id === id);
             const newIdx = idx + dir;
@@ -125,10 +130,11 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
         });
     };
 
-    const onDragStart = (id: string) => setDragging(id);
-    const onDragOver  = (id: string) => setDragOver(id);
+    const onDragStart = (id: string) => { if (!isLocked) setDragging(id); };
+    const onDragEnd   = ()            => { setDragging(null); setDragOver(null); };
+    const onDragOver  = (id: string) => { if (!isLocked) setDragOver(id); };
     const onDrop      = (id: string) => {
-        if (!dragging || dragging === id) return;
+        if (isLocked || !dragging || dragging === id) return;
         setBlocks((prev) => {
             const from = prev.findIndex((b) => b.id === dragging);
             const to   = prev.findIndex((b) => b.id === id);
@@ -176,19 +182,20 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
     };
 
     // ── Derived ────────────────────────────────────────────────────────────────
-    const canPublish   = !!(title.trim() && authorName.trim() && coverImage);
-    const dragHandlers = { onDragStart, onDragOver, onDrop };
+    const canPublish   = !isLocked && !!(title.trim() && authorName.trim() && coverImage);
+    const dragHandlers = { onDragStart, onDragEnd, onDragOver, onDrop };
     const dragState    = { dragging, dragOver };
 
     const canvasProps: TemplateProps = {
-        title, subtitle,
+        title, subtitle, 
         authorName, authorBio, authorPhoto,
         authorSocialPlatform, authorSocialUrl,
         coverImageUrl: coverImage,
         accentColor,
-        onTitleChange:    setTitle,
-        onSubtitleChange: setSubtitle,
-        onCoverUpload:    setCoverImage,
+        // Si está bloqueado, los handlers de edición son no-op
+        onTitleChange:    isLocked ? () => {} : setTitle,
+        onSubtitleChange: isLocked ? () => {} : setSubtitle,
+        onCoverUpload:    isLocked ? () => {} : setCoverImage,
         blocks,
         onBlockUpdate: updateBlock,
         onBlockRemove: removeBlock,
@@ -206,9 +213,10 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 darkColor={darkColor}
                 imageCount={imageBlockCount}
                 coverImageUrl={coverImage}
-                onTemplateChange={setTemplate}
-                onAccentColorChange={setAccentColor}
-                onDarkColorChange={setDarkColor}
+                isLocked={isLocked}
+                onTemplateChange={isLocked ? () => {} : setTemplate}
+                onAccentColorChange={isLocked ? () => {} : setAccentColor}
+                onDarkColorChange={isLocked ? () => {} : setDarkColor}
                 onAddBlock={addBlock}
             />
 
@@ -218,6 +226,7 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 darkColor={darkColor}
                 isSaving={isSaving}
                 lastSaved={lastSaved}
+                isLocked={isLocked}
             />
 
             <PanelRight
@@ -231,16 +240,19 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 status={status}
                 viewCount={article._count.views}
                 coverImageUrl={coverImage}
+                hookPhrase={hookPhrase}
                 isPublishing={isPublishing}
                 isDeleting={isDeleting}
+                isLocked={isLocked}
                 canPublish={canPublish}
-                onTitleChange={setTitle}
-                onSubtitleChange={setSubtitle}
-                onAuthorNameChange={setAuthorName}
-                onAuthorBioChange={setAuthorBio}
-                onAuthorPhotoChange={setAuthorPhoto}
-                onAuthorSocialPlatformChange={setAuthorSocialPlatform}
-                onAuthorSocialUrlChange={setAuthorSocialUrl}
+                onTitleChange={isLocked ? () => {} : setTitle}
+                onSubtitleChange={isLocked ? () => {} : setSubtitle}
+                onHookPhraseChange={isLocked ? () => {} : setHookPhrase}
+                onAuthorNameChange={isLocked ? () => {} : setAuthorName}
+                onAuthorBioChange={isLocked ? () => {} : setAuthorBio}
+                onAuthorPhotoChange={isLocked ? () => {} : setAuthorPhoto}
+                onAuthorSocialPlatformChange={isLocked ? () => {} : setAuthorSocialPlatform}
+                onAuthorSocialUrlChange={isLocked ? () => {} : setAuthorSocialUrl}
                 onPublish={handlePublish}
                 onDelete={handleDelete}
                 onGoToList={() => router.push("/teacher/blog")}

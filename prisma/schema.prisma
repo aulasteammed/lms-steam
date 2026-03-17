@@ -226,3 +226,63 @@ model Event {
   createdAt     DateTime  @default(now())
 }
 
+enum ArticleStatus {
+  draft
+  published
+  archived
+}
+
+enum ArticleTemplate {
+  cover_person
+  full_article
+  profile_simple
+  news_short
+}
+
+enum SocialPlatform {
+  instagram
+  facebook
+  linkedin
+  x
+  github
+  website
+}
+
+model Article {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  slug         String          @unique
+
+  title        String
+  subtitle     String?
+  hookPhrase   String?
+  coverImage   String? 
+
+  authorName            String
+  authorBio             String?
+  authorPhoto           String?         
+  authorSocialPlatform  SocialPlatform?
+  authorSocialUrl       String?
+
+  template     ArticleTemplate  @default(cover_person)
+  accentColor  String           @default("#e8622a")
+  darkColColor String           @default("#12110f")
+
+  blocks       Json[]
+
+  //publishedBy  String
+
+  status       ArticleStatus   @default(draft)
+  publishedAt  DateTime?
+  views        ArticleView[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model ArticleView {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  articleId String   @db.ObjectId
+  article   Article  @relation(fields: [articleId], references: [id])
+  userId    String?  
+  sessionId String? 
+  viewedAt  DateTime @default(now())
+}

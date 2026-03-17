@@ -26,7 +26,7 @@ export function ReaderFullArticle({ article, viewCount, articleId, prev, next }:
     } = useReaderState({ articleId, blocks, prev, next, router });
 
     return (
-        <div id="reader-scroll" className="h-screen overflow-y-auto" style={{ background: "#fafaf8" }}>
+        <div id="reader-scroll" className="min-h-full" style={{ background: "#fafaf8" }}>
             <ProgressBar accent={accent} />
             <TopBar article={article} focusMode={focusMode} onToggleFocus={() => setFocusMode(v => !v)} />
 
