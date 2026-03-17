@@ -55,8 +55,9 @@ export const Actions = ({
             toast.success("Curso eliminado exitosamente");
             router.refresh();
             router.push(`/teacher/courses`);
-        } catch {
-            toast.error("Algo salió mal");
+        } catch (error: any) {
+            const message = error?.response?.data;
+            toast.error(typeof message === "string" ? message : "Algo salió mal");
         } finally {
             setIsLoaded(false);
         }

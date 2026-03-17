@@ -34,18 +34,26 @@ export async function POST(
 
         const result = await db.$transaction(async (tx) => {
             if (typeChanged) {
-                await tx.answer.deleteMany({
-                    where: {
-                        question: {
-                            evaluationId: params.evaluationId,
-                        },
-                    },
+                const questionsToReset = await tx.question.findMany({
+                    where: { evaluationId: params.evaluationId },
+                    select: { id: true },
                 });
+                const resetQuestionIds = questionsToReset.map((q) => q.id);
 
-                await tx.question.deleteMany({
-                    where: {
-                        evaluationId: params.evaluationId,
-                    },
+                if (resetQuestionIds.length > 0) {
+                    await tx.selectedAnswer.deleteMany({
+                        where: { questionId: { in: resetQuestionIds } },
+                    });
+                    await tx.answer.deleteMany({
+                        where: { questionId: { in: resetQuestionIds } },
+                    });
+                    await tx.question.deleteMany({
+                        where: { evaluationId: params.evaluationId },
+                    });
+                }
+
+                await tx.evaluationResult.deleteMany({
+                    where: { evaluationId: params.evaluationId },
                 });
             }
 
@@ -151,24 +159,25 @@ export async function DELETE(
             const questionIds = questions.map((q) => q.id);
 
             if (questionIds.length > 0) {
-                await tx.answer.deleteMany({
-                    where: {
-                        questionId: { in: questionIds },
-                    },
-                });
-
-                await tx.question.deleteMany({
-                    where: {
-                        id: { in: questionIds },
-                    },
+                // SelectedAnswer references both Question and EvaluationResult — must go first
+                await tx.selectedAnswer.deleteMany({
+                    where: { questionId: { in: questionIds } },
                 });
             }
 
             await tx.evaluationResult.deleteMany({
-                where: {
-                    evaluationId: params.evaluationId,
-                },
+                where: { evaluationId: params.evaluationId },
             });
+
+            if (questionIds.length > 0) {
+                await tx.answer.deleteMany({
+                    where: { questionId: { in: questionIds } },
+                });
+
+                await tx.question.deleteMany({
+                    where: { id: { in: questionIds } },
+                });
+            }
 
             await tx.evaluation.delete({
                 where: {

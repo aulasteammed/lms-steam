@@ -1,4 +1,6 @@
 
+export const dynamic = "force-dynamic";
+
 import { getCertificatesFacets } from "@/actions/get-certificates-facets";
 import CertificatesManagerClient from "./_components/certificate-manager-client";
 

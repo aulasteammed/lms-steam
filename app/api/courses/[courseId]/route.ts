@@ -36,36 +36,45 @@ export async function DELETE(
       return new NextResponse("Not Found", { status: 404 });
     }
 
-    // Delete all modules related to the course
-    for (const module of course.modules) {
-      // Delete user progress related to the module
-      await db.userProgress.deleteMany({
-        where: {
-          moduleId: module.id,
-        },
-      });
+    const certificateCount = await db.certificate.count({
+      where: { courseId: params.courseId },
+    });
+
+    if (certificateCount > 0) {
+      return new NextResponse(
+        "No se puede eliminar el curso porque al menos un estudiante lo ha completado.",
+        { status: 403 }
+      );
     }
 
-    // Delete the modules from the database
-    await db.module.deleteMany({
-      where: {
-        courseId: params.courseId,
-      },
-    });
+    const moduleIds = course.modules.map((m) => m.id);
 
-    // Delete any attachments related to the course
-    await db.attachment.deleteMany({
-      where: {
-        courseId: params.courseId,
-      },
+    // Get all evaluations for these modules
+    const evaluations = await db.evaluation.findMany({
+      where: { moduleId: { in: moduleIds } },
+      select: { id: true },
     });
+    const evaluationIds = evaluations.map((e) => e.id);
 
-    // Delete the registrations related to the course
-    await db.registration.deleteMany({
-      where: {
-        courseId: params.courseId,
-      },
+    // Get all questions for these evaluations
+    const questions = await db.question.findMany({
+      where: { evaluationId: { in: evaluationIds } },
+      select: { id: true },
     });
+    const questionIds = questions.map((q) => q.id);
+
+    // Delete in dependency order
+    await db.selectedAnswer.deleteMany({ where: { questionId: { in: questionIds } } });
+    await db.evaluationResult.deleteMany({ where: { evaluationId: { in: evaluationIds } } });
+    await db.answer.deleteMany({ where: { questionId: { in: questionIds } } });
+    await db.question.deleteMany({ where: { evaluationId: { in: evaluationIds } } });
+    await db.evaluation.deleteMany({ where: { moduleId: { in: moduleIds } } });
+    await db.userProgress.deleteMany({ where: { moduleId: { in: moduleIds } } });
+    await db.module.deleteMany({ where: { courseId: params.courseId } });
+    await db.attachment.deleteMany({ where: { courseId: params.courseId } });
+    await db.registration.deleteMany({ where: { courseId: params.courseId } });
+    await db.certificate.deleteMany({ where: { courseId: params.courseId } });
+    await db.rating.deleteMany({ where: { courseId: params.courseId } });
 
     // Finally, delete the course itself
     const deletedCourse = await db.course.delete({
