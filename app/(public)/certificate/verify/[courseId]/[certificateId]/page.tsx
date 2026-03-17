@@ -7,14 +7,14 @@ import { Check, Award, Calendar, User, BookOpen } from "lucide-react";
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
 interface VerifyCertificatePageProps {
-  params: {
+  params: Promise<{
     courseId: string;
     certificateId: string;
-  };
+  }>;
 }
 
 export default async function VerifyCertificatePage({ params }: VerifyCertificatePageProps) {
-  const { courseId, certificateId } = params;
+  const { courseId, certificateId } = await params;
 
   const certificate = await db.certificate.findFirst({
     where: {
@@ -162,8 +162,9 @@ export default async function VerifyCertificatePage({ params }: VerifyCertificat
                 level={course.level ?? "Básico"}
                 completionDate={userProgress.updatedAt}
                 userName={fullName}
-                logoUrl="/IdentificadorAulaSTEAM.png"
-              />
+                logoUrl="/IdentificadorAulaSTEAM.png" 
+                firma="/firmaMonicaVallejo.png"            
+                />
             </div>
           </div>
         </div>
@@ -171,7 +172,7 @@ export default async function VerifyCertificatePage({ params }: VerifyCertificat
         {/* Footer informativo compacto */}
         <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
           <p className="text-xs text-emerald-800">
-            <span className="font-semibold">🔒 Verificación segura:</span> Esta constancia ha sido emitida y verificada por el AulaSTEAM. 
+            <span className="font-semibold"> Verificación segura:</span> Esta constancia ha sido emitida y verificada por el AulaSTEAM. 
             Puedes compartir este enlace para demostrar la autenticidad.
           </p>
         </div>
