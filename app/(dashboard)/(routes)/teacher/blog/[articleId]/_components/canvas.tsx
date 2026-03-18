@@ -579,7 +579,12 @@ function CanvasFullArticle({
                 className="text-sm italic text-slate-400 mb-5" />
             <AuthorByline authorName={authorName} authorBio={authorBio} authorPhoto={authorPhoto}
                 authorSocialPlatform={authorSocialPlatform} authorSocialUrl={authorSocialUrl} accent={accentColor} />
-            <div className="mt-5"><BlockList {...shared} accentColor={accentColor} isLocked={isLocked} /></div>
+            <div className="mt-5">
+                <div style={{ columnCount: 2, columnGap: "36px", columnRule: "1px solid #e2ddd8" }}>
+                    <BlockList {...shared} accentColor={accentColor} isLocked={isLocked} />
+                    <div style={{ clear: "both" }} />
+                </div>
+            </div>
         </div>
     );
 }

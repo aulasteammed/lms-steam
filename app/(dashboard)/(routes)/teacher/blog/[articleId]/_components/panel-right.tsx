@@ -28,6 +28,8 @@ interface PanelRightProps {
     isDeleting:           boolean;
     isLocked:             boolean;
     canPublish:           boolean;
+    hasValidTextBlock:    boolean;
+    hasBodyImage:         boolean;
     onHookPhraseChange:          (v: string)              => void;
     onTitleChange:               (v: string)              => void;
     onSubtitleChange:            (v: string)              => void;
@@ -122,7 +124,7 @@ function AuthorPhotoField({ authorPhoto, authorName, initials, isLocked, onAutho
 export function PanelRight({
     title, subtitle, hookPhrase, authorName, authorBio, authorPhoto, authorSocialPlatform, authorSocialUrl,
     status, viewCount, coverImageUrl,
-    isPublishing, isDeleting, isLocked, canPublish,
+    isPublishing, isDeleting, isLocked, canPublish, hasValidTextBlock, hasBodyImage,
     onHookPhraseChange, onTitleChange, onSubtitleChange, onAuthorNameChange, onAuthorBioChange,
     onAuthorPhotoChange, onAuthorSocialPlatformChange, onAuthorSocialUrlChange,
     onPublish, onDelete, onGoToList,
@@ -142,6 +144,8 @@ export function PanelRight({
     if (!title.trim())      publishBlockers.push("título");
     if (!authorName.trim()) publishBlockers.push("nombre del autor");
     if (!coverImageUrl)     publishBlockers.push("foto de portada");
+    if (!hasValidTextBlock && !hasBodyImage)
+        publishBlockers.push("contenido (parrafo, lista o imagen)");
 
     const initials = authorName ? authorName.slice(0, 2).toUpperCase() : "AU";
 

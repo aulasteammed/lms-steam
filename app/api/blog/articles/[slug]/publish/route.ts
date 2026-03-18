@@ -45,8 +45,23 @@ export async function PATCH(
                 return new NextResponse("Cannot publish: missing title", { status: 400 });
             if (!article.authorName?.trim())
                 return new NextResponse("Cannot publish: missing author name", { status: 400 });
-            if (!article.blocks || (article.blocks as unknown[]).length === 0)
+            const blocks = Array.isArray(article.blocks) ? (article.blocks as any[]) : [];
+            if (blocks.length === 0)
                 return new NextResponse("Cannot publish: no content blocks", { status: 400 });
+
+            const hasValidParagraph = blocks.some((b) =>
+                b?.type === "paragraph" && typeof b.content === "string" && b.content.trim().length >= 10
+            );
+            const hasValidList = blocks.some((b) =>
+                b?.type === "list" &&
+                Array.isArray(b.items) &&
+                b.items.some((i: unknown) => typeof i === "string" && i.trim().length >= 3)
+            );
+            const hasBodyImage = blocks.some((b) =>
+                b?.type === "image" && typeof b.imageUrl === "string" && b.imageUrl.trim().length > 0
+            );
+            if (!hasValidParagraph && !hasValidList && !hasBodyImage)
+                return new NextResponse("Cannot publish: missing valid content", { status: 400 });
         }
 
         let status: ArticleStatus;

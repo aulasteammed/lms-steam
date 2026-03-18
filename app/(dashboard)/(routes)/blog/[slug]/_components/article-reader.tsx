@@ -5,8 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { SocialIcon } from "../../_components/social-icons";
-import { normalizeSocialPlatform } from "../../_components/social-icons";
+import { Byline } from "./readers/shared";
 
 // ── Constants ─────────────────────────────────────────────────
 const MONO  = "var(--font-mono, 'IBM Plex Mono', monospace)";
@@ -33,6 +32,7 @@ type Article = {
     coverImage:           string | null;
     authorName:           string;
     authorBio:            string | null;
+    authorPhoto:          string | null;
     authorSocialPlatform: string | null;
     authorSocialUrl:      string | null;
     template:             string;
@@ -189,8 +189,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
     const router = useRouter();
     const endRef = useRef<HTMLDivElement>(null);
     const viewRecorded = useRef(false);
-    const normalizedPlatform = normalizeSocialPlatform(article.authorSocialPlatform);
-
 
     const blocks = (Array.isArray(article.blocks) ? article.blocks as Block[] : [])
         .sort((a, b) => a.position - b.position);
@@ -362,42 +360,13 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                 )}
 
                 {/* Byline */}
-                <div className="flex items-start gap-3 py-4 border-t border-b border-[#e2ddd8] mb-9">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                        style={{ background: accent }}>
-                        {article.authorName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
-                    </div>
-                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                        <span className="text-[13px] font-semibold text-[#12110f]">{article.authorName}</span>
-                        {normalizedPlatform && article.authorSocialUrl && (
-                            <span
-                                className="flex items-center gap-1.5 text-[11px] text-[#8a8682] w-fit"
-                                style={{ fontFamily: MONO }}>
-                                
-                                <SocialIcon platform={normalizedPlatform} />
-                                
-                                <span className="truncate">{article.authorSocialUrl}</span>
-                            </span>
-                        )}                       
-                        {article.authorBio && (
-                            <span className="text-[11px] text-[#8a8682] leading-relaxed mt-0.5">{article.authorBio}</span>
-                        )}
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                        <div className="text-[11px] text-[#8a8682]" style={{ fontFamily: MONO }}>
-                            {article.publishedAt
-                                ? new Date(article.publishedAt).toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
-                                : ""}
-                        </div>
-                        <div className={["flex items-center justify-end gap-1 text-[10px] mt-1 transition-colors",
-                            viewDone ? "text-[#e8622a]" : "text-[#8a8682]"].join(" ")}
-                            style={{ fontFamily: MONO }}>
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                            </svg>
-                            {(viewCount + (viewDone ? 1 : 0)).toLocaleString("es-CO")} vistas
-                        </div>
-                    </div>
+                <div className="mb-9" style={{ fontFamily: MONO }}>
+                    <Byline
+                        article={article}
+                        viewCount={viewCount}
+                        viewDelta={viewDone ? 1 : 0}
+                        highlightViews={viewDone}
+                    />
                 </div>
 
                 {/* Cover */}

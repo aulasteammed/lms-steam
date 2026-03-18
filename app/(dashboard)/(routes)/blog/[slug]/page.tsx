@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { ArticleReader } from "./_components/article-reader";
+import { ReaderCoverPerson } from "./_components/readers/reader-cover-person";
+import { ReaderFullArticle } from "./_components/readers/reader-full-article";
+import { ReaderNewsShort } from "./_components/readers/reader-news-short";
+import { ReaderProfileSimple } from "./_components/readers/reader-profile-simple";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -38,8 +41,14 @@ export default async function BlogArticlePage({ params }: Props) {
         }),
     ]);
 
+    const Reader =
+        article.template === "cover_person"   ? ReaderCoverPerson
+        : article.template === "profile_simple" ? ReaderProfileSimple
+        : article.template === "news_short"     ? ReaderNewsShort
+        : ReaderFullArticle;
+
     return (
-        <ArticleReader
+        <Reader
             article={article as any}
             viewCount={article._count.views}
             articleId={article.id}

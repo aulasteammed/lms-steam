@@ -1,4 +1,6 @@
 "use client";
+// app/(blog)/blog/[slug]/_components/readers/reader-news-short.tsx
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -26,7 +28,7 @@ export function ReaderNewsShort({ article, viewCount, articleId, prev, next }: R
     } = useReaderState({ articleId, blocks, prev, next, router });
 
     return (
-        <div id="reader-scroll" className="min-h-full" style={{ background: "#fafaf8" }}>
+        <div style={{ background: "#fafaf8" }}>
             <ProgressBar accent={accent} />
             <TopBar article={article} focusMode={focusMode} onToggleFocus={() => setFocusMode(v => !v)} />
 
@@ -82,7 +84,7 @@ export function ReaderNewsShort({ article, viewCount, articleId, prev, next }: R
                 )}
 
                 {/* ── Content — compact 2-column newspaper grid ── */}
-                <div style={{ columnCount: 2, columnGap: "36px", columnRule: "1px solid #e2ddd8" }}>
+                <div>
                     {blocks.map(block => (
                         <BlockRenderer key={block.id} block={block} accent={accent}
                             paragraphFocused={getParagraphFocused(block)} onImageClick={openImg} />

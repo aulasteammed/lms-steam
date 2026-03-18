@@ -6,11 +6,7 @@ import { isTeacher } from "@/lib/teacher";
 
 import { ArticleEditor } from "./_components/article-editor";
 
-/**
- * Teacher Article Editor Page.
- * El folder en disco puede seguir llamándose [articleId] o [slug] —
- * lo que importa es que buscamos por slug, no por id.
- */
+
 export default async function ArticleIdPage(
     props: { params: Promise<{ articleId: string }> }
 ) {

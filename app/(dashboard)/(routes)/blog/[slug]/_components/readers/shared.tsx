@@ -196,16 +196,25 @@ export function BlockRenderer({ block, accent, paragraphFocused, onImageClick }:
 
 // ── Byline ────────────────────────────────────────────────────
 
-export function Byline({ article, viewCount, dark = false }: {
+export function Byline({
+    article,
+    viewCount,
+    dark = false,
+    viewDelta = 0,
+    highlightViews = false,
+}: {
     article:   Article;
     viewCount: number;
     dark?:     boolean;
+    viewDelta?: number;
+    highlightViews?: boolean;
 }) {
     const normalizedPlatform = normalizeSocialPlatform(article.authorSocialPlatform);
     const initials = article.authorName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
     const border   = dark ? "border-white/15"  : "border-[#e2ddd8]";
     const nameCol  = dark ? "text-white"        : "text-[#12110f]";
     const metaCol  = dark ? "text-white/50"     : "text-[#8a8682]";
+    const totalViews = viewCount + viewDelta;
 
     return (
         <div className={`flex items-start gap-3 py-4 border-t border-b ${border}`}>
@@ -240,11 +249,14 @@ export function Byline({ article, viewCount, dark = false }: {
                         })
                         : ""}
                 </div>
-                <div className={`flex items-center justify-end gap-1 text-[10px] ${metaCol} mt-1`}>
+                <div
+                    className={`flex items-center justify-end gap-1 text-[10px] ${highlightViews ? "" : metaCol} mt-1`}
+                    style={highlightViews ? { color: article.accentColor } : undefined}
+                >
                     <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                     </svg>
-                    {viewCount.toLocaleString("es-CO")} vistas
+                    {totalViews.toLocaleString("es-CO")} vistas
                 </div>
             </div>
         </div>

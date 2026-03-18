@@ -6,7 +6,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import type { Article } from "@prisma/client";
 
-import { Block, BlockType, Template, SocialPlatform, uid, MAX_IMAGES } from "./types";
+import { Block, BlockType, Template, SocialPlatform, uid, MAX_IMAGES, LIST_ITEM_MIN } from "./types";
 import { PanelLeft }                   from "./panel-left";
 import { ArticleCanvas, TemplateProps } from "./canvas";
 import { PanelRight }                  from "./panel-right";
@@ -182,7 +182,23 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
     };
 
     // ── Derived ────────────────────────────────────────────────────────────────
-    const canPublish   = !isLocked && !!(title.trim() && authorName.trim() && coverImage);
+    const PARAGRAPH_MIN = 10;
+    const hasValidParagraph = blocks.some((b) =>
+        b.type === "paragraph" && (b.content ?? "").trim().length >= PARAGRAPH_MIN
+    );
+    const hasValidList = blocks.some((b) =>
+        b.type === "list" && Array.isArray(b.items) && b.items.some((i) => (i ?? "").trim().length >= LIST_ITEM_MIN)
+    );
+    const hasValidTextBlock = hasValidParagraph || hasValidList;
+    const hasBodyImage = blocks.some((b) => b.type === "image" && (b.imageUrl ?? "").trim().length > 0);
+    const hasValidContent = hasValidTextBlock || hasBodyImage;
+
+    const canPublish = !isLocked && !!(
+        title.trim() &&
+        authorName.trim() &&
+        coverImage &&
+        hasValidContent
+    );
     const dragHandlers = { onDragStart, onDragEnd, onDragOver, onDrop };
     const dragState    = { dragging, dragOver };
 
@@ -245,6 +261,8 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 isDeleting={isDeleting}
                 isLocked={isLocked}
                 canPublish={canPublish}
+                hasValidTextBlock={hasValidTextBlock}
+                hasBodyImage={hasBodyImage}
                 onTitleChange={isLocked ? () => {} : setTitle}
                 onSubtitleChange={isLocked ? () => {} : setSubtitle}
                 onHookPhraseChange={isLocked ? () => {} : setHookPhrase}
