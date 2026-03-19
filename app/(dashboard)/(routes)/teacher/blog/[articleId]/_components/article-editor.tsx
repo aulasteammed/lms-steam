@@ -222,7 +222,7 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
 
     // ── Render ─────────────────────────────────────────────────────────────────
     return (
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-hidden h-full">
             <PanelLeft
                 template={template}
                 accentColor={accentColor}
@@ -236,45 +236,51 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 onAddBlock={addBlock}
             />
 
-            <ArticleCanvas
-                {...canvasProps}
-                template={template}
-                darkColor={darkColor}
-                isSaving={isSaving}
-                lastSaved={lastSaved}
-                isLocked={isLocked}
-            />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="flex min-h-0">
+                    <div className="flex-1 min-h-0">
+                        <ArticleCanvas
+                            {...canvasProps}
+                            template={template}
+                            darkColor={darkColor}
+                            isSaving={isSaving}
+                            lastSaved={lastSaved}
+                            isLocked={isLocked}
+                        />
+                    </div>
 
-            <PanelRight
-                title={title}
-                subtitle={subtitle}
-                authorName={authorName}
-                authorBio={authorBio}
-                authorPhoto={authorPhoto}
-                authorSocialPlatform={authorSocialPlatform}
-                authorSocialUrl={authorSocialUrl}
-                status={status}
-                viewCount={article._count.views}
-                coverImageUrl={coverImage}
-                hookPhrase={hookPhrase}
-                isPublishing={isPublishing}
-                isDeleting={isDeleting}
-                isLocked={isLocked}
-                canPublish={canPublish}
-                hasValidTextBlock={hasValidTextBlock}
-                hasBodyImage={hasBodyImage}
-                onTitleChange={isLocked ? () => {} : setTitle}
-                onSubtitleChange={isLocked ? () => {} : setSubtitle}
-                onHookPhraseChange={isLocked ? () => {} : setHookPhrase}
-                onAuthorNameChange={isLocked ? () => {} : setAuthorName}
-                onAuthorBioChange={isLocked ? () => {} : setAuthorBio}
-                onAuthorPhotoChange={isLocked ? () => {} : setAuthorPhoto}
-                onAuthorSocialPlatformChange={isLocked ? () => {} : setAuthorSocialPlatform}
-                onAuthorSocialUrlChange={isLocked ? () => {} : setAuthorSocialUrl}
-                onPublish={handlePublish}
-                onDelete={handleDelete}
-                onGoToList={() => router.push("/teacher/blog")}
-            />
+                    <PanelRight
+                        title={title}
+                        subtitle={subtitle}
+                        authorName={authorName}
+                        authorBio={authorBio}
+                        authorPhoto={authorPhoto}
+                        authorSocialPlatform={authorSocialPlatform}
+                        authorSocialUrl={authorSocialUrl}
+                        status={status}
+                        viewCount={article._count.views}
+                        coverImageUrl={coverImage}
+                        hookPhrase={hookPhrase}
+                        isPublishing={isPublishing}
+                        isDeleting={isDeleting}
+                        isLocked={isLocked}
+                        canPublish={canPublish}
+                        hasValidTextBlock={hasValidTextBlock}
+                        hasBodyImage={hasBodyImage}
+                        onTitleChange={isLocked ? () => {} : setTitle}
+                        onSubtitleChange={isLocked ? () => {} : setSubtitle}
+                        onHookPhraseChange={isLocked ? () => {} : setHookPhrase}
+                        onAuthorNameChange={isLocked ? () => {} : setAuthorName}
+                        onAuthorBioChange={isLocked ? () => {} : setAuthorBio}
+                        onAuthorPhotoChange={isLocked ? () => {} : setAuthorPhoto}
+                        onAuthorSocialPlatformChange={isLocked ? () => {} : setAuthorSocialPlatform}
+                        onAuthorSocialUrlChange={isLocked ? () => {} : setAuthorSocialUrl}
+                        onPublish={handlePublish}
+                        onDelete={handleDelete}
+                        onGoToList={() => router.push("/teacher/blog")}
+                    />
+                </div>
+            </div>
         </div>
     );
 }

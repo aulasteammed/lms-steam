@@ -193,11 +193,13 @@ export function PanelLeft({
                     {Object.entries(CHAR_LIMITS).map(([k, v]) => (
                         <div key={k} className="flex justify-between py-1 border-b border-slate-100 last:border-0">
                             <span className="capitalize">{
-                                k === "pullquote" ? "Pull quote" :
+                                k === "pullquote" ? "Cita" :
                                 k === "title"     ? "Título"     :
                                 k === "subtitle"  ? "Subtítulo"  :
                                 k === "paragraph" ? "Párrafo"    :
-                                k === "caption"   ? "Descripción" : k
+                                k === "caption"   ? "Descripción" : 
+                                k === "listItem"   ? "Ítems" :
+                                k === "hookPhrase"   ? "Frase gancho" : k
                             }</span>
                             <span className="font-medium text-slate-700">{v.toLocaleString()}</span>
                         </div>

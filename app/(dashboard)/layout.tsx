@@ -15,7 +15,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="h-[52px] flex-shrink-0 fixed top-0 left-0 right-0 z-50">
           <Navbar />
         </div>
-        <div className="pt-[52px] flex-1 min-h-0">
+        <div className="pt-[52px] h-screen overflow-hidden">
           {children}
         </div>
       </div>

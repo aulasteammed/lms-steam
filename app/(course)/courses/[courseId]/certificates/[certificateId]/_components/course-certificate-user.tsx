@@ -3,7 +3,6 @@
 import React from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { useRouter } from "next/navigation";
 import { CourseCertificateCard } from "./course-certificate-card";
 import CourseCertificatePreview from "./course-certificate-preview";
 import CourseCertificateTemplate from "./course-certificate-template";
@@ -30,10 +29,9 @@ const CourseCertificateUser: React.FC<Props> = ({
   userFullName,
   certificateToken,
 }) => {
-  const router = useRouter();
-
   const handleVerify = () => {
-    router.push(`/certificate/verify/${course.id}/${certificateToken}`);
+    const url = `/certificate/verify/${course.id}/${certificateToken}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
 

@@ -672,7 +672,7 @@ interface CanvasProps extends TemplateProps {
 
 export function ArticleCanvas({ template, darkColor, isSaving, lastSaved, isLocked, ...props }: CanvasProps) {
     return (
-        <main className="flex-1 overflow-y-auto bg-slate-100 flex flex-col items-center px-6 py-5 gap-3">
+        <main className="flex-1 min-h-0 h-full overflow-y-auto bg-slate-100 flex flex-col items-center px-6 py-5 gap-3">
             <div className="w-full max-w-[860px] flex items-center gap-2">
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider whitespace-nowrap">
                     {TEMPLATE_LABELS[template]}

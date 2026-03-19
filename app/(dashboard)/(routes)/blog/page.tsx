@@ -250,14 +250,14 @@ export default async function BlogPage() {
 
     return (
         <div className="min-h-screen" style={{ background: "#fafaf8", fontFamily: "'IBM Plex Sans', sans-serif" }}>
-            <div className="max-w-[1080px] mx-auto px-9 py-10 pb-20">
+            <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-9 py-8 sm:py-10 pb-16">
 
-                <div className="flex items-end justify-between mb-8 pb-6 border-b-2 border-[#12110f]">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-6 sm:mb-8 pb-5 sm:pb-6 border-b-2 border-[#12110f]">
                     <div>
-                        <h1 className="font-serif text-5xl font-black tracking-tight leading-none text-[#12110f]">
+                        <h1 className="font-serif text-4xl sm:text-5xl font-black tracking-tight leading-none text-[#12110f]">
                             Publicaciones<span style={{ color: "#e8622a" }}>.</span>
                         </h1>
-                        <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#8a8682] mt-1.5">
+                        <p className="font-mono text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-[#8a8682] mt-1.5">
                             {articles.length} artículos · ordenados por fecha
                         </p>
                     </div>

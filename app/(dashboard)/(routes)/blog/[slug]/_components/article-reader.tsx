@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Byline } from "./readers/shared";
+import { MobileReader } from "./mobile-reader";
 
 // ── Constants ─────────────────────────────────────────────────
 const MONO  = "var(--font-mono, 'IBM Plex Mono', monospace)";
@@ -190,6 +191,8 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
     const endRef = useRef<HTMLDivElement>(null);
     const viewRecorded = useRef(false);
 
+
+
     const blocks = (Array.isArray(article.blocks) ? article.blocks as Block[] : [])
         .sort((a, b) => a.position - b.position);
 
@@ -215,7 +218,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                 if (entries[0].isIntersecting && !viewRecorded.current) {
                     viewRecorded.current = true;
                     setViewDone(true);
-                    // Call API to register view
                     fetch(`/api/blog/views`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -272,19 +274,29 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
         return idx === focusIdx;
     };
 
+    // ── Render both, CSS controls which is visible ───────────
+    // md:hidden  → MobileReader  (< 768px)
+    // hidden md:block → DesktopReader (≥ 768px)
     return (
-        <div id="reader-scroll" className="min-h-full" style={{ background: "#fafaf8" }}>
+        <>
+            <div className="md:hidden h-screen">
+                <MobileReader
+                    article={article as any}
+                    viewCount={viewCount}
+                    articleId={articleId}
+                    prev={prev}
+                    next={next}
+                />
+            </div>
+
+            <div className="hidden md:block" id="reader-scroll" style={{ background: "#fafaf8" }}>
             <ProgressBar accent={accent} />
 
             {/* ── Editorial top bar ── */}
             <div className="sticky top-0 z-40 flex items-center justify-between px-8 py-3 border-b border-[#e2ddd8]"
                 style={{ background: "rgba(250,250,248,0.92)", backdropFilter: "blur(8px)" }}>
 
-                {/* Breadcrumb / back navigation */}
-                <Link href="/blog"
-                    className="flex items-center gap-2 group"
-                    style={{ fontFamily: MONO }}>
-                    {/* Mini accent dot */}
+                <Link href="/blog" className="flex items-center gap-2 group" style={{ fontFamily: MONO }}>
                     <div className="w-5 h-5 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
                         style={{ background: accent }}>
                         <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -298,7 +310,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     <span className="text-[10px] text-[#12110f] truncate max-w-[280px]">{article.title}</span>
                 </Link>
 
-                {/* Focus controls — right side */}
                 <div className="flex items-center gap-2">
                     <button onClick={() => setFocusMode(v => !v)}
                         className={["flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wide uppercase rounded-full border transition-all",
@@ -328,19 +339,16 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
             {/* Article content */}
             <div className="max-w-[800px] mx-auto px-10 pt-10 pb-24">
 
-                {/* Kicker */}
                 <div className="text-[10px] tracking-[0.35em] uppercase mb-3"
                     style={{ color: accent, fontFamily: MONO }}>
                     {TEMPLATE_LABELS[article.template] ?? article.template}
                 </div>
 
-                {/* Title */}
                 <h1 className="text-[52px] font-black leading-[0.92] tracking-[-2px] mb-4 text-[#12110f]"
                     style={{ fontFamily: SERIF }}>
                     {article.title}
                 </h1>
 
-                {/* Subtitle */}
                 {article.subtitle && (
                     <p className="text-lg italic text-[#8a8682] leading-relaxed mb-7 max-w-[580px]"
                         style={{ fontFamily: SERIF }}>
@@ -348,7 +356,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     </p>
                 )}
 
-                {/* Hook phrase */}
                 {article.hookPhrase && (
                     <div className="flex items-start gap-3 mb-7 pl-4 border-l-2"
                         style={{ borderColor: accent }}>
@@ -359,7 +366,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     </div>
                 )}
 
-                {/* Byline */}
                 <div className="mb-9" style={{ fontFamily: MONO }}>
                     <Byline
                         article={article}
@@ -369,14 +375,12 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     />
                 </div>
 
-                {/* Cover */}
                 {article.coverImage && (
                     <div className="relative w-full aspect-[21/8] bg-[#12110f] mb-10 overflow-hidden rounded-xl">
                         <Image src={article.coverImage} alt={article.title} fill className="object-cover opacity-85" sizes="800px" />
                     </div>
                 )}
 
-                {/* Blocks — 2 columns */}
                 <div style={{ columnCount: 2, columnGap: "40px", columnRule: "1px solid #e2ddd8" }}>
                     {blocks.map(block => (
                         <BlockRenderer
@@ -390,13 +394,8 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     <div style={{ clear: "both" }} />
                 </div>
 
-                {/* End sentinel — IntersectionObserver registra la vista aquí */}
                 <div ref={endRef} className="h-1 w-full" aria-hidden />
 
-                {/* View registered confirmation */}
-
-
-                {/* Prev / Next */}
                 <div className="flex gap-4 mt-10 pt-7 border-t border-[#e2ddd8]">
                     {prev ? (
                         <Link href={`/blog/${prev.slug}`}
@@ -440,5 +439,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                 salir
             </div>
         </div>
+        </>
     );
 }

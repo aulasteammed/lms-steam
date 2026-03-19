@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { MobileReader } from "../mobile-reader";
 
 import {
     TEMPLATE_LABELS,
@@ -27,11 +28,22 @@ export function ReaderCoverPerson({ article, viewCount, articleId, prev, next }:
     } = useReaderState({ articleId, blocks, prev, next, router });
 
     return (
-        <div id="reader-scroll" className="min-h-full" style={{ background: "#fafaf8" }}>
-            <ProgressBar accent={accent} />
+        <>
+            <div className="md:hidden h-screen">
+                <MobileReader
+                    article={article as any}
+                    viewCount={viewCount}
+                    articleId={articleId}
+                    prev={prev}
+                    next={next}
+                />
+            </div>
 
-            {/* Top bar */}
-            <TopBar article={article} focusMode={focusMode} onToggleFocus={() => setFocusMode(v => !v)} />
+            <div className="hidden md:block" id="reader-scroll" style={{ background: "#fafaf8" }}>
+                <ProgressBar accent={accent} />
+
+                {/* Top bar */}
+                <TopBar article={article} focusMode={focusMode} onToggleFocus={() => setFocusMode(v => !v)} />
 
             {/* Image overlay */}
             {imgOverlay && imageBlocks.length > 0 && (
@@ -137,7 +149,8 @@ export function ReaderCoverPerson({ article, viewCount, articleId, prev, next }:
                 </div>
             </div>
 
-            <KeyboardBar />
-        </div>
+                <KeyboardBar />
+            </div>
+        </>
     );
 }

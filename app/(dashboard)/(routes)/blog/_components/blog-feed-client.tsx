@@ -43,7 +43,7 @@ function CardThumb({ article, featured = false, priority = false }: {
     return (
         <div className={[
             "relative overflow-hidden bg-[#12110f]",
-            featured ? "h-[340px]" : "aspect-video",
+            featured ? "h-[220px] sm:h-[300px] lg:h-[340px]" : "aspect-video",
         ].join(" ")}>
             {article.coverImage
                 ? <Image
@@ -75,14 +75,14 @@ function CardThumb({ article, featured = false, priority = false }: {
 function FeaturedCard({ article, priority }: { article: any; priority?: boolean }) {
     return (
         <Link href={`/blog/${article.slug}`}
-            className="group col-span-2 row-span-2 bg-white overflow-hidden flex flex-col transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#d4d4d4] rounded-2xl border border-[#e2ddd8]">
+            className="group col-span-1 sm:col-span-2 row-span-1 sm:row-span-2 bg-white overflow-hidden flex flex-col transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#d4d4d4] rounded-2xl border border-[#e2ddd8]">
             <CardThumb article={article} featured priority={priority} />
-            <div className="p-5 pb-3 flex-1">
+            <div className="p-4 sm:p-5 pb-3 flex-1">
                 <div className="text-[9px] tracking-[0.2em] uppercase mb-2" style={{ color: article.accentColor, fontFamily: MONO }}>
                     {TEMPLATE_LABELS[article.template] ?? article.template}
                     {article.publishedAt ? ` · ${fmt(article.publishedAt, { day: "numeric", month: "short", year: "numeric" })}` : ""}
                 </div>
-                <h3 className="text-[22px] font-black leading-tight text-[#12110f] mb-2 group-hover:opacity-70 transition-opacity"
+                <h3 className="text-[20px] sm:text-[22px] font-black leading-tight text-[#12110f] mb-2 group-hover:opacity-70 transition-opacity"
                     style={{ fontFamily: SERIF }}>
                     {article.title}
                 </h3>
@@ -95,7 +95,7 @@ function FeaturedCard({ article, priority }: { article: any; priority?: boolean 
                     </p>
                 )}
             </div>
-            <div className="flex items-center justify-between px-5 py-3 border-t border-[#e2ddd8]">
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-[#e2ddd8]">
                 <span className="text-[11px] text-[#8a8682]">{article.authorName}</span>
                 <span className="text-[10px] text-[#8a8682]" style={{ fontFamily: MONO }}>
                     {article.publishedAt ? fmt(article.publishedAt, { day: "numeric", month: "short" }) : ""}
@@ -116,7 +116,7 @@ function SmallCard({ article }: { article: any }) {
                 <div className="text-[9px] tracking-[0.18em] uppercase mb-1" style={{ color: article.accentColor, fontFamily: MONO }}>
                     {TEMPLATE_LABELS[article.template] ?? article.template}
                 </div>
-                <h3 className="text-[14px] font-bold leading-snug text-[#12110f] mb-1.5 group-hover:opacity-70 transition-opacity line-clamp-2"
+                <h3 className="text-[14px] sm:text-[15px] font-bold leading-snug text-[#12110f] mb-1.5 group-hover:opacity-70 transition-opacity line-clamp-2"
                     style={{ fontFamily: SERIF }}>
                     {article.title}
                 </h3>
@@ -150,7 +150,7 @@ function TextCard({ article }: { article: any }) {
                     {TEMPLATE_LABELS[article.template] ?? article.template}
                     {article.publishedAt ? ` · ${fmt(article.publishedAt, { month: "short", year: "numeric" })}` : ""}
                 </div>
-                <h3 className="text-[14px] font-bold leading-snug text-[#12110f] group-hover:opacity-70 transition-opacity"
+                <h3 className="text-[14px] sm:text-[15px] font-bold leading-snug text-[#12110f] group-hover:opacity-70 transition-opacity"
                     style={{ fontFamily: SERIF }}>
                     {article.title}
                 </h3>
@@ -185,11 +185,11 @@ function Pagination({ page, total, pageSize, onChange }: {
     if (totalPages <= 1) return null;
 
     return (
-        <div className="flex items-center justify-center gap-1.5 mt-8">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 mt-8">
             <button
                 onClick={() => onChange(page - 1)}
                 disabled={page === 1}
-                className="px-3 py-1.5 text-[11px] border border-[#e2ddd8] rounded-full text-[#8a8682] hover:border-[#e8622a] hover:text-[#e8622a] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 text-[10px] sm:text-[11px] border border-[#e2ddd8] rounded-full text-[#8a8682] hover:border-[#e8622a] hover:text-[#e8622a] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 style={{ fontFamily: MONO }}>
                 ← Anterior
             </button>
@@ -198,7 +198,7 @@ function Pagination({ page, total, pageSize, onChange }: {
                 <button key={p}
                     onClick={() => onChange(p)}
                     className={[
-                        "w-7 h-7 text-[11px] rounded-full border transition-all",
+                        "w-7 h-7 text-[10px] sm:text-[11px] rounded-full border transition-all",
                         p === page
                             ? "bg-[#e8622a] text-white border-[#e8622a]"
                             : "border-[#e2ddd8] text-[#8a8682] hover:border-[#e8622a] hover:text-[#e8622a]"
@@ -211,7 +211,7 @@ function Pagination({ page, total, pageSize, onChange }: {
             <button
                 onClick={() => onChange(page + 1)}
                 disabled={page === totalPages}
-                className="px-3 py-1.5 text-[11px] border border-[#e2ddd8] rounded-full text-[#8a8682] hover:border-[#e8622a] hover:text-[#e8622a] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 text-[10px] sm:text-[11px] border border-[#e2ddd8] rounded-full text-[#8a8682] hover:border-[#e8622a] hover:text-[#e8622a] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 style={{ fontFamily: MONO }}>
                 Siguiente →
             </button>
@@ -248,7 +248,7 @@ function YearBlock({ year, articles, isFirst = false }: {
                 </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {featured && <FeaturedCard article={featured} priority={isFirst && page === 1} />}
                 {rest.map((a: any) =>
                     a.coverImage
@@ -283,7 +283,7 @@ function AllArticles({ byYear, years }: { byYear: Record<string, any[]>; years: 
 
     return (
         <div id="feed-top">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {featured && <FeaturedCard article={featured} priority={page === 1} />}
                 {rest.map((a: any) =>
                     a.coverImage
@@ -328,15 +328,15 @@ export function BlogFeedClient({ years, byYear }: { years: string[]; byYear: Rec
         <>
             <EditorialHero totalArticles={totalArticles} />
 
-            <div className="max-w-[1080px] mx-auto px-9 pt-8 pb-20">
+            <div className="pt-6 pb-16">
 
                 {/* Year filter pills */}
-                <div className="flex items-center gap-2 mb-10 flex-wrap" id="feed-top">
+                <div className="flex items-center gap-2 mb-8 flex-wrap" id="feed-top">
                     {["all", ...years].map(y => (
                         <button key={y}
                             onClick={() => handleYearChange(y)}
                             className={[
-                                "px-4 py-1.5 text-[11px] tracking-[0.1em] border rounded-full transition-all duration-150",
+                                "px-3 sm:px-4 py-1.5 text-[10px] sm:text-[11px] tracking-[0.1em] border rounded-full transition-all duration-150",
                                 y === "all" ? "border-dashed" : "",
                                 activeYear === y
                                     ? "bg-[#e8622a] text-white border-[#e8622a]"
