@@ -1,5 +1,5 @@
 "use client";
-// app/(blog)/blog/[slug]/_components/article-reader.tsx
+
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
@@ -8,11 +8,8 @@ import { useRouter } from "next/navigation";
 import { Byline } from "./readers/shared";
 import { MobileReader } from "./mobile-reader";
 
-// ── Constants ─────────────────────────────────────────────────
 const MONO  = "var(--font-mono, 'IBM Plex Mono', monospace)";
 const SERIF = "var(--font-serif, 'Playfair Display', Georgia, serif)";
-
-// ── Types ─────────────────────────────────────────────────────
 
 type Block = {
     id:             string;
@@ -52,7 +49,6 @@ const TEMPLATE_LABELS: Record<string, string> = {
     news_short:     "Noticia",
 };
 
-// ── Progress bar ──────────────────────────────────────────────
 
 function ProgressBar({ accent }: { accent: string }) {
     const [progress, setProgress] = useState(0);
@@ -73,7 +69,6 @@ function ProgressBar({ accent }: { accent: string }) {
     );
 }
 
-// ── Image overlay ─────────────────────────────────────────────
 
 function ImageOverlay({ images, currentIdx, onClose, onNav }: {
     images: { url: string; caption?: string }[];
@@ -117,7 +112,6 @@ function ImageOverlay({ images, currentIdx, onClose, onNav }: {
     );
 }
 
-// ── Block renderer ────────────────────────────────────────────
 
 function BlockRenderer({ block, accent, paragraphFocused, onImageClick }: {
     block:            Block;
@@ -178,8 +172,6 @@ function BlockRenderer({ block, accent, paragraphFocused, onImageClick }: {
     return null;
 }
 
-// ── Main reader ───────────────────────────────────────────────
-
 export function ArticleReader({ article, viewCount, prev, next, articleId }: {
     article:   Article;
     viewCount: number;
@@ -208,7 +200,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
 
     const accent = article.accentColor || "#e8622a";
 
-    // ── Register view when user reaches the end ───────────────
     useEffect(() => {
         const sentinel = endRef.current;
         if (!sentinel) return;
@@ -232,7 +223,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
         return () => observer.disconnect();
     }, [articleId]);
 
-    // ── Keyboard shortcuts ────────────────────────────────────
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (imgOverlay) return;
@@ -250,7 +240,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
         return () => window.removeEventListener("keydown", onKey);
     }, [focusMode, imgOverlay, prev, next, paragraphBlocks.length, router]);
 
-    // Scroll focused paragraph into view
     useEffect(() => {
         if (!focusMode) return;
         document.querySelectorAll("[data-block-type='paragraph']")[focusIdx]
@@ -274,9 +263,7 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
         return idx === focusIdx;
     };
 
-    // ── Render both, CSS controls which is visible ───────────
-    // md:hidden  → MobileReader  (< 768px)
-    // hidden md:block → DesktopReader (≥ 768px)
+
     return (
         <>
             <div className="md:hidden h-screen">

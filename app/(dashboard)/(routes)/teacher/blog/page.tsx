@@ -1,5 +1,3 @@
-// app/(dashboard)/(routes)/teacher/blog/page.tsx
-
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 

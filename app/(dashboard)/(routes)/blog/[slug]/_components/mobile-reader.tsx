@@ -13,7 +13,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
     news_short:     "Noticia",
 };
 
-const BLOCKS_PER_PAGE = 4; // bloques de contenido por página
+const BLOCKS_PER_PAGE = 4;
 
 type Block = {
     id:             string;

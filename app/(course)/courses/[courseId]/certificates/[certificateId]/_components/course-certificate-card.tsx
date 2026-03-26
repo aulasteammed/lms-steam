@@ -7,7 +7,7 @@ import { format } from "date-fns";
 interface Props {
   certificateId: string;
   courseId: string;
-  userId: string;     // ID de Clerk
+  userId: string; 
   courseTitle: string;
   level?: string;
   completionDate: Date;

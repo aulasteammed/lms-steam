@@ -10,7 +10,7 @@ import {
     CHAR_LIMITS, TEMPLATE_LABELS, SocialIcon, charColor, LIST_ITEM_MIN, LIST_MAX_ITEMS, uid,
 } from "./types";
 
-// ─── Editable field ───────────────────────────────────────────────────────────
+
 
 function makeEditableField(placeholderColor: string) {
     return function EditableFieldInner({ value, onChange, placeholder, className, multiline = false, disabled = false }: {
@@ -97,7 +97,7 @@ function AuthorByline({
     );
 }
 
-// ─── Block toolbar ────────────────────────────────────────────────────────────
+
 
 function BlockToolbar({ blockId, isLocked, onMove, onRemove }: {
     blockId:  string;
@@ -105,7 +105,6 @@ function BlockToolbar({ blockId, isLocked, onMove, onRemove }: {
     onMove:   (id: string, dir: -1 | 1) => void;
     onRemove: (id: string) => void;
 }) {
-    // No renderizar toolbar si está bloqueado
     if (isLocked) return null;
 
     return (

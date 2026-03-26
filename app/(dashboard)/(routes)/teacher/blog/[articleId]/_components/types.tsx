@@ -20,12 +20,12 @@ export const CHAR_LIMITS = {
     paragraph: 800,
     pullquote: 200,
     caption:   150,
-    listItem:   80,  // máximo por ítem de lista
-    hookPhrase: 80,  // frase de gancho para el feed
+    listItem:   80,  
+    hookPhrase: 80,  
 } as const;
 
-export const LIST_ITEM_MIN = 3;   // mínimo de caracteres por ítem
-export const LIST_MAX_ITEMS = 5;  // máximo de ítems por bloque
+export const LIST_ITEM_MIN = 3;  
+export const LIST_MAX_ITEMS = 5; 
 
 export const MAX_IMAGES = 3;
 

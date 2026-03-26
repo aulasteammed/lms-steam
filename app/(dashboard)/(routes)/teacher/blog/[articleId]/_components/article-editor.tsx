@@ -208,7 +208,6 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
         authorSocialPlatform, authorSocialUrl,
         coverImageUrl: coverImage,
         accentColor,
-        // Si está bloqueado, los handlers de edición son no-op
         onTitleChange:    isLocked ? () => {} : setTitle,
         onSubtitleChange: isLocked ? () => {} : setSubtitle,
         onCoverUpload:    isLocked ? () => {} : setCoverImage,
@@ -220,7 +219,7 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
         dragState,
     };
 
-    // ── Render ─────────────────────────────────────────────────────────────────
+
     return (
         <div className="flex flex-1 min-h-0 overflow-hidden h-full">
             <PanelLeft

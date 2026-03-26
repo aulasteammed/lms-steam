@@ -1,5 +1,4 @@
 "use client";
-// app/(blog)/blog/[slug]/_components/readers/reader-news-short.tsx
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";

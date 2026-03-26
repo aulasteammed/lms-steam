@@ -19,7 +19,6 @@ function fmt(d: Date | string, opts: Intl.DateTimeFormatOptions) {
     return new Date(d).toLocaleDateString("es-CO", opts);
 }
 
-// ── View badge ────────────────────────────────────────────────
 
 function ViewBadge({ count }: { count: number }) {
     return (
@@ -33,7 +32,6 @@ function ViewBadge({ count }: { count: number }) {
     );
 }
 
-// ── Card thumb ────────────────────────────────────────────────
 
 function CardThumb({ article, featured = false, priority = false }: {
     article:   any;
@@ -70,7 +68,7 @@ function CardThumb({ article, featured = false, priority = false }: {
     );
 }
 
-// ── Featured card (2×2) ───────────────────────────────────────
+
 
 function FeaturedCard({ article, priority }: { article: any; priority?: boolean }) {
     return (
@@ -105,7 +103,6 @@ function FeaturedCard({ article, priority }: { article: any; priority?: boolean 
     );
 }
 
-// ── Small card ────────────────────────────────────────────────
 
 function SmallCard({ article }: { article: any }) {
     return (
@@ -139,7 +136,7 @@ function SmallCard({ article }: { article: any }) {
     );
 }
 
-// ── Text card ─────────────────────────────────────────────────
+
 
 function TextCard({ article }: { article: any }) {
     return (
@@ -173,7 +170,7 @@ function TextCard({ article }: { article: any }) {
     );
 }
 
-// ── Pagination controls ───────────────────────────────────────
+//Pagination controls 
 
 function Pagination({ page, total, pageSize, onChange }: {
     page:     number;
@@ -219,7 +216,7 @@ function Pagination({ page, total, pageSize, onChange }: {
     );
 }
 
-// ── Year block (con paginación propia) ────────────────────────
+// ── Year block (con paginación propia) 
 
 function YearBlock({ year, articles, isFirst = false }: {
     year:     string;
@@ -267,7 +264,7 @@ function YearBlock({ year, articles, isFirst = false }: {
     );
 }
 
-// ── All articles paginated (vista "Todos") ────────────────────
+
 
 function AllArticles({ byYear, years }: { byYear: Record<string, any[]>; years: string[] }) {
     const [page, setPage] = useState(1);
@@ -302,8 +299,6 @@ function AllArticles({ byYear, years }: { byYear: Record<string, any[]>; years: 
     );
 }
 
-// ── Editorial hero header ─────────────────────────────────────
-
 function EditorialHero({ totalArticles }: { totalArticles: number }) {
     return (
         <div className="relative overflow-hidden mb-0" style={{ background: "#12110f" }}>
@@ -313,7 +308,6 @@ function EditorialHero({ totalArticles }: { totalArticles: number }) {
     );
 }
 
-// ── Main export ───────────────────────────────────────────────
 
 export function BlogFeedClient({ years, byYear }: { years: string[]; byYear: Record<string, any[]> }) {
     const [activeYear, setActiveYear] = useState<string>("all");

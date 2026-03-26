@@ -54,11 +54,6 @@ export type ReaderProps = {
     next:      AdjacentArticle;
 };
 
-
-
-// ── Progress bar ──────────────────────────────────────────────
-// Escucha scroll en el div con id "reader-scroll"
-
 export function ProgressBar({ accent }: { accent: string }) {
     const [progress, setProgress] = useState(0);
     useEffect(() => {
@@ -378,7 +373,6 @@ export function useReaderState({
     const viewRecorded = useRef(false);
     const endRef       = useRef<HTMLDivElement>(null);
 
-    // Registrar vista al llegar al final
     useEffect(() => {
         const sentinel = endRef.current;
         if (!sentinel) return;
