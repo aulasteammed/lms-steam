@@ -86,14 +86,19 @@ const authenticatedRoutes = [
 
 const teacherRoutes = [
   {
+    icon: Calendar,
+    label: "Agendate",
+    href: "/teacher/feed",
+  },
+  {
     icon: List,
     label: "Cursos",
     href: "/teacher/courses",
   },
   {
-    icon: BarChart,
-    label: "Analítica",
-    href: "/teacher/analytics",
+    icon: BookOpen,
+    label: "Blog",
+    href: "/teacher/blog",
   },
   {
     icon: Award,
@@ -101,14 +106,9 @@ const teacherRoutes = [
     href: "/teacher/certificates",
   },
   {
-    icon: Calendar,
-    label: "Agendate",
-    href: "/teacher/feed",
-  },
-  {
-    icon: BookOpen,
-    label: "Blog",
-    href: "/teacher/blog",
+    icon: BarChart,
+    label: "Analítica",
+    href: "/teacher/analytics",    
   },
 ];
 

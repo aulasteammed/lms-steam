@@ -155,6 +155,10 @@ export function ArticleEditor({ article }: { article: ArticleWithCount }) {
                 `/api/blog/articles/${currentSlug.current}/publish`,
                 { action }
             );
+            if (res.data.newSlug && res.data.newSlug !== currentSlug.current) {
+                currentSlug.current = res.data.newSlug;
+                router.replace(`/teacher/blog/${res.data.newSlug}`, { scroll: false });
+            }
             setStatus(res.data.status);
             toast.success(
                 action === "publish" ? "Articulo publicado" :

@@ -6,6 +6,29 @@ import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
 import { ArticleStatus } from "@prisma/client";
 
+function toSlug(text: string): string {
+    return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-")
+        .slice(0, 60);
+}
+
+async function uniqueSlug(base: string, excludeId: string): Promise<string> {
+    let slug   = base || "sin-titulo";
+    let suffix = 1;
+    while (true) {
+        const existing = await db.article.findUnique({ where: { slug } });
+        if (!existing || existing.id === excludeId) break;
+        slug = `${base}-${suffix}`;
+        suffix++;
+    }
+    return slug;
+}
+
 function buildHookPhrase(source: string): string | null {
     const text = source.trim().replace(/\s+/g, " ");
     if (!text) return null;
@@ -66,12 +89,17 @@ export async function PATCH(
 
         let status: ArticleStatus;
         let publishedAt: Date | null = article.publishedAt;
+        let newSlug: string | undefined;
         const generatedHookPhrase =
             !article.hookPhrase?.trim()
                 ? buildHookPhrase(article.subtitle ?? article.title ?? "")
                 : null;
 
         if (action === "publish") {
+            const base = toSlug(article.title ?? "") || "sin-titulo";
+            const candidate = await uniqueSlug(base, article.id);
+            if (candidate !== slug) newSlug = candidate;
+
             status = ArticleStatus.published;
             if (!publishedAt) publishedAt = new Date();
         } else if (action === "unpublish") {
@@ -81,15 +109,19 @@ export async function PATCH(
         }
 
         const updated = await db.article.update({
-            where: { slug },
+            where: { id: article.id },
             data: {
                 status,
+                ...(newSlug ? { slug: newSlug } : {}),
                 ...(publishedAt !== article.publishedAt && { publishedAt }),
                 ...(generatedHookPhrase && { hookPhrase: generatedHookPhrase }),
             },
         });
 
-        return NextResponse.json(updated);
+        return NextResponse.json({
+            ...updated,
+            ...(newSlug ? { newSlug } : {}),
+        });
     } catch (error) {
         console.log("[BLOG_ARTICLE_PUBLISH]", error);
         return new NextResponse("Internal Error", { status: 500 });

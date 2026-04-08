@@ -12,10 +12,11 @@ interface CreateEventData {
   imageUrl?: string
   startDateTime: string
   endDateTime: string
+  link: string
 }
 
 function validateEventData(data: any): CreateEventData {
-  const { title, description, location, imageUrl, startDateTime, endDateTime } = data
+  const { title, description, location, imageUrl, startDateTime, endDateTime, link } = data
 
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
     throw new Error('El título es requerido')
@@ -27,6 +28,16 @@ function validateEventData(data: any): CreateEventData {
 
   if (!startDateTime || !endDateTime) {
     throw new Error('Las fechas de inicio y fin son requeridas')
+  }
+
+  if (!link || typeof link !== 'string' || link.trim().length === 0) {
+    throw new Error('El link de inscripción es requerido')
+  } 
+
+  try {
+    new URL(link)
+  } catch {
+    throw new Error('El link debe ser una URL válida')
   }
 
   const startDate = new Date(startDateTime)
@@ -50,7 +61,8 @@ function validateEventData(data: any): CreateEventData {
     location: location.trim(),
     imageUrl: imageUrl?.trim(),
     startDateTime,
-    endDateTime
+    endDateTime,
+    link: link.trim()
   }
 }
 
@@ -84,7 +96,9 @@ export async function GET(req: NextRequest) {
         startDateTime: true,
         endDateTime: true,
         userId: true,
-        createdAt: true
+        createdAt: true,
+        link: true,
+
       }
     })
 

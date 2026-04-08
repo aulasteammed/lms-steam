@@ -49,7 +49,7 @@ export const NavbarRoutes = () => {
                         </Link>
                     ) : isTeacher(userId) ? (
                         // Ir a modo profesor
-                        <Link href="/teacher/courses">
+                        <Link href="/teacher/feed">
                             <Button size="sm" variant="outline">
                                 <UserRoundCog className="h-4 w-4 mr-2 text-green-500" />
                                 Modo Profesor

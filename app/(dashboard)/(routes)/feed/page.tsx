@@ -15,6 +15,7 @@ interface Event {
   startDateTime: string // ISO
   endDateTime: string   // ISO
   userId: string
+  link: string
 }
 
 export default function EventsPage() {
@@ -269,6 +270,23 @@ function EventCard({ event }: { event: Event }) {
               </svg>
               <span className="font-medium">{timeRange}</span>
             </div>
+            {event.link && (
+              isPastEvent ? (
+                <span className="mt-3 inline-block bg-gray-300 text-gray-600 text-sm font-medium px-4 py-2 rounded-md">
+                  Evento finalizado
+                </span>
+              ) : (
+                <a
+                  href={event.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  Inscribirme
+                </a>
+              )
+            )}
+
           </div>
         </div>
       </div>

@@ -11,7 +11,6 @@ import {
 } from "./types";
 
 
-
 function makeEditableField(placeholderColor: string) {
     return function EditableFieldInner({ value, onChange, placeholder, className, multiline = false, disabled = false }: {
         value: string; onChange: (v: string) => void;

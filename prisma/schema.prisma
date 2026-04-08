@@ -222,8 +222,10 @@ model Event {
   imageUrl      String?
   startDateTime DateTime
   endDateTime   DateTime
+  link          String
   location      String
   createdAt     DateTime  @default(now())
+  
 }
 
 enum ArticleStatus {

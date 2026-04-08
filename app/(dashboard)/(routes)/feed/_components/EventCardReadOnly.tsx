@@ -13,6 +13,7 @@ interface Event {
   endDateTime: string   // ISO
   location: string
   userId: string
+  link: string
 }
 
 interface EventCardReadOnlyProps {
@@ -244,6 +245,7 @@ function EventCard({ event }: { event: Event }) {
               </svg>
               {timeRange}
             </p>
+         
           </div>
         </div>
       </div>
