@@ -13,7 +13,7 @@ export default function AboutPage() {
         <h1 className="text-4xl md:text-5xl font-extrabold">Quiénes Somos</h1>
         <p className="text-base md:text-lg text-gray-600 mt-4">
           El aula STEAM es un entorno interdisciplinario en el que convergen las ciencias,
-          la tecnología, la ingeniería, el arte y las matemáticas para fomentar principalmente
+          las tecnologías, las ingeniería, las artes y las matemáticas para fomentar principalmente
           en los estudiantes la cocreación, la experimentación y la exploración, mediante recursos
           y herramientas que impulsan el aprendizaje basado en proyectos.
         </p>
@@ -33,7 +33,7 @@ export default function AboutPage() {
           <p className="text-base md:text-lg text-gray-700 mt-4">
             El Aula STEAM de la sede Medellín lleva el nombre de Sonny Jiménez como primera egresada
             del pregrado de ingeniería Civil y de Minas en 1946 de la Facultad de Minas de la Universidad
-            Nacional de Colombia. La participación activa de Sonny en la política, la educación y la
+            Nacional de Colombia, sede Medellín. La participación activa de Sonny en la política, la educación y la
             vinculación laboral de las mujeres, demostraron la importancia del género femenino en los
             diferentes sectores sociales y que sus capacidades van más allá de la formación de una familia.
           </p>

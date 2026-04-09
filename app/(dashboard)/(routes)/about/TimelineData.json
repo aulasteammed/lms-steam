@@ -126,5 +126,28 @@
         ]
       }
     ]
+  },
+  {
+    "date": "Marzo 11, 2026",
+    "title": "Tercer Aniversario del Aula STEAM",
+    "description": "Celebración del impacto del Aula en la formación interdisciplinar y la innovación estudiantil.",
+    "tag": "hito"
+  },
+  {
+    "date": "Marzo – Diciembre 2026",
+    "title": "Ciencia entre saberes y oficios",
+    "description": "Este ciclo surge de la idea de que la ciencia no se construye únicamente desde los laboratorios, los modelos técnicos o las aulas universitarias, sino también desde los conocimientos, prácticas y destrezas que emergen en la cotidianidad de la vida.",
+    "tag": "ciclo",
+    "sections": [
+      {
+        "title": "Cuatro dimensiones de abordaje:",
+        "items": [
+          "Origen y trayectorias del conocimiento",
+          "Traducción entre prácticas",
+          "Experiencia y encuentro"
+
+        ]
+      }
+    ]
   }
 ]

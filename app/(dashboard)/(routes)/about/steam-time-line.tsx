@@ -170,7 +170,7 @@ export default function SteamTimeline() {
         Cronología del Aula STEAM
       </h2>
       <p className="text-center text-gray-400 text-sm mb-10 tracking-wide">
-        2024 – 2025
+        2024 – 2026
       </p>
 
       {/* Timeline */}

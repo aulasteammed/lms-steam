@@ -30,11 +30,6 @@ const guestRoutes = [
     href: "/",
   },
   {
-    icon: Search,
-    label: "Explorar cursos",
-    href: "/search",
-  },
-  {
     icon: Contact,
     label: "Quienes somos",
     href: "/about",
@@ -43,6 +38,11 @@ const guestRoutes = [
     icon: Calendar,
     label: "Agendate",
     href: "/feed",
+  },    
+  {
+    icon: Search,
+    label: "Explorar cursos",
+    href: "/search",
   },
   {
     icon: BookOpen,
@@ -58,16 +58,6 @@ const authenticatedRoutes = [
     href: "/",
   },
   {
-    icon: List,
-    label: "Mis cursos",
-    href: "/mycourses",
-  },
-  {
-    icon: Search,
-    label: "Explorar cursos",
-    href: "/search",
-  },
-  {
     icon: Contact,
     label: "Quienes somos",
     href: "/about",
@@ -78,9 +68,19 @@ const authenticatedRoutes = [
     href: "/feed",
   },
   {
+    icon: Search,
+    label: "Explorar cursos",
+    href: "/search",
+  },
+  {
     icon: BookOpen,
     label: "Blog",
     href: "/blog",
+  },
+  {
+    icon: List,
+    label: "Mis cursos",
+    href: "/mycourses",
   },
 ];
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { UserButton, useAuth } from '@clerk/nextjs';
-import { LogIn, UserRoundCog, UserRound, Home } from 'lucide-react';
+import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -26,6 +26,35 @@ export const NavbarRoutes = () => {
             {isSearchPage && (
                 <div className="hidden md:block">
                     <SearchInput />
+                </div>
+            )}
+
+            {/* Links a páginas externas*/}
+            {isTeacherPage && (
+                <div className='flex gap-2'>
+                    {/* Inventario*/}
+                    <Link href='https://aula-steam.pages.dev/inventario/' target='_blank'>
+                        <Button size="sm" variant="outline">
+                            <Package className="h-4 w-4 mr-2 text-orange-500" />
+                            Inventario
+                        </Button>
+                    </Link>
+
+                    {/* Prestamos */}
+                    <Link href='https://aula-steam.pages.dev/prestamos/' target='_blank'>
+                        <Button size="sm" variant="outline">
+                            <PackageCheck className="h-4 w-4 mr-2 text-orange-500" />
+                            Préstamos
+                        </Button>
+                    </Link>
+
+                    {/* Asistencia*/}
+                    <Link href='https://asistencias-web-aula.vercel.app/admin.html' target='_blank'>
+                        <Button size="sm" variant="outline">
+                            <ClipboardList className="h-4 w-4 mr-2 text-orange-500" />
+                            Asistencia
+                        </Button>
+                    </Link>
                 </div>
             )}
 
