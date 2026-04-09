@@ -70,9 +70,17 @@ function MobileBlock({ block, accent }: { block: Block; accent: string }) {
         return (
             <ul className="my-3 flex flex-col gap-1.5">
                 {block.items.filter(Boolean).map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[13px] leading-snug text-[#12110f]">
-                        <span className="mt-0.5 text-[10px] flex-shrink-0" style={{ color: accent }}>●</span>
-                        {item}
+                    <li key={i} className="flex items-start gap-2 text-[13px] leading-snug text-gray-700"> 
+                        <span 
+                            className="mt-0.5 text-[10px] flex-shrink-0" 
+                            style={{ color: accent }}
+                        >
+                            ●
+                        </span>
+                        
+                        <span className="text-gray-900">
+                            {item}
+                        </span>
                     </li>
                 ))}
             </ul>

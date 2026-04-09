@@ -178,9 +178,14 @@ export function BlockRenderer({ block, accent, paragraphFocused, onImageClick }:
         return (
             <ul className={["mb-5 break-inside-avoid transition-all duration-200 space-y-2", dimCls].join(" ")}>
                 {validItems.map((item: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-[16px] leading-[1.88] text-[#2d2d2d]">
-                        <span className="mt-[0.55em] w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: accent }} />
-                        <span>{item}</span>
+                    <li key={idx} className="flex items-start gap-2.5 text-[16px] leading-[1.88] text-gray-700">
+
+                        <span 
+                            className="mt-[0.55em] w-1.5 h-1.5 rounded-full flex-shrink-0" 
+                            style={{ background: accent }} 
+                        />
+                        
+                        <span className="text-gray-900">{item}</span>
                     </li>
                 ))}
             </ul>

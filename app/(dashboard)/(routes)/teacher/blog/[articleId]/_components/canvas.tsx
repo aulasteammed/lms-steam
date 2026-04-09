@@ -297,7 +297,7 @@ function ImageBlock({ block, isLocked, onUpdate, onRemove, onMove }: { block: Bl
 
 // ─── List block ───────────────────────────────────────────────────────────────
 
-function ListBlock({ block, isLocked, onUpdate, onRemove, onMove }: { block: Block } & BlockOps) {
+function ListBlock({ block, accentColor, isLocked, onUpdate, onRemove, onMove }: { block: Block; accentColor: string } & BlockOps) {
     const items = block.items ?? [""];
 
     const updateItem = (idx: number, val: string) => {
@@ -322,30 +322,26 @@ function ListBlock({ block, isLocked, onUpdate, onRemove, onMove }: { block: Blo
             <ul className="flex flex-col gap-1">
                 {items.map((item, idx) => (
                     <li key={idx} className="flex items-center gap-2">
-                        <span className="text-slate-400 text-base flex-shrink-0 w-4 text-center select-none">•</span>
+
+                        <span 
+                            className="text-base flex-shrink-0 w-4 text-center select-none" 
+                            style={{ color: accentColor }}
+                        >
+                            •
+                        </span>
+                        
                         <input
                             value={item}
                             onChange={(e) => updateItem(idx, e.target.value)}
-                            onPaste={(e) => {
-                                e.preventDefault();
-                                const text = e.clipboardData.getData("text/plain").replace(/\n/g, " ");
-                                updateItem(idx, (item + text).slice(0, CHAR_LIMITS.listItem));
-                            }}
-                            disabled={isLocked}
                             placeholder={`Ítem ${idx + 1}...`}
                             maxLength={CHAR_LIMITS.listItem}
                             className={[
-                                "flex-1 text-sm text-slate-700 bg-transparent outline-none border-b border-transparent transition-colors placeholder:text-slate-300",
+                                "flex-1 text-sm bg-transparent outline-none border-b border-transparent transition-colors placeholder:text-slate-300",
+                                "text-slate-700", 
                                 isLocked ? "cursor-default" : "focus:border-slate-200",
                             ].join(" ")}
+
                         />
-                        <span className={`text-[9px] flex-shrink-0 ${charColor(item.length, CHAR_LIMITS.listItem)}`}>
-                            {item.length}/{CHAR_LIMITS.listItem}
-                        </span>
-                        {!isLocked && items.length > 1 && (
-                            <button onClick={() => removeItem(idx)}
-                                className="text-[10px] text-red-300 hover:text-red-500 flex-shrink-0 transition-colors">✕</button>
-                        )}
                     </li>
                 ))}
             </ul>
@@ -408,7 +404,7 @@ function BlockList({ blocks, accentColor, isLocked = false, onBlockUpdate, onBlo
             case "pullquote": return <PullquoteBlock  key={b.id} block={b} accent={accentColor} {...ops} />;
             case "divider":   return <DividerBlock    key={b.id} block={b} isLocked={isLocked} onRemove={ops.onRemove} onMove={ops.onMove} />;
             case "image":     return <ImageBlock      key={b.id} block={b} {...ops} />;
-            case "list":      return <ListBlock       key={b.id} block={b} {...ops} />;
+            case "list":      return <ListBlock       key={b.id} block={b} accentColor={accentColor} {...ops} />;
         }
     };
 
