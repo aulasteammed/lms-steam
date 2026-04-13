@@ -484,9 +484,6 @@ function CoverImageZone({ imageUrl, isLocked, onUpload }: { imageUrl: string; is
     );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Templates
-// ═══════════════════════════════════════════════════════════════════════════════
 
 function CanvasCoverPerson({
     title, subtitle, authorName, authorBio, authorPhoto,
@@ -654,7 +651,6 @@ function CanvasNewsShort({
     );
 }
 
-// ─── Canvas wrapper ───────────────────────────────────────────────────────────
 
 interface CanvasProps extends TemplateProps {
     template:  Template;
