@@ -241,55 +241,77 @@ function DividerBlock({ block, isLocked, onRemove, onMove }: { block: Block } & 
 // ─── Image block ──────────────────────────────────────────────────────────────
 
 function ImageBlock({ block, isLocked, onUpdate, onRemove, onMove }: { block: Block } & BlockOps) {
-    const isFloat  = block.imagePosition === "fl" || block.imagePosition === "fr";
-    // En móvil siempre ocupa ancho completo (stack vertical), en md+ flota
-    const floatCls = block.imagePosition === "fl"
-        ? "md:float-left md:mr-4 mb-3"
-        : block.imagePosition === "fr"
-            ? "md:float-right md:ml-4 mb-3"
-            : "";
-    const widthCls = isFloat ? "w-full md:w-[42%]" : "w-full";
+    const isFloat = block.imagePosition === "fl" || block.imagePosition === "fr";
 
     return (
-        <div className={`relative group ${floatCls} ${widthCls}`}>
+        <div className="relative group w-full">
             <BlockToolbar blockId={block.id} isLocked={isLocked} onMove={onMove} onRemove={onRemove} />
             {block.imageUrl ? (
-                <div className={["relative overflow-hidden border border-slate-200", isFloat ? "aspect-[4/3]" : "aspect-video"].join(" ")}>
-                    <Image src={block.imageUrl} alt={block.caption ?? ""} fill className="object-cover" sizes="(max-width: 900px) 100vw, 50vw" />
+                <div className={[
+                    "relative overflow-hidden border border-slate-200",
+                    isFloat ? "aspect-[4/3]" : "aspect-video",
+                ].join(" ")}>
+                    <Image
+                        src={block.imageUrl}
+                        alt={block.caption ?? ""}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 900px) 100vw, 50vw"
+                    />
                     {!isLocked && (
-                        <button onClick={() => onUpdate(block.id, { imageUrl: "" })}
-                            className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-all text-white text-xs font-medium">
+                        <button
+                            onClick={() => onUpdate(block.id, { imageUrl: "" })}
+                            className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-all text-white text-xs font-medium"
+                        >
                             Cambiar imagen
                         </button>
                     )}
                 </div>
             ) : (
-                <div className={["border border-dashed border-slate-300 bg-slate-50 rounded-sm overflow-hidden", !isFloat ? "aspect-video" : ""].join(" ")}>
-                    {!isLocked && <FileUpload endpoint="courseImage" action={(url) => { if (url) onUpdate(block.id, { imageUrl: url }); }} />}
+                <div className={[
+                    "border border-dashed border-slate-300 bg-slate-50 rounded-sm overflow-hidden",
+                    !isFloat ? "aspect-video" : "",
+                ].join(" ")}>
+                    {!isLocked && (
+                        <FileUpload
+                            endpoint="courseImage"
+                            action={(url) => { if (url) onUpdate(block.id, { imageUrl: url }); }}
+                        />
+                    )}
                 </div>
             )}
-            {/* Posición y caption — solo editables si no está bloqueado */}
+
             {!isLocked && (
                 <div className="flex gap-1 mt-1.5">
                     {(["fl", "fw", "fr"] as ImagePosition[]).map((pos) => (
-                        <button key={pos} onClick={() => onUpdate(block.id, { imagePosition: pos })}
-                            className={["text-[9px] px-2 py-0.5 rounded border transition-colors",
+                        <button
+                            key={pos}
+                            onClick={() => onUpdate(block.id, { imagePosition: pos })}
+                            className={[
+                                "text-[9px] px-2 py-0.5 rounded border transition-colors",
                                 block.imagePosition === pos
                                     ? "bg-slate-800 text-white border-slate-800"
-                                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
-                            ].join(" ")}>
+                                    : "bg-white text-slate-500 border-slate-200 hover:border-slate-400",
+                            ].join(" ")}
+                        >
                             {pos === "fl" ? "← Izq" : pos === "fw" ? "Ancho" : "Der →"}
                         </button>
                     ))}
                 </div>
             )}
-            <input value={block.caption ?? ""} onChange={(e) => onUpdate(block.id, { caption: e.target.value })}
-                placeholder="Descripción de la imagen..." maxLength={CHAR_LIMITS.caption}
+
+            <input
+                value={block.caption ?? ""}
+                onChange={(e) => onUpdate(block.id, { caption: e.target.value })}
+                placeholder="Descripción de la imagen..."
+                maxLength={CHAR_LIMITS.caption}
                 disabled={isLocked}
                 className={[
-                    "w-full text-xs text-slate-400 px-1 mt-1 outline-none bg-transparent placeholder:text-slate-300 border-b border-transparent transition-colors",
+                    "w-full text-xs text-slate-400 px-1 mt-1 outline-none bg-transparent",
+                    "placeholder:text-slate-300 border-b border-transparent transition-colors",
                     isLocked ? "cursor-default" : "focus:border-slate-200",
-                ].join(" ")} />
+                ].join(" ")}
+            />
         </div>
     );
 }
@@ -371,7 +393,6 @@ export type SharedCanvasProps = {
     dragHandlers:  { onDragStart: (id: string) => void; onDragEnd: () => void; onDragOver: (id: string) => void; onDrop: (id: string) => void };
     dragState:     { dragging: string | null; dragOver: string | null };
 };
-
 function BlockList({ blocks, accentColor, isLocked = false, onBlockUpdate, onBlockRemove, onBlockMove, dragHandlers, dragState }: SharedCanvasProps) {
     const ops: BlockOps = { isLocked, onUpdate: onBlockUpdate, onRemove: onBlockRemove, onMove: onBlockMove };
 
@@ -384,14 +405,13 @@ function BlockList({ blocks, accentColor, isLocked = false, onBlockUpdate, onBlo
     while (i < blocks.length) {
         const b         = blocks[i];
         const isFloated = b.type === "image" && (b.imagePosition === "fl" || b.imagePosition === "fr");
+
         if (isFloated) {
-            const textBlocks: Block[] = [];
-            let j = i + 1;
-            // Paragraph, pullquote y list fluyen alrededor de la imagen flotante
             const flowable = new Set(["paragraph", "pullquote", "list"]);
-            while (j < blocks.length && flowable.has(blocks[j].type)) { textBlocks.push(blocks[j]); j++; }
+            const next = blocks[i + 1];
+            const textBlocks = (next && flowable.has(next.type)) ? [next] : [];
             groups.push({ kind: "flow", imgBlock: b, textBlocks });
-            i = j;
+            i = i + 1 + textBlocks.length;
         } else {
             groups.push({ kind: "solo", block: b });
             i++;
@@ -427,11 +447,32 @@ function BlockList({ blocks, accentColor, isLocked = false, onBlockUpdate, onBlo
                         </div>
                     );
                 }
+
+                // ← isLeft va aquí, dentro del map, cuando ya tenemos acceso a group
+                const isLeft = group.imgBlock.imagePosition === "fl";
+
                 return (
-                    <div key={`flow-${gi}`} className="block">
-                        <ImageBlock block={group.imgBlock} {...ops} />
-                        {group.textBlocks.map((tb) => renderSolo(tb))}
-                        <div className="clear-both" />
+                    <div
+                        key={`flow-${gi}`}
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: isLeft ? "42% 1fr" : "1fr 42%",
+                            gap: "12px",
+                            alignItems: "start",
+                        }}
+                    >
+                        <div style={{ gridColumn: isLeft ? 1 : 2, gridRow: 1 }}>
+                            <ImageBlock block={group.imgBlock} {...ops} />
+                        </div>
+                        <div style={{
+                            gridColumn: isLeft ? 2 : 1,
+                            gridRow: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "4px",
+                        }}>
+                            {group.textBlocks.map((tb) => renderSolo(tb))}
+                        </div>
                     </div>
                 );
             })}
