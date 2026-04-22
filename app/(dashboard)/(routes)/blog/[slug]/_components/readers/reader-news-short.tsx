@@ -11,7 +11,7 @@ import {
     useReaderState, type ReaderProps,
 } from "./shared";
 
-export function ReaderNewsShort({ article, viewCount, articleId, prev, next }: ReaderProps) {
+export function ReaderNewsShort({ article, viewCount, articleId, articleSlug, prev, next }: ReaderProps) {
     const router = useRouter();
     const blocks = (Array.isArray(article.blocks) ? article.blocks : [])
         .sort((a, b) => a.position - b.position);
@@ -25,7 +25,7 @@ export function ReaderNewsShort({ article, viewCount, articleId, prev, next }: R
         openImg, navImg,
         getParagraphFocused,
         endRef,
-    } = useReaderState({ articleId, blocks, prev, next, router });
+    } = useReaderState({ articleId, articleSlug, blocks, prev, next, router });
 
     return (
         <>

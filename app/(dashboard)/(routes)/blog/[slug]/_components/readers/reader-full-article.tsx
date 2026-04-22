@@ -10,7 +10,7 @@ import {
     useReaderState, type ReaderProps,
 } from "./shared";
 
-export function ReaderFullArticle({ article, viewCount, articleId, prev, next }: ReaderProps) {
+export function ReaderFullArticle({ article, viewCount, articleId, articleSlug, prev, next }: ReaderProps) {
     const router = useRouter();
     const blocks = (Array.isArray(article.blocks) ? article.blocks : [])
         .sort((a, b) => a.position - b.position);
@@ -24,7 +24,7 @@ export function ReaderFullArticle({ article, viewCount, articleId, prev, next }:
         openImg, navImg,
         getParagraphFocused,
         endRef,
-    } = useReaderState({ articleId, blocks, prev, next, router });
+    } = useReaderState({ articleId, articleSlug, blocks, prev, next, router });
 
     return (
         <>

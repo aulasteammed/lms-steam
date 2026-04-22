@@ -180,9 +180,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
     articleId: string;
 }) {
     const router = useRouter();
-    const endRef = useRef<HTMLDivElement>(null);
-    const viewRecorded = useRef(false);
-
 
 
     const blocks = (Array.isArray(article.blocks) ? article.blocks as Block[] : [])
@@ -199,29 +196,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
     const [viewDone,   setViewDone]   = useState(false);
 
     const accent = article.accentColor || "#e8622a";
-
-    useEffect(() => {
-        const sentinel = endRef.current;
-        if (!sentinel) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && !viewRecorded.current) {
-                    viewRecorded.current = true;
-                    setViewDone(true);
-                    fetch(`/api/blog/views`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ articleId }),
-                    }).catch(() => {});
-                }
-            },
-            { threshold: 0.5 }
-        );
-
-        observer.observe(sentinel);
-        return () => observer.disconnect();
-    }, [articleId]);
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -381,7 +355,6 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     <div style={{ clear: "both" }} />
                 </div>
 
-                <div ref={endRef} className="h-1 w-full" aria-hidden />
 
                 <div className="flex gap-4 mt-10 pt-7 border-t border-[#e2ddd8]">
                     {prev ? (

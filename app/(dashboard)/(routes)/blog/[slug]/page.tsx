@@ -52,6 +52,7 @@ export default async function BlogArticlePage({ params }: Props) {
             article={article as any}
             viewCount={article._count.views}
             articleId={article.id}
+            articleSlug={article.slug}
             prev={prev}
             next={next}
         />

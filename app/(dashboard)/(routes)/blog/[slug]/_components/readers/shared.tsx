@@ -50,6 +50,7 @@ export type ReaderProps = {
     article:   Article;
     viewCount: number;
     articleId: string;
+    articleSlug: string;
     prev:      AdjacentArticle;
     next:      AdjacentArticle;
 };
@@ -309,7 +310,6 @@ export function KeyboardBar() {
     );
 }
 
-// ── Top nav bar ───────────────────────────────────────────────
 
 export function TopBar({ article, focusMode, onToggleFocus }: {
     article:       Article;
@@ -352,15 +352,11 @@ export function TopBar({ article, focusMode, onToggleFocus }: {
     );
 }
 
-// ── useReaderState ────────────────────────────────────────────
-// La navegación con ← → requiere que el div scrolleable tenga
-// tabIndex={0} y que el listener esté en ese div, no en window.
-// De lo contrario el div captura el scroll y consume las teclas.
-
 export function useReaderState({
-    articleId, blocks, prev, next, router,
+    articleId, articleSlug, blocks, prev, next, router,
 }: {
     articleId: string;
+    articleSlug: string;
     blocks:    Block[];
     prev:      AdjacentArticle;
     next:      AdjacentArticle;
@@ -376,31 +372,34 @@ export function useReaderState({
     const [imgIdx,     setImgIdx]     = useState(0);
 
     const viewRecorded = useRef(false);
-    const endRef       = useRef<HTMLDivElement>(null);
+    const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
+    const endRef = useCallback((node: HTMLDivElement | null) => {setEndNode(node);}, []);
+    console.log(articleId);
+    console.log(articleSlug);
+
 
     useEffect(() => {
-        const sentinel = endRef.current;
-        if (!sentinel) return;
+        if (!endNode || !articleSlug || !articleId) return;
         const observer = new IntersectionObserver(
             (entries) => {
+                console.log("[views] intersecting:", entries[0].isIntersecting, "recorded:", viewRecorded.current);
+
                 if (entries[0].isIntersecting && !viewRecorded.current) {
                     viewRecorded.current = true;
-                    fetch("/api/blog/views", {
+                    console.log("[views] firing fetch →", { articleSlug, articleId });
+                    fetch(`/api/blog/articles/${articleSlug}/views`, {
                         method:  "POST",
                         headers: { "Content-Type": "application/json" },
                         body:    JSON.stringify({ articleId }),
-                    }).catch(() => {});
+                    }).then(r => r.json()).then(d => console.log("[views] response:", d)).catch(e => console.error("[views] fetch error:", e));
                 }
             },
             { threshold: 0.5 }
         );
-        observer.observe(sentinel);
+        observer.observe(endNode);
         return () => observer.disconnect();
-    }, [articleId]);
+    }, [endNode, articleSlug, articleId]); 
 
-    // Keyboard shortcuts — escuchar en window es suficiente,
-    // pero hay que usar e.preventDefault() en ← → para que el
-    // div scrolleable no los consuma como scroll horizontal
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             // Overlay abierto — las flechas las maneja ImageOverlay
