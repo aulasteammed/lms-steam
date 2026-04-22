@@ -41,7 +41,6 @@ export default async function CourseLayout(
                         select: {
                             id: true,
                             isPublished: true,
-                            type: true,
                         },
                     },
                 },

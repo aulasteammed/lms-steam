@@ -7,20 +7,19 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import toast from 'react-hot-toast';
-import { EvaluationType } from '@prisma/client';
 import { QuestionForm } from "./question-form";
 import { AttemptsHistoryForm } from "./attempts-history-form";
 import { Loading } from '@/components/loading';
+import { AppQuestionType, normalizeQuestionType } from "@/lib/evaluation";
 
 type Answer = { id: string; title: string; isCorrect: boolean };
-type Question = { id: string; title: string; evaluationId: string; answers: Answer[] };
+type Question = { id: string; title: string; evaluationId: string; type?: AppQuestionType | null; answers: Answer[] };
 interface Attempt { attemptNumber: number; score: number; date: string; }
 
 interface Props {
     courseId: string;
     moduleId: string;
     evaluationId: string;
-    evaluationType: EvaluationType;
     questions: Question[];
     nextModuleId?: string;
     attempt: number;
@@ -48,7 +47,6 @@ export function EvaluationForm({
                                    courseId,
                                    moduleId,
                                    evaluationId,
-                                   evaluationType,
                                    questions,
                                    nextModuleId,
                                    attempt,
@@ -120,8 +118,9 @@ export function EvaluationForm({
         questions.forEach((ques) => {
             const resp = responses[ques.id];
             const correctAnswers = ques.answers.filter(a => a.isCorrect);
+            const questionType = normalizeQuestionType(ques.type, null);
 
-            switch (evaluationType) {
+            switch (questionType) {
                 case 'single':
                     const selectedId = resp;
                     const selectedAnswer = ques.answers.find(a => a.id === selectedId);
@@ -168,7 +167,7 @@ export function EvaluationForm({
 
                 case 'sequence':
                     if (Array.isArray(resp)) {
-                        const correctOrder = correctAnswers.map(a => a.id);
+                        const correctOrder = ques.answers.map(a => a.id);
                         const isCorrect = JSON.stringify(resp) === JSON.stringify(correctOrder);
 
                         if (isCorrect) correctCount++;
@@ -185,7 +184,7 @@ export function EvaluationForm({
                     break;
 
                 default:
-                    console.warn(`Tipo de evaluación no soportado: ${evaluationType}`);
+                    console.warn(`Tipo de pregunta no soportado: ${questionType}`);
                     break;
             }
         });
@@ -408,7 +407,7 @@ export function EvaluationForm({
         <QuestionForm
             questions={questions}
             responses={responses}
-            evaluationType={evaluationType}
+            evaluationTypeFallback={null}
             index={index}
             onChange={onChange}
             prev={prev}

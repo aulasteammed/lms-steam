@@ -23,97 +23,21 @@ export async function POST(
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        const currentEvaluation = await db.evaluation.findUnique({
-            where: { id: params.evaluationId },
-            select: { type: true },
+        const updateData: { maxAttempts?: number | null; isPublished?: boolean } = {};
+
+        if (typeof values.maxAttempts !== "undefined") {
+            updateData.maxAttempts = values.maxAttempts;
+        }
+
+        const updatedEvaluation = await db.evaluation.update({
+            where: {
+                id: params.evaluationId,
+                moduleId: params.moduleId,
+            },
+            data: updateData,
         });
 
-        const typeChanged =
-            typeof values.type !== "undefined" &&
-            currentEvaluation?.type !== values.type;
-
-        const result = await db.$transaction(async (tx) => {
-            if (typeChanged) {
-                const questionsToReset = await tx.question.findMany({
-                    where: { evaluationId: params.evaluationId },
-                    select: { id: true },
-                });
-                const resetQuestionIds = questionsToReset.map((q) => q.id);
-
-                if (resetQuestionIds.length > 0) {
-                    await tx.selectedAnswer.deleteMany({
-                        where: { questionId: { in: resetQuestionIds } },
-                    });
-                    await tx.answer.deleteMany({
-                        where: { questionId: { in: resetQuestionIds } },
-                    });
-                    await tx.question.deleteMany({
-                        where: { evaluationId: params.evaluationId },
-                    });
-                }
-
-                await tx.evaluationResult.deleteMany({
-                    where: { evaluationId: params.evaluationId },
-                });
-            }
-
-            // Get the current evaluation from the database
-            const existingEvaluation = await tx.evaluation.findUnique({
-                where: {
-                    id: params.evaluationId,
-                    moduleId: params.moduleId,
-                },
-            });
-
-            // Construct the update object
-            const updateData: any = {
-                ...values,
-            };
-
-            // Only change isPublished if the type changed
-            if (values.type && values.type !== existingEvaluation?.type) {
-                updateData.isPublished = false;
-            }
-
-            // Make the update
-            const updatedEvaluation = await tx.evaluation.update({
-                where: {
-                    id: params.evaluationId,
-                    moduleId: params.moduleId,
-                },
-                data: updateData,
-            });
-
-            await tx.module.update({
-                where: {
-                    id: params.moduleId,
-                },
-                data: {
-                    evaluationMethod: values.type,
-                    ...(typeChanged && { isPublished: false }),
-                },
-            });
-
-            if (typeChanged) {
-                const publishedModules = await tx.module.findMany({
-                    where: {
-                        courseId: params.courseId,
-                        isPublished: true,
-                    },
-                });
-
-                if (publishedModules.length === 0) {
-                    await tx.course.update({
-                        where: { id: params.courseId },
-                        data: { isPublished: false },
-                    });
-                }
-            }
-
-            return { updatedEvaluation, resetQuestions: typeChanged };
-        });
-
-        return NextResponse.json(result);
+        return NextResponse.json({ updatedEvaluation });
     } catch (error) {
         console.log("[EVALUATIONS_ID]", error);
         return new NextResponse("Internal error", { status: 500 });
@@ -215,5 +139,4 @@ export async function DELETE(
         return new NextResponse("Internal error", { status: 500 });
     }
 }
-
 

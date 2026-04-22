@@ -2,6 +2,10 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
+import {
+    deleteUploadThingFilesByUrls,
+    extractArticleUploadThingUrls,
+} from "@/lib/uploadthing-server";
 
 // ── Helpers ───────────────────────────────────────────────────
 
@@ -159,6 +163,8 @@ export async function DELETE(
 
     const article = await db.article.findUnique({ where: { slug } });
     if (!article) return new NextResponse("Not Found", { status: 404 });
+
+    await deleteUploadThingFilesByUrls(extractArticleUploadThingUrls(article));
 
     await db.articleView.deleteMany({ where: { articleId: article.id } });
     await db.article.delete({ where: { slug } });

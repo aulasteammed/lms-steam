@@ -3,14 +3,12 @@
 import { ClipboardList, Lock } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { EvaluationType } from '@prisma/client';
 
 interface ModuleEvaluationItemProps {
     courseId: string;
     moduleId: string;
     evaluationId: string;
     isLocked: boolean;
-    type: EvaluationType;
 }
 
 /**
@@ -21,7 +19,6 @@ export const CourseEvaluationItem = ({
                                          moduleId,
                                          evaluationId,
                                          isLocked,
-                                        type,
                                      }: ModuleEvaluationItemProps) => {
     const router = useRouter();
     const pathname = usePathname();
@@ -31,14 +28,6 @@ export const CourseEvaluationItem = ({
     const onClick = () => {
         if (isLocked) return;
         router.push(`/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}`);
-    };
-
-    const evaluationTypeLabels: Record<EvaluationType, string> = {
-        sequence: "Secuencial",
-        locate: "Ubicar",
-        single: "Selección única",
-        multiple: "Selección múltiple",
-        open: "Respuesta abierta",
     };
 
     return (
@@ -60,7 +49,7 @@ export const CourseEvaluationItem = ({
             ) : (
                 <ClipboardList className="h-4 w-4 text-slate-600" />
             )}
-            <span>Evaluación - {evaluationTypeLabels[type]}</span>
+            <span>Evaluación</span>
         </button>
     );
 
