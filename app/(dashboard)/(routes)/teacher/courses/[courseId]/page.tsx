@@ -49,6 +49,11 @@ export default async function CourseIdPage(
       userId,
     },
     include: {
+      courseCategories: {
+        include: {
+          category: true,
+        },
+      },
       modules: {
         orderBy: {
           position: "asc",
@@ -79,7 +84,7 @@ export default async function CourseIdPage(
     course.previousSkills,
     course.developedSkills,
     course.imageUrl,
-    course.categoryId,
+    course.courseCategories.length > 0,
     course.modules.some((module: { isPublished: boolean }) => module.isPublished),
     course.price !== null,
   ];

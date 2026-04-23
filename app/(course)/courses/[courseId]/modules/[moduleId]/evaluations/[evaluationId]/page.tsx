@@ -84,7 +84,6 @@ export default async function EvaluationPage({
                 courseId={courseId}
                 moduleId={moduleId}
                 evaluationId={evaluation.id}
-                evaluationType={evaluation.type}
                 questions={evaluation.questions}
                 nextModuleId={nextModule?.id}
                 maxAttempts={evaluation.maxAttempts || 0}

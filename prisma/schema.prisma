@@ -35,13 +35,12 @@ model Course {
 
   isPublished Boolean @default(false)
 
-  categoryId      String?   @db.ObjectId
-  category        Category? @relation(fields: [categoryId], references: [id])
   modules         Module[]
   attachments     Attachment[]
   registered      Registration[]
   certificates    Certificate[]
   ratings         Rating[]
+  courseCategories CourseCategory[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -50,7 +49,21 @@ model Course {
 model Category {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   name            String   @unique
-  courses         Course[]
+  courseCategories CourseCategory[]
+}
+
+model CourseCategory {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  courseId        String   @db.ObjectId
+  course          Course   @relation(fields: [courseId], references: [id])
+
+  categoryId      String   @db.ObjectId
+  category        Category @relation(fields: [categoryId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@unique([courseId, categoryId])
 }
 
 model Attachment {
@@ -133,9 +146,15 @@ enum EvaluationType {
   open
 }
 
+enum QuestionType {
+  sequence
+  single
+  multiple
+  open
+}
+
 model Evaluation {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  type            EvaluationType
   maxAttempts     Int?
 
   moduleId        String   @unique @db.ObjectId
@@ -153,6 +172,7 @@ model Evaluation {
 model Question {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   title           String
+  type            QuestionType?
 
   evaluationId    String   @db.ObjectId
   evaluation      Evaluation   @relation(fields: [evaluationId], references: [id])

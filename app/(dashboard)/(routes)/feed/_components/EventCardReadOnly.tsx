@@ -184,7 +184,7 @@ function EventCard({ event }: { event: Event }) {
 
   return (
     <>
-      <div className={`relative bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden max-w-md mx-auto ${isPastEvent ? 'opacity-75' : ''}`}>
+      <div className={`relative bg-white border border-amber-100 rounded-2xl shadow-md overflow-hidden max-w-md mx-auto ${isPastEvent ? 'opacity-75' : ''}`}>
         {/* Fecha */}
         <div className={`absolute top-3 left-3 px-2 py-1 rounded-md text-center z-10 shadow-sm ${
           isPastEvent ? 'bg-gray-300' : 'bg-yellow-400'
@@ -202,7 +202,7 @@ function EventCard({ event }: { event: Event }) {
 
         {/* Imagen clickeable */}
         <div 
-          className="relative w-full h-48 bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
+          className="relative mx-auto mt-4 w-[calc(100%-2rem)] max-w-[360px] aspect-[3/4] bg-gradient-to-b from-amber-50 to-orange-50 cursor-pointer hover:opacity-95 transition-opacity rounded-2xl overflow-hidden border border-amber-100"
           onClick={openModal}
         >
           <Image
@@ -210,7 +210,7 @@ function EventCard({ event }: { event: Event }) {
             alt={event.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            className="object-contain"
             priority={false}
           />
           {/* Indicador de que es clickeable */}
@@ -228,9 +228,6 @@ function EventCard({ event }: { event: Event }) {
           <h3 className="text-lg font-semibold mb-2 text-gray-800 line-clamp-2">
             {event.title}
           </h3>
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {event.description}
-          </p>
           <div className="space-y-1">
             <p className="text-sm text-gray-700 font-medium flex items-center">
               <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +242,12 @@ function EventCard({ event }: { event: Event }) {
               </svg>
               {timeRange}
             </p>
-         
+
+            {event.description && (
+              <p className="pt-2 text-sm text-gray-600 leading-relaxed line-clamp-3">
+                {event.description}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -256,7 +258,7 @@ function EventCard({ event }: { event: Event }) {
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
           onClick={closeModal}
         >
-          <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
+          <div className="relative w-full max-w-[520px] h-[92vh]">
             {/* Botón cerrar */}
             <button
               onClick={closeModal}
@@ -267,47 +269,13 @@ function EventCard({ event }: { event: Event }) {
               </svg>
             </button>
 
-            {/* Información del evento */}
-            <div className="absolute bottom-4 left-4 right-4 z-10 bg-black bg-opacity-75 text-white p-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold">{event.title}</h3>
-                {isPastEvent && (
-                  <span className="bg-gray-600 text-xs px-2 py-1 rounded">
-                    Evento finalizado
-                  </span>
-                )}
-              </div>
-              <p className="text-sm mb-2 opacity-90">{event.description}</p>
-              <div className="flex flex-wrap gap-4 text-sm">
-                <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  {event.location}
-                </span>
-                <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {timeRange}
-                </span>
-                <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 012 0v4h2V3a1 1 0 012 0v4h2V3a1 1 0 012 0v4a1 1 0 011 1v6a1 1 0 01-1 1H7a1 1 0 01-1-1V8a1 1 0 011-1z" />
-                  </svg>
-                  {day} {month} {start.getFullYear()}
-                </span>
-              </div>
-            </div>
-
             {/* Imagen completa */}
             <Image
               src={event.imageUrl}
               alt={event.title}
               fill
               sizes="90vw"
-              className="object-contain"
+              className="object-contain rounded-2xl"
               priority={true}
             />
           </div>

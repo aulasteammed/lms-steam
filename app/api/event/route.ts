@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@clerk/nextjs/server'
+import { deleteUploadThingFilesByUrls } from '@/lib/uploadthing-server'
 
 // Esquema de validación simple
 interface CreateEventData {
@@ -69,11 +70,6 @@ function validateEventData(data: any): CreateEventData {
 // Método GET para obtener todos los eventos
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth()
-
-    if (!userId) {
-      return NextResponse.json({ error: 'No estás autenticado' }, { status: 401 })
-    }
     const lastThirtyDays = new Date()
     lastThirtyDays.setDate(lastThirtyDays.getDate() - 30)
 
@@ -187,6 +183,8 @@ export async function DELETE(req: NextRequest) {
         { status: 404 }
       )
     }
+
+    await deleteUploadThingFilesByUrls([existingEvent.imageUrl])
 
     // Eliminar el evento
     await db.event.delete({

@@ -1,10 +1,12 @@
-import { Category, Module, Course } from '@prisma/client';
+import { Category, Module, Course, CourseCategory } from '@prisma/client';
 
 import { db } from '@/lib/db';
 import { getProgressBatch } from '@/actions/get-progress-batch';
 
 type CourseWithProgressWithCategory = Course & {
-    category: Category;
+    courseCategories: (CourseCategory & {
+        category: Category;
+    })[];
     modules: Module[];
     progress: number | null;
 };
@@ -25,7 +27,11 @@ export const getDashboardCourses = async (
             select: {
                 course: {
                     include: {
-                        category: true,
+                        courseCategories: {
+                            include: {
+                                category: true,
+                            },
+                        },
                         modules: {
                             where: {
                                 isPublished: true,

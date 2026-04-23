@@ -10,7 +10,7 @@ interface CourseCardProps {
     imageUrl: string,
     modulesLength?: number
     progress: number | null,
-    category: string,
+    categories: string,
     level: string,
 }
 
@@ -20,7 +20,7 @@ export const CourseCard = ({
                                imageUrl,
                                modulesLength,
                                progress,
-                               category,
+                               categories,
                                level,
                            }: CourseCardProps) => {
     return (
@@ -50,7 +50,7 @@ export const CourseCard = ({
                     >
                         {title}
                     </div>
-                    <p className="text-xs text-muted-foreground">{category}</p>
+                    <p className="text-xs text-muted-foreground">{categories}</p>
 
                     {/* Modules info */}
                     <div className="flex items-center gap-x-2 text-sm text-gray-600">

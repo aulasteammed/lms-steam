@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
+import { deleteUploadThingFilesByUrls } from "@/lib/uploadthing-server";
 
 
 /**
@@ -45,6 +46,8 @@ export async function DELETE(
   if (!module) {
     return new NextResponse("Not Found", { status:404 });
   }
+
+  await deleteUploadThingFilesByUrls([module.videoUrl]);
 
   // Clean up evaluation and its nested records before deleting the module
   const evaluation = await db.evaluation.findUnique({

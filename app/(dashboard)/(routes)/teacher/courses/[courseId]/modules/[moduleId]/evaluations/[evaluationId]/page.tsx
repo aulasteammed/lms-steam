@@ -4,23 +4,13 @@ import { ArrowLeft, LayoutDashboard, View } from "lucide-react";
 import Link from "next/link";
 
 import { db } from "@/lib/db";
-import { Answer, EvaluationType, Question } from "@prisma/client";
+import { Answer, Question } from "@prisma/client";
 
 import { IconBadge } from "@/components/icon-badge";
-import { Banner } from "@/components/banner";
 import { Actions } from "./_components/actions";
-import { SingleChoiceForm } from "./_components/single-choice-form";
-import { MultipleChoiceForm } from "./_components/multiple-choice-form";
+import { CreateQuestionForm } from "./_components/create-question-form";
 import { QuestionsPreviewForm } from "./_components/question-preview-form";
-import { TypeForm } from "./_components/type-form";
-import { OpenQuestionForm } from './_components/open-question-form';
 import { MaxAttemptsForm } from './_components/maxAttempts-form';
-import {
-    SequenceChoiceForm
-} from '@/app/(dashboard)/(routes)/teacher/courses/[courseId]/modules/[moduleId]/evaluations/[evaluationId]/_components/sequence-choice-form';
-import {
-    LocateChoiceForm
-} from '@/app/(dashboard)/(routes)/teacher/courses/[courseId]/modules/[moduleId]/evaluations/[evaluationId]/_components/locate-choice-form';
 
 /**
  * Evaluation Configuration Page.
@@ -50,12 +40,7 @@ export default async function EvaluationIdPage({
         include: { answers: true },
     });
 
-    const evaluationTypes = Object.values(EvaluationType).map((type) => ({
-        label: type.charAt(0).toUpperCase() + type.slice(1),
-        value: type,
-    }));
-
-    const requiredFields = [evaluation.type, questions.length > 0, evaluation.maxAttempts];
+    const requiredFields = [questions.length > 0, evaluation.maxAttempts];
     const totalFields = requiredFields.length;
     const completedFields = requiredFields.filter(Boolean).length;
     const completionText = `(${completedFields}/${totalFields})`;
@@ -97,54 +82,18 @@ export default async function EvaluationIdPage({
                         <div>
                             <div className="flex items-center gap-x-2">
                                 <IconBadge icon={LayoutDashboard} />
-                                <h2 className="text-xl">Personaliza el módulo</h2>
+                                <h2 className="text-xl">Configura la evaluación</h2>
                             </div>
-                            <TypeForm
-                                initialData={evaluation}
-                                courseId={course.id}
-                                moduleId={module.id}
-                                evaluationTypes={evaluationTypes}
-                            />
                             <MaxAttemptsForm
                                 initialData={evaluation}
                                 courseId={course.id}
                                 moduleId={module.id}
                             />
-                            {evaluation.type === "single" && (
-                                <SingleChoiceForm
-                                    courseId={courseId}
-                                    moduleId={moduleId}
-                                    evaluationId={evaluationId}
-                                />
-                            )}
-                            {evaluation.type === "multiple" && (
-                                <MultipleChoiceForm
-                                    courseId={courseId}
-                                    moduleId={moduleId}
-                                    evaluationId={evaluationId}
-                                />
-                            )}
-                            {evaluation.type === "open" && (
-                                <OpenQuestionForm
-                                    courseId={courseId}
-                                    moduleId={moduleId}
-                                    evaluationId={evaluationId}
-                                />
-                            )}
-                            {evaluation.type === "sequence" && (
-                                <SequenceChoiceForm
-                                    courseId={courseId}
-                                    moduleId={moduleId}
-                                    evaluationId={evaluationId}
-                                />
-                            )}
-                            {evaluation.type === "locate" && (
-                                <LocateChoiceForm
-                                    courseId={courseId}
-                                    moduleId={moduleId}
-                                    evaluationId={evaluationId}
-                                />
-                            )}
+                            <CreateQuestionForm
+                                courseId={courseId}
+                                moduleId={moduleId}
+                                evaluationId={evaluationId}
+                            />
                         </div>
                     </div>
 
@@ -154,7 +103,12 @@ export default async function EvaluationIdPage({
                                 <IconBadge icon={View} />
                                 <h2 className="text-xl">Vista previa de preguntas</h2>
                             </div>
-                            <QuestionsPreviewForm questions={questions} />
+                            <QuestionsPreviewForm
+                                questions={questions}
+                                courseId={courseId}
+                                moduleId={moduleId}
+                                evaluationId={evaluationId}
+                            />
                         </div>
                     </div>
                 </div>
