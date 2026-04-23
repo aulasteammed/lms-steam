@@ -274,9 +274,9 @@ function EndSlide({ article, accent, next, viewCount }: {
 // ── Main export ───────────────────────────────────────────────
 
 export function MobileReader({ article, viewCount, articleId, articleSlug, prev, next }: {
-    article:   Article;
-    viewCount: number;
-    articleId: string;
+    article:     Article;
+    viewCount:   number;
+    articleId:   string;
     articleSlug: string;
     prev:      AdjacentArticle;
     next:      AdjacentArticle;
