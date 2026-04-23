@@ -9,6 +9,7 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',      
   '/api/uploadthing',
+  '/api/blog/articles/:path*/views',
   '/certificate/verify/:path*',
 ]);
 

@@ -13,7 +13,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
 const MONO  = "var(--font-mono, 'IBM Plex Mono', monospace)";
 const SERIF = "var(--font-serif, 'Playfair Display', Georgia, serif)";
 
-const PAGE_SIZE = 12; // 1 featured + 11 small
+const PAGE_SIZE = 8; // 1 featured + 11 small
 
 
 type BlogArticle = {
@@ -26,7 +26,7 @@ type BlogArticle = {
     authorName: string;
     template: string;
     accentColor: string;
-    publishedAt?: string | Date | null;
+    publishedAt?: Date | null;
     _count: {
         views: number;
     };
@@ -326,7 +326,7 @@ const Pagination = memo(function Pagination({
         disabled:opacity-30"
         style={{ fontFamily: MONO }}
       >
-        ← Anterior
+        Anterior
       </button>
 
       {visiblePages.map((p, i) =>
@@ -367,7 +367,7 @@ const Pagination = memo(function Pagination({
         disabled:opacity-30"
         style={{ fontFamily: MONO }}
       >
-        Siguiente →
+        Siguiente
       </button>
 
     </div>

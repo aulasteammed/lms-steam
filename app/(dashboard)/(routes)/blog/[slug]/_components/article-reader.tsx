@@ -133,7 +133,7 @@ function BlockRenderer({ block, accent, paragraphFocused, onImageClick }: {
         const dimCls = paragraphFocused === false ? "opacity-30" : "";
         return (
             <blockquote
-                className={["py-3 px-5 my-5 text-xl italic text-[#12110f] leading-snug border-l-[3px] break-inside-avoid transition-all duration-200", dimCls].join(" ")}
+                className={["py-3 px-5 my-5 text-xl italic text-[#93918b] leading-snug border-l-[3px] break-inside-avoid transition-all duration-200", dimCls].join(" ")}
                 style={{ borderLeftColor: accent, fontFamily: SERIF }}>
                 {block.content}
             </blockquote>
@@ -360,7 +360,7 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     {prev ? (
                         <Link href={`/blog/${prev.slug}`}
                             className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#12110f] hover:shadow-[2px_2px_0_#12110f] transition-all rounded-xl flex flex-col gap-1.5">
-                            <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]" style={{ fontFamily: MONO }}>← Anterior</span>
+                            <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]" style={{ fontFamily: MONO }}> Anterior</span>
                             <span className="text-[14px] font-bold text-[#12110f] leading-snug" style={{ fontFamily: SERIF }}>{prev.title}</span>
                         </Link>
                     ) : <div className="flex-1" />}
@@ -374,7 +374,7 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     {next ? (
                         <Link href={`/blog/${next.slug}`}
                             className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#12110f] hover:shadow-[2px_2px_0_#12110f] transition-all rounded-xl flex flex-col gap-1.5 text-right">
-                            <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]" style={{ fontFamily: MONO }}>Siguiente →</span>
+                            <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]" style={{ fontFamily: MONO }}>Siguiente </span>
                             <span className="text-[14px] font-bold text-[#12110f] leading-snug" style={{ fontFamily: SERIF }}>{next.title}</span>
                         </Link>
                     ) : <div className="flex-1" />}

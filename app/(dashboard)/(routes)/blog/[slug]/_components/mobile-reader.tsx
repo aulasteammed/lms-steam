@@ -252,7 +252,7 @@ function EndSlide({ article, accent, next, viewCount }: {
                     style={{ borderColor: accent, background: "rgba(255,255,255,0.04)" }}>
                     <div className="text-[9px] tracking-[0.2em] uppercase mb-1.5"
                         style={{ color: accent, fontFamily: MONO }}>
-                        Siguiente →
+                        Siguiente
                     </div>
                     <div className="text-[14px] font-bold text-white leading-snug"
                         style={{ fontFamily: SERIF }}>
