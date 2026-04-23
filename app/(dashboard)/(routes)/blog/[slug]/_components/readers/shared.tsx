@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { SocialIcon } from "../../../_components/social-icons";
@@ -12,7 +12,6 @@ export const TEMPLATE_LABELS: Record<string, string> = {
     news_short:     "Noticia",
 };
 
-// ── Types ─────────────────────────────────────────────────────
 
 export type Block = {
     id:             string;
@@ -54,23 +53,35 @@ export type ReaderProps = {
     prev:      AdjacentArticle;
     next:      AdjacentArticle;
 };
-
 export function ProgressBar({ accent }: { accent: string }) {
-    const [progress, setProgress] = useState(0);
-    useEffect(() => {
-        const fn = () => {
-            const scrolled = window.scrollY;
-            const total    = document.documentElement.scrollHeight - window.innerHeight;
-            setProgress(total > 0 ? Math.min(100, (scrolled / total) * 100) : 0);
-        };
-        window.addEventListener("scroll", fn, { passive: true });
-        return () => window.removeEventListener("scroll", fn);
-    }, []);
-    return (
-        <div className="fixed top-0 left-0 right-0 h-[3px] bg-[#e2ddd8] z-50 pointer-events-none">
-            <div className="h-full transition-[width] duration-75 ease-linear" style={{ width: `${progress}%`, background: accent }} />
-        </div>
-    );
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const update = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(total > 0 ? Math.min(100, (scrolled / total) * 100) : 0);
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div className="fixed top-0 left-0 right-0 h-[3px] bg-[#e2ddd8] z-50 pointer-events-none">
+      <div className="h-full" style={{ width: `${progress}%`, background: accent }} />
+    </div>
+  );
 }
 
 // ── Image overlay ─────────────────────────────────────────────
@@ -125,6 +136,8 @@ export function BlockRenderer({ block, accent, paragraphFocused, onImageClick }:
     block:            Block;
     accent:           string;
     paragraphFocused: boolean | null;
+    paragraphRef?: (el: HTMLParagraphElement | null) => void;
+
     onImageClick:     (url: string) => void;
 }) {
     if (block.type === "paragraph") {
@@ -271,8 +284,8 @@ export function PrevNext({ prev, next }: { prev: AdjacentArticle; next: Adjacent
         <div className="flex gap-4 pt-7 border-t border-[#e2ddd8]">
             {prev ? (
                 <Link href={`/blog/${prev.slug}`}
-                    className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#12110f] hover:shadow-[2px_2px_0_#12110f] transition-all rounded-xl flex flex-col gap-1.5">
-                    <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]">← Anterior</span>
+                    className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#bdb8b2] hover:shadow-[2px_2px_0_#d4d4d4] transition-all rounded-xl flex flex-col gap-1.5">
+                    <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]">Anterior</span>
                     <span className="text-[14px] font-bold text-[#12110f] leading-snug">{prev.title}</span>
                 </Link>
             ) : <div className="flex-1" />}
@@ -282,8 +295,8 @@ export function PrevNext({ prev, next }: { prev: AdjacentArticle; next: Adjacent
             </div>
             {next ? (
                 <Link href={`/blog/${next.slug}`}
-                    className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#12110f] hover:shadow-[2px_2px_0_#12110f] transition-all rounded-xl flex flex-col gap-1.5 text-right">
-                    <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]">Siguiente →</span>
+                    className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#bdb8b2] hover:shadow-[2px_2px_0_#d4d4d4] transition-all rounded-xl flex flex-col gap-1.5 text-right">
+                    <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]">Siguiente</span>
                     <span className="text-[14px] font-bold text-[#12110f] leading-snug">{next.title}</span>
                 </Link>
             ) : <div className="flex-1" />}

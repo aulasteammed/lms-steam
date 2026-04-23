@@ -263,7 +263,12 @@ export default async function BlogPage() {
                     </div>
                 </div>
 
-                <BlogFeedClient years={years} byYear={byYear} />
+                <BlogFeedClient 
+                years={years} 
+                byYear={byYear} 
+                totalArticles={articles.length}
+            
+                />
             </div>
         </div>
     );

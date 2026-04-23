@@ -1,12 +1,12 @@
 "use client";
 
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Byline } from "./readers/shared";
 import { MobileReader } from "./mobile-reader";
+import { PrevNext } from "./readers/shared";
 
 const MONO  = "var(--font-mono, 'IBM Plex Mono', monospace)";
 const SERIF = "var(--font-serif, 'Playfair Display', Georgia, serif)";
@@ -172,12 +172,13 @@ function BlockRenderer({ block, accent, paragraphFocused, onImageClick }: {
     return null;
 }
 
-export function ArticleReader({ article, viewCount, prev, next, articleId }: {
+export function ArticleReader({ article, viewCount, prev, next, articleId, articleSlug }: {
     article:   Article;
     viewCount: number;
     prev:      AdjacentArticle;
     next:      AdjacentArticle;
     articleId: string;
+    articleSlug: string;
 }) {
     const router = useRouter();
 
@@ -245,6 +246,7 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     article={article as any}
                     viewCount={viewCount}
                     articleId={articleId}
+                    articleSlug={articleSlug}
                     prev={prev}
                     next={next}
                 />
@@ -355,30 +357,11 @@ export function ArticleReader({ article, viewCount, prev, next, articleId }: {
                     <div style={{ clear: "both" }} />
                 </div>
 
-
-                <div className="flex gap-4 mt-10 pt-7 border-t border-[#e2ddd8]">
-                    {prev ? (
-                        <Link href={`/blog/${prev.slug}`}
-                            className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#12110f] hover:shadow-[2px_2px_0_#12110f] transition-all rounded-xl flex flex-col gap-1.5">
-                            <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]" style={{ fontFamily: MONO }}> Anterior</span>
-                            <span className="text-[14px] font-bold text-[#12110f] leading-snug" style={{ fontFamily: SERIF }}>{prev.title}</span>
-                        </Link>
-                    ) : <div className="flex-1" />}
-
-                    <div className="flex items-center">
-                        <Link href="/blog" className="text-[11px] text-[#8a8682] hover:text-[#12110f] transition-colors px-2" style={{ fontFamily: MONO }}>
-                            Ver todos
-                        </Link>
-                    </div>
-
-                    {next ? (
-                        <Link href={`/blog/${next.slug}`}
-                            className="flex-1 p-4 bg-white border border-[#e2ddd8] hover:border-[#12110f] hover:shadow-[2px_2px_0_#12110f] transition-all rounded-xl flex flex-col gap-1.5 text-right">
-                            <span className="text-[9px] tracking-[0.2em] uppercase text-[#8a8682]" style={{ fontFamily: MONO }}>Siguiente </span>
-                            <span className="text-[14px] font-bold text-[#12110f] leading-snug" style={{ fontFamily: SERIF }}>{next.title}</span>
-                        </Link>
-                    ) : <div className="flex-1" />}
+                <div className="mt-10">
+                    <PrevNext prev={prev} next={next} />
                 </div>
+
+
             </div>
 
             {/* Keyboard shortcuts bar */}

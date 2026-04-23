@@ -273,10 +273,11 @@ function EndSlide({ article, accent, next, viewCount }: {
 
 // ── Main export ───────────────────────────────────────────────
 
-export function MobileReader({ article, viewCount, articleId, prev, next }: {
+export function MobileReader({ article, viewCount, articleId, articleSlug, prev, next }: {
     article:   Article;
     viewCount: number;
     articleId: string;
+    articleSlug: string;
     prev:      AdjacentArticle;
     next:      AdjacentArticle;
 }) {
@@ -307,7 +308,7 @@ export function MobileReader({ article, viewCount, articleId, prev, next }: {
     useEffect(() => {
         if (slide === lastSlide && !viewRecorded.current) {
             viewRecorded.current = true;
-            fetch("/api/blog/views", {
+            fetch(`/api/blog/articles/${articleSlug}/views`, {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify({ articleId }),
