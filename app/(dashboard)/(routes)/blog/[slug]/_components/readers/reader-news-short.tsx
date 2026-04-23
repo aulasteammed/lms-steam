@@ -34,6 +34,7 @@ export function ReaderNewsShort({ article, viewCount, articleId, articleSlug, pr
                     article={article as any}
                     viewCount={viewCount}
                     articleId={articleId}
+                    articleSlug={articleSlug}
                     prev={prev}
                     next={next}
                 />

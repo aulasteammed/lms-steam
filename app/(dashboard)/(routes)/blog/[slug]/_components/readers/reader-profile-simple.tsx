@@ -33,6 +33,7 @@ export function ReaderProfileSimple({ article, viewCount, articleId, articleSlug
                     article={article as any}
                     viewCount={viewCount}
                     articleId={articleId}
+                    articleSlug={articleSlug}
                     prev={prev}
                     next={next}
                 />
