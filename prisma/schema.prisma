@@ -164,6 +164,8 @@ model Evaluation {
 
   questions       Question[]
   evaluationResults EvaluationResult[]
+  retryGrants     EvaluationRetryGrant[]
+  retryEmailLogs  EvaluationRetryEmailLog[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -208,6 +210,43 @@ model EvaluationResult {
   attempt             Int      @default(0)
   score               Float    @default(0)
   completedAt         DateTime @default(now())
+}
+
+model RetryAccessCode {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  code                String   @unique
+  isActive            Boolean  @default(true)
+  usedByUserId        String?
+  usedForEvaluationId String?  @db.ObjectId
+  usedAt              DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model EvaluationRetryGrant {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String
+
+  evaluationId        String   @db.ObjectId
+  evaluation          Evaluation @relation(fields: [evaluationId], references: [id])
+
+  extraAttempts       Int      @default(2)
+  codeUsed            String
+  createdAt           DateTime @default(now())
+}
+
+model EvaluationRetryEmailLog {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String
+
+  evaluationId        String   @db.ObjectId
+  evaluation          Evaluation @relation(fields: [evaluationId], references: [id])
+
+  attempt             Int
+  sentAt              DateTime @default(now())
+
+  @@unique([userId, evaluationId, attempt])
 }
 
 model SelectedAnswer {

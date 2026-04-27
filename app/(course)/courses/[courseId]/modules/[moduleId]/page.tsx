@@ -10,6 +10,7 @@ import { VideoPlayerYoutube } from './_components/video-player-youtube';
 import { EvaluationButton } from './_components/evaluation-button';
 import { CoursePresentationBanner } from './_components/course-presentation-banner';
 import { db } from '@/lib/db';
+import { getAllowedAttempts } from '@/lib/evaluation-retry';
 
 /**
  * Page component for displaying a specific module.
@@ -71,7 +72,8 @@ export default async function ModuleIdPage({
     // Verify if you already approved
     const hasCompleted = results.some(r => r.score >= 80);
 
-    const maxAttempts = evaluation.maxAttempts ?? 0;
+    const baseMaxAttempts = evaluation.maxAttempts ?? 0;
+    const maxAttempts = await getAllowedAttempts(userId, evaluation.id, baseMaxAttempts);
 
     return (
         <div className="flex flex-col pb-20 mx-auto max-w-7xl">
@@ -149,4 +151,3 @@ export default async function ModuleIdPage({
         </div>
     );
 }
-

@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import toast from 'react-hot-toast';
 import { QuestionForm } from "./question-form";
@@ -60,12 +61,15 @@ export function EvaluationForm({
     const [started, setStarted] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [score, setScore] = useState(initialScore);
+    const [currentAttempt, setCurrentAttempt] = useState(attempt);
     const [isLoading, setIsLoading] = useState(false);
+    const [retryCode, setRetryCode] = useState("");
+    const [isRedeemingCode, setIsRedeemingCode] = useState(false);
 
     const total = questions.length;
     const passed = score >= 80;
     const maxPassed = score === 100;
-    const canRetry = attempt < maxAttempts;
+    const canRetry = currentAttempt < maxAttempts;
 
     // Handler for answers
     const onChange = (value: any) => {
@@ -198,6 +202,7 @@ export function EvaluationForm({
                 `/api/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}/results`,
                 { selectedAnswers, score: finalScore }
             );
+            setCurrentAttempt((prev) => prev + 1);
 
             // Update progress if you approved
             if (finalScore >= 80) {
@@ -217,6 +222,59 @@ export function EvaluationForm({
             setIsLoading(false);
         }
     };
+
+    const redeemRetryCode = async () => {
+        const normalizedCode = retryCode.trim().toUpperCase();
+
+        if (!normalizedCode) {
+            toast.error("Ingresa el código que te entregaron en el aula STEAM");
+            return;
+        }
+
+        setIsRedeemingCode(true);
+        try {
+            await axios.post(
+                `/api/courses/${courseId}/modules/${moduleId}/evaluations/${evaluationId}/retry-code`,
+                { code: normalizedCode }
+            );
+            toast.success("Código aplicado. Se habilitaron 2 intentos adicionales.");
+            setRetryCode("");
+            router.refresh();
+        } catch (error: any) {
+            const message = error?.response?.data || "No fue posible aplicar el código";
+            toast.error(typeof message === "string" ? message : "Código inválido");
+        } finally {
+            setIsRedeemingCode(false);
+        }
+    };
+
+    const RetryCodeSection = () => (
+        <div className="mt-4 rounded-md border border-orange-200 bg-orange-50 p-4 text-left">
+            <p className="text-sm font-medium text-orange-900">
+                Debes acercarte al aula STEAM y pedir el código para obtener más intentos.
+            </p>
+            <p className="mt-1 text-xs text-orange-800">
+                El código es de un solo uso. Si ya fue usado, solicita uno nuevo.
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <Input
+                    value={retryCode}
+                    onChange={(event) => setRetryCode(event.target.value.toUpperCase())}
+                    placeholder="Ingresa el código"
+                    className="bg-white"
+                    maxLength={12}
+                    disabled={isRedeemingCode}
+                />
+                <Button
+                    type="button"
+                    onClick={redeemRetryCode}
+                    disabled={isRedeemingCode}
+                >
+                    {isRedeemingCode ? <Loading /> : "Aplicar código"}
+                </Button>
+            </div>
+        </div>
+    );
 
     // Function to rendilizable cases
     const renderHistoryCase = (
@@ -305,12 +363,15 @@ export function EvaluationForm({
     // Case 4: Without attempts (not approved)
     if (!started && attemptsHistory.length > 0 && !canRetry && !passed) {
         return renderHistoryCase(
-            <div className="flex justify-center">
-                <ActionButton
-                    onClick={() => handleNavigation(`/courses/${courseId}/modules/${moduleId}`)}
-                >
-                    Volver al curso
-                </ActionButton>
+            <div className="space-y-3">
+                <div className="flex justify-center">
+                    <ActionButton
+                        onClick={() => handleNavigation(`/courses/${courseId}/modules/${moduleId}`)}
+                    >
+                        Volver al curso
+                    </ActionButton>
+                </div>
+                <RetryCodeSection />
             </div>,
             "Has agotado tus intentos. No has aprobado el módulo.",
             "text-red-600"
@@ -397,6 +458,12 @@ export function EvaluationForm({
                             </ActionButton>
                         )}
                     </div>
+
+                    {!passed && !canRetry && (
+                        <div className="w-full">
+                            <RetryCodeSection />
+                        </div>
+                    )}
                 </div>
             </div>
         );

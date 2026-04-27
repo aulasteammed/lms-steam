@@ -5,6 +5,7 @@ import EventCardReadOnly from '@/app/(dashboard)/(routes)/feed/_components/Event
 import { CustomCalendar } from '@/app/(dashboard)/(routes)/feed/_components/custom-calendar'
 import { isSameDay, parseISO, compareAsc } from 'date-fns'
 import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
 interface Event {
   id: string
@@ -20,6 +21,7 @@ interface Event {
 
 export default function EventsPage() {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -95,17 +97,49 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header sin botón de crear evento */}
-      <div className="flex-shrink-0 p-4 border-b bg-white">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Eventos {events.length > 0 && `(${events.length})`}
-        </h1>
+      {/* Botón móvil: calendario en panel lateral */}
+      <div className="sticky top-2 z-20 flex justify-center px-4 pt-3 lg:hidden">
+        <Sheet open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+          <SheetTrigger asChild>
+            <Button className="rounded-full shadow-md">Abrir calendario</Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[92vw] max-w-none overflow-y-auto p-4">
+            <SheetHeader className="mb-4">
+              <SheetTitle>Calendario</SheetTitle>
+            </SheetHeader>
+            <CustomCalendar
+              selected={selectedDay}
+              onSelect={setSelectedDay}
+              className="mx-auto rounded-md shadow-sm border"
+              eventDates={eventDates}
+              showEventDetails={true}
+            />
+            {selectedDay && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800 font-medium">
+                  Mostrando eventos del {selectedDay.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+                <button
+                  onClick={() => setSelectedDay(undefined)}
+                  className="text-xs text-blue-600 hover:text-blue-800 mt-2"
+                >
+                  Limpiar selección
+                </button>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Contenido principal - Flexible */}
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
         {/* Columna izquierda: eventos - Solo esta columna hace scroll */}
-        <div className="w-2/3 overflow-y-auto">
+        <div className="w-full lg:w-2/3 overflow-y-auto">
           <div className="p-6 bg-gray-50">
             {displayedEvents.length > 0 ? (
               <div className="space-y-8">
@@ -147,14 +181,14 @@ export default function EventsPage() {
         </div>
 
         {/* Columna derecha: calendario - Fijo, sin scroll propio */}
-        <div className="w-1/3 border-l bg-white flex flex-col">
+        <div className="hidden lg:flex lg:w-1/3 border-l bg-white flex-col">
           <div className="p-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-800">Calendario</h2>
             <div className="space-y-4">
               <CustomCalendar
                 selected={selectedDay}
                 onSelect={setSelectedDay}
-                className="rounded-md shadow-sm border"
+                className="mx-auto rounded-md shadow-sm border"
                 eventDates={eventDates}
                 showEventDetails={true}
               />

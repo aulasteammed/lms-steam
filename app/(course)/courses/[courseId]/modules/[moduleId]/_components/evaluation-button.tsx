@@ -36,7 +36,7 @@ export function EvaluationButton({
     const router = useRouter();
     const isPassed = (score ?? 0) >= 80;
     const hasAttemptsLeft = attempt < maxAttempts;
-    const attemptsLeft = maxAttempts - attempt;
+    const attemptsLeft = Math.max(maxAttempts - attempt, 0);
 
     const handleClick = () => {
         router.push(
