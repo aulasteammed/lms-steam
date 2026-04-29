@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
 import { isTeacher } from '@/lib/teacher';
+import { deleteUploadThingFilesByUrls } from '@/lib/uploadthing-server';
 
 /**
  * DELETE Request Handler for Deleting an Attachment.
@@ -34,14 +35,27 @@ export async function DELETE(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const attachment = await db.attachment.delete({
+    const attachment = await db.attachment.findUnique({
+      where: {
+        id: params.attachmentId,
+        courseId: params.courseId,
+      },
+    });
+
+    if (!attachment) {
+      return new NextResponse('Not Found', { status: 404 });
+    }
+
+    await deleteUploadThingFilesByUrls([attachment.url]);
+
+    const deletedAttachment = await db.attachment.delete({
       where: {
         courseId: params.courseId,
         id: params.attachmentId,
       },
     });
 
-    return NextResponse.json(attachment);
+    return NextResponse.json(deletedAttachment);
   } catch (error) {
     console.log('[ATTACHMENT_ID]', error);
     return new NextResponse('Internal error', { status: 500 });

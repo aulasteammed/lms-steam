@@ -1,0 +1,153 @@
+[
+  {
+    "date": "Marzo 18, 2024",
+    "title": "Inauguración del Aula STEAM",
+    "description": "Con la participación de la comunidad universitaria, la familia de Sonny Jiménez y aliados del aula, se inauguró oficialmente un espacio para la experimentación interdisciplinar, la creatividad y el aprendizaje práctico.",
+    "tag": "hito"
+  },
+  {
+    "date": "Marzo – Noviembre 2024",
+    "title": "Ciclo Temático: Territorios",
+    "description": "Este ciclo surgió del concepto “territorio” ¿qué es?, ¿dónde queda?, ¿qué imágenes evoca?, ¿quién lo habita?, ¿de quién es? promoviendo conversaciones abiertas y reflexivas sobre un tema transversal a las disciplinas y la vida cotidiana.",
+    "tag": "ciclo",
+    "sections": [
+      {
+        "title": "Cuatro dimensiones de abordaje:",
+        "items": [
+          "El cuerpo como territorio.",
+          "Dimensión físico-espacial.",
+          "Representaciones del territorio en y a través de las artes.",
+          "Ciberterritorio y metaterritorio"
+        ]
+      }
+    ]
+  },
+  {
+    "date": "Julio 22 – 26, 2024",
+    "title": "Semana Anti-Fashion",
+    "description": "En el marco de Colombiamoda, se realizó un espacio de encuentro y reflexión en torno al flash-fashion y la moda circular. El evento propició conversaciones sobre sostenibilidad, prácticas responsables y los retos actuales de la industria, en alianza con la FCHE.",
+    "tag": "evento"
+  },
+  {
+    "date": "Septiembre 9 – 12, 2024",
+    "title": "Fiesta del Libro y la Cultura",
+    "description": "Primera participación en un evento de ciudad desde el aula móvil de la Universidad Nacional de Colombia  se realizaron diversas actividades.",
+    "tag": "participacion"
+  },
+  {
+    "date": "Noviembre 5 – 8, 2024",
+    "title": "Semana STEAM",
+    "description": "Desde su apertura, el Aula se consolidó como espacio de experimentación, creatividad y aprendizaje desde el error, promoviendo la integración del conocimiento. Se implementó un ciclo de retos para resolver problemas mediante prototipos innovadores, fomentando colaboración, herramientas tecnológicas y desarrollo profesional.",
+    "tag": "evento"
+  },
+  {
+    "date": "2024",
+    "title": "Proyectos y Actividades 2024",
+    "tag": "evento",
+    "sections": [
+      {
+        "title": "Proyectos Destacados",
+        "items": [
+          "Recirculación del agua de lavadoras en entornos domésticos.",
+          "Fomento de Innovación – Brazo Robótico.",
+          "Laboratorio de fenómenos superficiales – Proyecto STEAM Escuela UNAL."
+        ]
+      },
+      {
+        "title": "Actividades",
+        "items": [
+          "Curso Armado de Drones.",
+          "Club de Lectura: Fundamentos del Pensamiento Sistémico – Visiones desde La trama de la vida."
+        ]
+      }
+    ]
+  },
+  {
+    "date": "Marzo – Diciembre 2025",
+    "title": "Ciclo Temático: Culturas Alimentarias",
+    "description": "Este ciclo reflexionó sobre la alimentación como identidad cultural, memoria colectiva y sostenibilidad, más allá de la necesidad biológica.",
+    "tag": "ciclo",
+    "sections": [
+      {
+        "title": "Cuatro dimensiones de abordaje:",
+        "items": [
+          "Identidad y Memoria",
+          "Ciencia de los Alimentos",
+          "Alimentación a través de los Sentidos",
+          "Soberanía y Autonomía Alimentaria"
+        ]
+      }
+    ]
+  },
+  {
+    "date": "Abril 11, 2025",
+    "title": "Segundo Aniversario del Aula STEAM",
+    "description": "Celebración del impacto del Aula en la formación interdisciplinar y la innovación estudiantil.",
+    "tag": "hito"
+  },
+  {
+    "date": "Septiembre 16 – 17, 2025",
+    "title": "Fiesta del Libro y la Cultura – Salón de Nuevas Lecturas",
+    "description": "El Aula fue invitada a planificar y conceptualizar este espacio dentro de la Fiesta del Libro y la Cultura, representando a la Universidad Nacional de Colombia, sede Medellín. Talleres: fragmentos de literatura queer, fragmentos de ciudad buñuelo, relatos de co-creación de un velero, cartas fósiles.",
+    "tag": "participacion"
+  },
+  {
+    "date": "2025",
+    "title": "Proyectos, Cursos y Retos 2025",
+    "tag": "evento",
+    "sections": [
+      {
+        "title": "Proyectos Destacados",
+        "items": [
+          "Recirculación del agua de lavadoras en entornos domésticos.",
+          "Fomento de Innovación – Brazo Robótico.",
+          "Diseño de la Plataforma Aula STEAM.",
+          "Sanadoras de Vida: fortalecimiento productivo de la Asociación de Mujeres Campesinas Siemprevivas (San Cristóbal, Medellín).",
+          "Herramientas TIC para comunicación académica y comunitaria.",
+          "Realidad Extendida para pensamiento computacional en ingeniería.",
+          "Formas que cuentan – Casa Cultural y de Paz Betsabé Espinal."
+        ]
+      },
+      {
+        "title": "Cursos",
+        "items": [
+          "LaTeX para Escritura Científica.",
+          "Finanzas Personales.",
+          "De la idea al objeto: diseño asistido por computador y fabricación 3D para principiantes."
+        ]
+      },
+      {
+        "title": "Retos STEAM 2025",
+        "description": "Espacio interdisciplinario para fortalecer el desarrollo profesional integral mediante tecnologías básicas, combinando ocio productivo y aprendizaje práctico.",
+        "items": [
+          "Navega por los siete mares, crea tu propio barco.",
+          "Descifrar el mensaje oculto.",
+          "Construyendo y navegando un velero: introducción a las embarcaciones a vela."
+        ]
+      }
+    ]
+  },
+  {
+    "date": "Marzo 11, 2026",
+    "title": "Tercer Aniversario del Aula STEAM",
+    "description": "Celebración del impacto del Aula en la formación interdisciplinar y la innovación estudiantil.",
+    "tag": "hito"
+  },
+  {
+    "date": "Marzo – Diciembre 2026",
+    "title": "Ciencia entre saberes y oficios",
+    "description": "Este ciclo surge de la idea de que la ciencia no se construye únicamente desde los laboratorios, los modelos técnicos o las aulas universitarias, sino también desde los conocimientos, prácticas y destrezas que emergen en la cotidianidad de la vida.",
+    "tag": "ciclo",
+    "sections": [
+      {
+        "title": "Cuatro dimensiones de abordaje:",
+        "items": [
+          "Origen y trayectorias del conocimiento",
+          "Traducción entre prácticas",
+          "Experiencia y encuentro"
+
+        ]
+      }
+    ]
+  }
+]

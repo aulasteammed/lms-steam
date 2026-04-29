@@ -1,5 +1,4 @@
-import { File } from 'lucide-react';
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 
 import { getModule } from '@/actions/get-module';
 import { Banner } from '@/components/banner';
@@ -9,7 +8,9 @@ import { auth } from '@clerk/nextjs/server';
 import { CourseEnrollButton } from './_components/course-enroll-button';
 import { VideoPlayerYoutube } from './_components/video-player-youtube';
 import { EvaluationButton } from './_components/evaluation-button';
+import { CoursePresentationBanner } from './_components/course-presentation-banner';
 import { db } from '@/lib/db';
+import { getAllowedAttempts } from '@/lib/evaluation-retry';
 
 /**
  * Page component for displaying a specific module.
@@ -71,7 +72,8 @@ export default async function ModuleIdPage({
     // Verify if you already approved
     const hasCompleted = results.some(r => r.score >= 80);
 
-    const maxAttempts = evaluation.maxAttempts ?? 0;
+    const baseMaxAttempts = evaluation.maxAttempts ?? 0;
+    const maxAttempts = await getAllowedAttempts(userId, evaluation.id, baseMaxAttempts);
 
     return (
         <div className="flex flex-col pb-20 mx-auto max-w-7xl">
@@ -87,6 +89,18 @@ export default async function ModuleIdPage({
                     />
                 )}
             </div>
+
+            {module.position <= 1 && (
+                <div className="px-4 pt-4">
+                    <CoursePresentationBanner
+                        courseTitle={course.title}
+                        description={course.description}
+                        previousSkills={course.previousSkills}
+                        developedSkills={course.developedSkills}
+                        attachments={attachments}
+                    />
+                </div>
+            )}
 
             {/* Layout en 2 columnas */}
             <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -113,28 +127,6 @@ export default async function ModuleIdPage({
                     )}
                 </div>
 
-                {/* Resources */}
-                {!!attachments.length && (
-                    <div className="bg-white rounded-lg shadow-md p-4 md:col-span-1">
-                        <h3 className="text-xl font-semibold mb-3 text-gray-700">Recursos del módulo</h3>
-                        <Separator className="mb-4" />
-                        <div className="space-y-3">
-                            {attachments.map((attachment) => (
-                                <a
-                                    key={attachment.id}
-                                    href={attachment.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-x-2 w-full p-3 border border-sky-300 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 transition"
-                                >
-                                    <File className="w-5 h-5" />
-                                    <p className="text-sm font-medium line-clamp-1">{attachment.name}</p>
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
                 {/* Assessment */}
                 {registration && (
                     <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full md:col-span-1">
@@ -159,4 +151,3 @@ export default async function ModuleIdPage({
         </div>
     );
 }
-

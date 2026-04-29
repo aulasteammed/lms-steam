@@ -8,7 +8,7 @@ interface CourseCardProps {
     title: string,
     imageUrl: string,
     modulesLength: number,
-    category: string,
+    categories: string,
     level: string,
 }
 
@@ -17,7 +17,7 @@ export const AllCourseCard = ({
                                   title,
                                   imageUrl,
                                   modulesLength,
-                                  category,
+                                  categories,
                                   level,
                               }: CourseCardProps) => {
     return (
@@ -40,7 +40,7 @@ export const AllCourseCard = ({
                         {title}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {category}
+                        {categories}
                     </p>
                     <div className="my-3 flex items-center gap-x-s text-sm">
                         <div className="flex item-center gap-x-1

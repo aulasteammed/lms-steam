@@ -19,7 +19,6 @@ interface Props {
 }
 
 const pxToMm = (px: number) => {
-  // 1px = 25.4 / 96 mm
   return (px * 25.4) / 96;
 };
 
@@ -82,8 +81,6 @@ const CourseCertificatePreviewPDF: React.FC<Props> = ({
         // Convert canvas px to mm
         const imgWidthMm = pxToMm(canvas.width);
         const imgHeightMm = pxToMm(canvas.height);
-
-        // Fit the image width to pdf width, keep aspect ratio
         const scale = Math.min(pdfWidth / imgWidthMm, pdfHeight / imgHeightMm);
         const renderWidth = imgWidthMm * scale;
         const renderHeight = imgHeightMm * scale;

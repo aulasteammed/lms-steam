@@ -162,8 +162,9 @@ export default async function VerifyCertificatePage({ params }: VerifyCertificat
                 level={course.level ?? "Básico"}
                 completionDate={userProgress.updatedAt}
                 userName={fullName}
-                logoUrl="/IdentificadorAulaSTEAM.png"
-              />
+                logoUrl="/IdentificadorAulaSTEAM.png" 
+                firma="/firmaMonicaVallejo.png"            
+                />
             </div>
           </div>
         </div>
@@ -171,7 +172,7 @@ export default async function VerifyCertificatePage({ params }: VerifyCertificat
         {/* Footer informativo compacto */}
         <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
           <p className="text-xs text-emerald-800">
-            <span className="font-semibold">🔒 Verificación segura:</span> Esta constancia ha sido emitida y verificada por el AulaSTEAM. 
+            <span className="font-semibold"> Verificación segura:</span> Esta constancia ha sido emitida y verificada por el AulaSTEAM. 
             Puedes compartir este enlace para demostrar la autenticidad.
           </p>
         </div>

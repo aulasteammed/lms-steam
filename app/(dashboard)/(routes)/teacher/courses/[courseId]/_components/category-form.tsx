@@ -8,7 +8,7 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Course } from "@prisma/client";
+import { Category, Course, CourseCategory } from "@prisma/client";
 
 import {
   Form,
@@ -19,11 +19,15 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Combobox } from "@/components/ui/combobox";
 import { Loading } from '@/components/loading';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CategoryFormProps {
-  initialData: Course;
+  initialData: Course & {
+    courseCategories: (CourseCategory & {
+      category: Category;
+    })[];
+  };
   courseId: string;
   options: { label: string; value: string }[];
 }
@@ -34,7 +38,7 @@ interface CategoryFormProps {
  * After submitting, the course category is updated, and the changes are reflected in the UI.
  */
 const formSchema = z.object({
-  categoryId: z.string().min(1),
+  categoryIds: z.array(z.string()).min(1, "Selecciona al menos una categoría"),
 });
 
 export const CategoryForm = ({
@@ -51,7 +55,7 @@ export const CategoryForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      categoryId: initialData?.categoryId || "",
+      categoryIds: initialData.courseCategories.map((item) => item.categoryId),
     },
   });
 
@@ -68,8 +72,8 @@ export const CategoryForm = ({
     }
   };
 
-  const selectedOption = options.find(
-    (option) => option.value === initialData.categoryId
+  const selectedOptions = options.filter((option) =>
+    initialData.courseCategories.some((item) => item.categoryId === option.value)
   );
 
   return (
@@ -91,10 +95,12 @@ export const CategoryForm = ({
         <p
           className={cn(
             "text-sm mt-2",
-            !initialData.categoryId && "text-slate-500 italic"
+            initialData.courseCategories.length === 0 && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "Sin categoría"}
+          {selectedOptions.length > 0
+            ? selectedOptions.map((option) => option.label).join(", ")
+            : "Sin categorías"}
         </p>
       )}
       {isEditing && (
@@ -105,14 +111,38 @@ export const CategoryForm = ({
           >
             <FormField
               control={form.control}
-              name="categoryId"
+              name="categoryIds"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="space-y-3">
                   <FormControl>
-                    <Combobox
-                        options={options}
-                        {...field}
-                    />
+                    <div className="space-y-2 rounded-md border bg-white p-3">
+                      {options.map((option) => {
+                        const checked = field.value?.includes(option.value);
+
+                        return (
+                          <label
+                            key={option.value}
+                            className="flex items-center gap-3 text-sm"
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(nextChecked) => {
+                                const current = Array.isArray(field.value) ? field.value : [];
+                                if (nextChecked === true) {
+                                  field.onChange(Array.from(new Set([...current, option.value])));
+                                  return;
+                                }
+
+                                field.onChange(
+                                  current.filter((value) => value !== option.value)
+                                );
+                              }}
+                            />
+                            <span>{option.label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

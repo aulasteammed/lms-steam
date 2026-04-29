@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+﻿import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
   CircleDollarSign,
@@ -49,6 +49,11 @@ export default async function CourseIdPage(
       userId,
     },
     include: {
+      courseCategories: {
+        include: {
+          category: true,
+        },
+      },
       modules: {
         orderBy: {
           position: "asc",
@@ -79,7 +84,7 @@ export default async function CourseIdPage(
     course.previousSkills,
     course.developedSkills,
     course.imageUrl,
-    course.categoryId,
+    course.courseCategories.length > 0,
     course.modules.some((module: { isPublished: boolean }) => module.isPublished),
     course.price !== null,
   ];
@@ -90,12 +95,14 @@ export default async function CourseIdPage(
   const completionText = `(${completedFields}/${totalFields})`;
 
   const isComplete = requiredFields.every(Boolean);
+  const hasPublishedModule = course.modules.some((module: { isPublished: boolean }) => module.isPublished);
 
   return (
       <>
-        {!course.isPublished && (
+        {!hasPublishedModule && (
             <Banner
-              label="Este curso no está publicado. No será visible para los estudiantes."
+              variant="warning"
+              label="Debes completar y publicar al menos un módulo para poder publicar el curso."
             />
         )}
         <div className="p-6">

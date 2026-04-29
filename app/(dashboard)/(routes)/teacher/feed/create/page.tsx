@@ -29,6 +29,7 @@ const formSchema = z.object({
   date: z.date({ required_error: 'Selecciona una fecha' }),
   startTime: z.date({ required_error: 'Selecciona la hora de inicio' }),
   endTime: z.date({ required_error: 'Selecciona la hora de fin' }),
+  link: z.string().url('Debe ser un link válido').startsWith('https://','Debe iniciar con https://'), 
   imageUrl: z.string().min(1, 'La imagen es obligatoria'), // Ahora es obligatoria
 }).refine((data) => {
   // Validación personalizada: la fecha debe ser futura
@@ -90,6 +91,7 @@ export default function CreateEventPage() {
       date: new Date(),
       startTime: createTimeWithHour(9), // 9 AM por defecto
       endTime: createTimeWithHour(11), // 11 AM por defecto (2 horas después)
+      link: '',
       imageUrl: '',
     },
   })
@@ -138,6 +140,7 @@ export default function CreateEventPage() {
         imageUrl: imageUrl, // Ahora es obligatorio, no undefined
         startDateTime: startDateTime.toISOString(),
         endDateTime: endDateTime.toISOString(),
+        link: data.link.trim(), 
       }
 
       const res = await fetch('/api/event', {
@@ -330,6 +333,27 @@ export default function CreateEventPage() {
               )}
             />
           </div>
+
+          {/* Link */}
+          <FormField
+            control={form.control}
+            name="link"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-medium">
+                  Link inscripción <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="https://forms.gle/ejemplo"
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Imagen */}
           <div className="space-y-2">

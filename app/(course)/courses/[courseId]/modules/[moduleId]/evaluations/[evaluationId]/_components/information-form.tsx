@@ -25,7 +25,7 @@ const InformationForm = ({
                 <strong>80%</strong> para aprobar.
             </p>
             <p className="text-sm text-gray-500">
-                Intentos disponibles: {maxAttempts - attempt}
+                Intentos disponibles: {Math.max(maxAttempts - attempt, 0)}
             </p>
         </div>
     )

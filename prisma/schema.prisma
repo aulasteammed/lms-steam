@@ -35,13 +35,12 @@ model Course {
 
   isPublished Boolean @default(false)
 
-  categoryId      String?   @db.ObjectId
-  category        Category? @relation(fields: [categoryId], references: [id])
   modules         Module[]
   attachments     Attachment[]
   registered      Registration[]
   certificates    Certificate[]
   ratings         Rating[]
+  courseCategories CourseCategory[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -50,7 +49,21 @@ model Course {
 model Category {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   name            String   @unique
-  courses         Course[]
+  courseCategories CourseCategory[]
+}
+
+model CourseCategory {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  courseId        String   @db.ObjectId
+  course          Course   @relation(fields: [courseId], references: [id])
+
+  categoryId      String   @db.ObjectId
+  category        Category @relation(fields: [categoryId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@unique([courseId, categoryId])
 }
 
 model Attachment {
@@ -133,9 +146,15 @@ enum EvaluationType {
   open
 }
 
+enum QuestionType {
+  sequence
+  single
+  multiple
+  open
+}
+
 model Evaluation {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  type            EvaluationType
   maxAttempts     Int?
 
   moduleId        String   @unique @db.ObjectId
@@ -145,6 +164,8 @@ model Evaluation {
 
   questions       Question[]
   evaluationResults EvaluationResult[]
+  retryGrants     EvaluationRetryGrant[]
+  retryEmailLogs  EvaluationRetryEmailLog[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -153,6 +174,7 @@ model Evaluation {
 model Question {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   title           String
+  type            QuestionType?
 
   evaluationId    String   @db.ObjectId
   evaluation      Evaluation   @relation(fields: [evaluationId], references: [id])
@@ -190,6 +212,43 @@ model EvaluationResult {
   completedAt         DateTime @default(now())
 }
 
+model RetryAccessCode {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  code                String   @unique
+  isActive            Boolean  @default(true)
+  usedByUserId        String?
+  usedForEvaluationId String?  @db.ObjectId
+  usedAt              DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model EvaluationRetryGrant {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String
+
+  evaluationId        String   @db.ObjectId
+  evaluation          Evaluation @relation(fields: [evaluationId], references: [id])
+
+  extraAttempts       Int      @default(2)
+  codeUsed            String
+  createdAt           DateTime @default(now())
+}
+
+model EvaluationRetryEmailLog {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String
+
+  evaluationId        String   @db.ObjectId
+  evaluation          Evaluation @relation(fields: [evaluationId], references: [id])
+
+  attempt             Int
+  sentAt              DateTime @default(now())
+
+  @@unique([userId, evaluationId, attempt])
+}
+
 model SelectedAnswer {
   id                  String   @id @default(auto()) @map("_id") @db.ObjectId
   title               String
@@ -222,7 +281,69 @@ model Event {
   imageUrl      String?
   startDateTime DateTime
   endDateTime   DateTime
+  link          String
   location      String
   createdAt     DateTime  @default(now())
+  
 }
 
+enum ArticleStatus {
+  draft
+  published
+  archived
+}
+
+enum ArticleTemplate {
+  cover_person
+  full_article
+  profile_simple
+  news_short
+}
+
+enum SocialPlatform {
+  instagram
+  facebook
+  linkedin
+  x
+  github
+  website
+}
+
+model Article {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  slug         String          @unique
+
+  title        String
+  subtitle     String?
+  hookPhrase   String?
+  coverImage   String? 
+
+  authorName            String
+  authorBio             String?
+  authorPhoto           String?         
+  authorSocialPlatform  SocialPlatform?
+  authorSocialUrl       String?
+
+  template     ArticleTemplate  @default(cover_person)
+  accentColor  String           @default("#e8622a")
+  darkColColor String           @default("#12110f")
+
+  blocks       Json[]
+
+  //publishedBy  String
+
+  status       ArticleStatus   @default(draft)
+  publishedAt  DateTime?
+  views        ArticleView[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model ArticleView {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  articleId String   @db.ObjectId
+  article   Article  @relation(fields: [articleId], references: [id])
+  userId    String?  
+  sessionId String? 
+  viewedAt  DateTime @default(now())
+}

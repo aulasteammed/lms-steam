@@ -8,6 +8,7 @@ import {
   Newspaper,
   Calendar,
   Award,
+  BookOpen,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SidebarItem } from "./sidebar-item";
@@ -29,11 +30,6 @@ const guestRoutes = [
     href: "/",
   },
   {
-    icon: Search,
-    label: "Explorar cursos",
-    href: "/search",
-  },
-  {
     icon: Contact,
     label: "Quienes somos",
     href: "/about",
@@ -42,6 +38,16 @@ const guestRoutes = [
     icon: Calendar,
     label: "Agendate",
     href: "/feed",
+  },    
+  {
+    icon: Search,
+    label: "Explorar cursos",
+    href: "/search",
+  },
+  {
+    icon: BookOpen,
+    label: "Blog",
+    href: "/blog",
   },
 ];
 
@@ -52,16 +58,6 @@ const authenticatedRoutes = [
     href: "/",
   },
   {
-    icon: List,
-    label: "Mis cursos",
-    href: "/mycourses",
-  },
-  {
-    icon: Search,
-    label: "Explorar cursos",
-    href: "/search",
-  },
-  {
     icon: Contact,
     label: "Quienes somos",
     href: "/about",
@@ -71,18 +67,38 @@ const authenticatedRoutes = [
     label: "Agendate",
     href: "/feed",
   },
+  {
+    icon: Search,
+    label: "Explorar cursos",
+    href: "/search",
+  },
+  {
+    icon: BookOpen,
+    label: "Blog",
+    href: "/blog",
+  },
+  {
+    icon: List,
+    label: "Mis cursos",
+    href: "/mycourses",
+  },
 ];
 
 const teacherRoutes = [
+  {
+    icon: Calendar,
+    label: "Agendate",
+    href: "/teacher/feed",
+  },
   {
     icon: List,
     label: "Cursos",
     href: "/teacher/courses",
   },
   {
-    icon: BarChart,
-    label: "Analítica",
-    href: "/teacher/analytics",
+    icon: BookOpen,
+    label: "Blog",
+    href: "/teacher/blog",
   },
   {
     icon: Award,
@@ -90,9 +106,9 @@ const teacherRoutes = [
     href: "/teacher/certificates",
   },
   {
-    icon: Calendar,
-    label: "Agendate",
-    href: "/teacher/feed",
+    icon: BarChart,
+    label: "Analítica",
+    href: "/teacher/analytics",    
   },
 ];
 

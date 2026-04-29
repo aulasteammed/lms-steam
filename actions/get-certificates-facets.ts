@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 
 type FacetYear = { year: number; count: number };
 type FacetStudent = {
@@ -24,15 +24,6 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
   try {
     const { userId } = await auth();
     if (!userId) return [];
-
-    const user = await currentUser();
-    if (!user) return [];
-
-    const role = user.publicMetadata?.role || user.privateMetadata?.role;
-    if (role !== "teacher") {
-      console.warn("[GET_CERTIFICATES_FACETS] Usuario no es profesor.");
-      return [];
-    }
 
     // Obtener cursos con level incluido
     const courses = await db.course.findMany({
@@ -73,36 +64,37 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
     }
 
     // Obtener usuarios de Clerk
-    const client = await clerkClient();
-
-    const BATCH_SIZE = 100;
-    const userPromises: Promise<any>[] = [];
-    for (var j = 0; j < uniqueUserIds.length; j += BATCH_SIZE) {
-      const batchIds = uniqueUserIds.slice(j, j + BATCH_SIZE);
-      userPromises.push(
-        client.users.getUserList({ userId: batchIds }) as Promise<any>
-      );
-    }
-
-    const batches = await Promise.all(userPromises);
-    let allUsers: any[] = [];
-    for (var b = 0; b < batches.length; b++) {
-      const r = batches[b];
-      if (r && r.data && Array.isArray(r.data)) {
-        allUsers = allUsers.concat(r.data);
-      } else if (Array.isArray(r)) {
-        allUsers = allUsers.concat(r);
-      }
-    }
-
-    // Crear mapa de usuarios
+    // Obtener usuarios de Clerk (si falla, seguimos con nombres genéricos)
     const userMap: { [key: string]: string } = {};
-    for (var u = 0; u < allUsers.length; u++) {
-      const user = allUsers[u];
-      const fullName =
-        ((user.firstName || "") + " " + (user.lastName || "")).trim() ||
-        "Usuario";
-      userMap[user.id] = fullName;
+    try {
+      const client = await clerkClient();
+      const BATCH_SIZE = 100;
+      const userPromises: Promise<any>[] = [];
+      for (var j = 0; j < uniqueUserIds.length; j += BATCH_SIZE) {
+        const batchIds = uniqueUserIds.slice(j, j + BATCH_SIZE);
+        userPromises.push(
+          client.users.getUserList({ userId: batchIds }) as Promise<any>
+        );
+      }
+      const batches = await Promise.all(userPromises);
+      let allUsers: any[] = [];
+      for (var b = 0; b < batches.length; b++) {
+        const r = batches[b];
+        if (r && r.data && Array.isArray(r.data)) {
+          allUsers = allUsers.concat(r.data);
+        } else if (Array.isArray(r)) {
+          allUsers = allUsers.concat(r);
+        }
+      }
+      for (var u = 0; u < allUsers.length; u++) {
+        const user = allUsers[u];
+        const fullName =
+          ((user.firstName || "") + " " + (user.lastName || "")).trim() ||
+          "Usuario";
+        userMap[user.id] = fullName;
+      }
+    } catch (e) {
+      console.error("[GET_CERTIFICATES_FACETS] Clerk users fetch failed", e);
     }
 
     // Agrupar resultados por curso
@@ -137,8 +129,8 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
 
       // Agregar info del estudiante con todos los datos necesarios
       courseFacet.students.push({
-        certificateId: cert.id,        // ✅ ID del certificado
-        userId: cert.userId,           // ✅ ID del usuario
+        certificateId: cert.id,        
+        userId: cert.userId,           
         fullName: userMap[cert.userId] || "Usuario desconocido",
         certificateUrl: cert.certificateUrl,
         issuedAt: cert.issuedAt,

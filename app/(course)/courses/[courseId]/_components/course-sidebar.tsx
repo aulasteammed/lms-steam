@@ -1,4 +1,4 @@
-import { Module, Course, UserProgress, EvaluationType } from '@prisma/client';
+import { Module, Course, UserProgress } from '@prisma/client';
 
 import { db } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
@@ -13,7 +13,6 @@ interface CourseSidebarProps {
             evaluation: {
                 id: string;
                 isPublished: boolean;
-                type: EvaluationType;
             } | null;
         })[];
     };
@@ -77,7 +76,6 @@ const CourseSidebar = async ({
                                     moduleId={item.id}
                                     evaluationId={item.evaluation.id}
                                     isLocked={!isUnlocked}
-                                    type={item.evaluation.type}
                                 />
                             )}
                         </div>

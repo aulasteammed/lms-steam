@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
+import { deleteUploadThingFilesByUrls } from "@/lib/uploadthing-server";
 
 /**
  * DELETE Request Handler for Deleting a Course and its Related Data.
@@ -28,7 +29,8 @@ export async function DELETE(
         userId: userId,
       },
       include: {
-        modules: true
+        modules: true,
+        attachments: true,
       },
     });
 
@@ -46,6 +48,12 @@ export async function DELETE(
         { status: 403 }
       );
     }
+
+    await deleteUploadThingFilesByUrls([
+      course.imageUrl,
+      ...course.modules.map((module) => module.videoUrl),
+      ...course.attachments.map((attachment) => attachment.url),
+    ]);
 
     const moduleIds = course.modules.map((m) => m.id);
 
@@ -75,6 +83,7 @@ export async function DELETE(
     await db.registration.deleteMany({ where: { courseId: params.courseId } });
     await db.certificate.deleteMany({ where: { courseId: params.courseId } });
     await db.rating.deleteMany({ where: { courseId: params.courseId } });
+    await db.courseCategory.deleteMany({ where: { courseId: params.courseId } });
 
     // Finally, delete the course itself
     const deletedCourse = await db.course.delete({
@@ -105,19 +114,66 @@ export async function PATCH(
     const params = await props.params;
     const { userId } = await auth();
     const values = await req.json();
+    const { categoryIds, ...restValues } = values;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const course = await db.course.update({
+    const existingCourse = await db.course.findUnique({
       where: {
         id: params.courseId,
         userId,
       },
-      data: {
-        ...values,
-      },
+      select: { id: true },
+    });
+
+    if (!existingCourse) {
+      return new NextResponse("Not Found", { status: 404 });
+    }
+
+    const normalizedCategoryIds = Array.isArray(categoryIds)
+      ? Array.from(
+          new Set(
+            categoryIds
+              .map((categoryId) => String(categoryId).trim())
+              .filter(Boolean)
+          )
+        )
+      : null;
+
+    const course = await db.$transaction(async (tx) => {
+      if (normalizedCategoryIds) {
+        await tx.courseCategory.deleteMany({
+          where: { courseId: params.courseId },
+        });
+
+        if (normalizedCategoryIds.length > 0) {
+          await tx.courseCategory.createMany({
+            data: normalizedCategoryIds.map((categoryId) => ({
+              courseId: params.courseId,
+              categoryId,
+            })),
+          });
+        }
+      }
+
+      return tx.course.update({
+        where: {
+          id: params.courseId,
+          userId,
+        },
+        data: {
+          ...restValues,
+        },
+        include: {
+          courseCategories: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      });
     });
 
     return NextResponse.json(course);

@@ -117,9 +117,9 @@ const CourseCertificateTemplate = forwardRef<HTMLDivElement, Props>(
           </div>
 
           {/* NOMBRE DEL ESTUDIANTE - Reducido y menos separación */}
-          <div className="space-y-3 my-4">
+          <div className="space-y-3 my-2">
             <h2 
-              className="text-5xl font-extrabold tracking-wide relative z-10"
+              className="text-4xl font-extrabold tracking-wide relative z-10"
               style={{ 
                 color: "#1e3a8a",
                 textShadow: "2px 2px 3px rgba(0,0,0,0.04)"

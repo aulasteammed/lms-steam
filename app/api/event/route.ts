@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@clerk/nextjs/server'
+import { deleteUploadThingFilesByUrls } from '@/lib/uploadthing-server'
 
 // Esquema de validación simple
 interface CreateEventData {
@@ -12,10 +13,11 @@ interface CreateEventData {
   imageUrl?: string
   startDateTime: string
   endDateTime: string
+  link: string
 }
 
 function validateEventData(data: any): CreateEventData {
-  const { title, description, location, imageUrl, startDateTime, endDateTime } = data
+  const { title, description, location, imageUrl, startDateTime, endDateTime, link } = data
 
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
     throw new Error('El título es requerido')
@@ -27,6 +29,16 @@ function validateEventData(data: any): CreateEventData {
 
   if (!startDateTime || !endDateTime) {
     throw new Error('Las fechas de inicio y fin son requeridas')
+  }
+
+  if (!link || typeof link !== 'string' || link.trim().length === 0) {
+    throw new Error('El link de inscripción es requerido')
+  } 
+
+  try {
+    new URL(link)
+  } catch {
+    throw new Error('El link debe ser una URL válida')
   }
 
   const startDate = new Date(startDateTime)
@@ -50,18 +62,14 @@ function validateEventData(data: any): CreateEventData {
     location: location.trim(),
     imageUrl: imageUrl?.trim(),
     startDateTime,
-    endDateTime
+    endDateTime,
+    link: link.trim()
   }
 }
 
 // Método GET para obtener todos los eventos
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth()
-
-    if (!userId) {
-      return NextResponse.json({ error: 'No estás autenticado' }, { status: 401 })
-    }
     const lastThirtyDays = new Date()
     lastThirtyDays.setDate(lastThirtyDays.getDate() - 30)
 
@@ -84,7 +92,9 @@ export async function GET(req: NextRequest) {
         startDateTime: true,
         endDateTime: true,
         userId: true,
-        createdAt: true
+        createdAt: true,
+        link: true,
+
       }
     })
 
@@ -173,6 +183,8 @@ export async function DELETE(req: NextRequest) {
         { status: 404 }
       )
     }
+
+    await deleteUploadThingFilesByUrls([existingEvent.imageUrl])
 
     // Eliminar el evento
     await db.event.delete({

@@ -1,10 +1,9 @@
-import { auth } from "@clerk/nextjs/server";
+﻿import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Eye, LayoutDashboard, Video, BookOpenCheck } from "lucide-react";
 
 import { db } from "@/lib/db";
-import { EvaluationType } from "@prisma/client";
 
 import { Banner } from "@/components/banner";
 import { IconBadge } from "@/components/icon-badge";
@@ -40,11 +39,6 @@ export default async function ModuleIdPage({
 
   if (!module || !course) return redirect("/");
 
-  const evaluationTypes = Object.values(EvaluationType).map((type) => ({
-    label: type.charAt(0).toUpperCase() + type.slice(1),
-    value: type,
-  }));
-
   const requiredFields = [
     module.title,
     module.description,
@@ -56,13 +50,14 @@ export default async function ModuleIdPage({
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields}/${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
+  const needsEvaluation = !evaluation?.isPublished;
 
   return (
       <>
-        {!module.isPublished && (
+        {needsEvaluation && (
             <Banner
                 variant="warning"
-                label="Este módulo no está publicado. No será visible en el curso."
+                label="Debes crear y publicar la evaluación del módulo para completarlo."
             />
         )}
 
@@ -119,11 +114,9 @@ export default async function ModuleIdPage({
                   <h2 className="text-xl">Evalúa el módulo</h2>
                 </div>
                 <EvaluationsForm
-                    initialData={evaluation ?? { id: "", type: null }}
                     courseId={course.id}
                     moduleId={module.id}
                     evaluation={evaluation}
-                    evaluationTypes={evaluationTypes}
                 />
               </section>
             </div>

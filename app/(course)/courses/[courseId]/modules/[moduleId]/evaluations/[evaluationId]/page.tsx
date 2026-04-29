@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { EvaluationForm } from "./_components/evaluation-form";
 import { InformationForm } from './_components/information-form';
 import { getModule } from '@/actions/get-module';
+import { getAllowedAttempts } from '@/lib/evaluation-retry';
 
 /**
  * Evaluation page for a specific course module.
@@ -73,21 +74,23 @@ export default async function EvaluationPage({
         Math.max(max, r.score), 0
     );
 
+    const baseMaxAttempts = evaluation.maxAttempts || 0;
+    const maxAttempts = await getAllowedAttempts(userId, evaluation.id, baseMaxAttempts);
+
     return (
         <div className="max-w-2xl mx-auto p-6">
             <InformationForm
                 attempt={lastAttempt}
                 questions={evaluation.questions.length}
-                maxAttempts={evaluation.maxAttempts || 0}
+                maxAttempts={maxAttempts}
             />
             <EvaluationForm
                 courseId={courseId}
                 moduleId={moduleId}
                 evaluationId={evaluation.id}
-                evaluationType={evaluation.type}
                 questions={evaluation.questions}
                 nextModuleId={nextModule?.id}
-                maxAttempts={evaluation.maxAttempts || 0}
+                maxAttempts={maxAttempts}
                 attempt={lastAttempt}
                 score={bestScore}
                 attemptsHistory={attemptsHistory}

@@ -1,9 +1,11 @@
-import { Category, Course } from '@prisma/client';
+import { Category, Course, CourseCategory } from '@prisma/client';
 
 import { db } from '@/lib/db';
 
 type CourseWithCategory = Course & {
-    category: Category | null;
+    courseCategories: (CourseCategory & {
+        category: Category;
+    })[];
     modules: { id: string }[];
 };
 
@@ -23,10 +25,22 @@ export const getAllCourses = async ({
                 title: {
                     contains: title,
                 },
-                categoryId,
+                ...(categoryId
+                    ? {
+                        courseCategories: {
+                            some: {
+                                categoryId,
+                            },
+                        },
+                    }
+                    : {}),
             },
             include: {
-                category: true,
+                courseCategories: {
+                    include: {
+                        category: true,
+                    },
+                },
                 modules: {
                     where: {
                         isPublished: true,

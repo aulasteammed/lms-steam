@@ -16,8 +16,8 @@ const images = [
     "/images/Slide_01.jpg",
     "/images/Slide_02.jpg",
     "/images/Slide_03.jpg",
-    "/images/Slide_04.jpg",
-    "/images/Slide_05.jpg"
+    "/images/Slide_04.jpeg",
+    "/images/Slide_05.jpeg"
 ];
 
 export function CarouselHome() {

@@ -119,6 +119,10 @@ export const VideoUrlForm = ({
                                 </FormItem>
                             )}
                         />
+                        <p className="text-xs text-muted-foreground">
+                            Es necesario previsualizar su vídeo; de no ser así,
+                            vuelva a intentarlo.
+                        </p>
                         <div className="flex items-center gap-x-2">
                             <Button disabled={!isValid || isSubmitting} type="submit">
                                 {isSubmitting && <Loading />}
