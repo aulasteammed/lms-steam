@@ -557,7 +557,7 @@ function CanvasCoverPerson({
                     <div className="w-8 h-[3px] mb-4 rounded-full" style={{ background: accentColor }} />
                     <EditableField value={title} onChange={onTitleChange} placeholder="Título del artículo" disabled={isLocked}
                         className="text-[42px] font-black leading-[0.88] tracking-[-1.5px] text-white mb-4 block" />
-                    <EditableField value={subtitle} onChange={onSubtitleChange} placeholder="Subtítulo o entradilla..." multiline disabled={isLocked}
+                    <EditableField value={subtitle} onChange={onSubtitleChange} placeholder="Subtítulo..." multiline disabled={isLocked}
                         className="text-[12px] leading-relaxed text-white/50 block" />
                 </div>
             </div>
@@ -681,7 +681,7 @@ function CanvasNewsShort({
             <EditableFieldLight value={title} onChange={onTitleChange} placeholder="Título de la noticia" disabled={isLocked}
                 className="text-2xl font-bold tracking-tight text-slate-900 mb-1" />
             <div className="h-0.5 w-9 mb-4" style={{ background: accentColor }} />
-            <EditableFieldLight value={subtitle} onChange={onSubtitleChange} placeholder="Entradilla breve..." multiline disabled={isLocked}
+            <EditableFieldLight value={subtitle} onChange={onSubtitleChange} placeholder="Subtítulo..." multiline disabled={isLocked}
                 className="text-sm text-slate-500 leading-relaxed mb-5" />
             <BlockList {...shared} accentColor={accentColor} isLocked={isLocked} />
             <div className="mt-6">

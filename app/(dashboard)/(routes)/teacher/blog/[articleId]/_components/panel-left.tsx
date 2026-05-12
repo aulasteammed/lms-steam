@@ -76,7 +76,7 @@ export function PanelLeft({
           hint: !canAddImage
             ? `Máx. ${MAX_IMAGES} imágenes (incluida portada)`
             : `${imageBlocksAllowed} imagen${imageBlocksAllowed !== 1 ? "es" : ""} restante${imageBlocksAllowed !== 1 ? "s" : ""}` },
-        { type: "pullquote", icon: '"', label: "Pull Quote" },
+        { type: "pullquote", icon: '"', label: "Cita" },
         { type: "divider",   icon: "—", label: "Separador"  },
         { type: "list",      icon: "•", label: "Lista"       },
     ];
