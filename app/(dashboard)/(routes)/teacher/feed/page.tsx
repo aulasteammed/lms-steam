@@ -119,21 +119,13 @@ export default function EventsPage() {
               onSelect={setSelectedDay}
               className="mx-auto rounded-md shadow-sm border"
               eventDates={eventDates}
-              showEventDetails={true}
+              showEventDetails={false}
             />
             {selectedDay && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800 font-medium">
-                  Mostrando eventos del {selectedDay.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
                 <button
                   onClick={() => setSelectedDay(undefined)}
-                  className="text-xs text-blue-600 hover:text-blue-800 mt-2"
+                  className="text-xs text-blue-600 hover:text-blue-800"
                 >
                   Limpiar selección
                 </button>
@@ -200,23 +192,15 @@ export default function EventsPage() {
                 onSelect={setSelectedDay}
                 className="mx-auto rounded-md shadow-sm border"
                 eventDates={eventDates}
-                showEventDetails={true}
+                showEventDetails={false}
               />
             </div>
             
             {selectedDay && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800 font-medium">
-                  Mostrando eventos del {selectedDay.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
                 <button 
                   onClick={() => setSelectedDay(undefined)}
-                  className="text-xs text-blue-600 hover:text-blue-800 mt-2"
+                  className="text-xs text-blue-600 hover:text-blue-800"
                 >
                   Limpiar selección
                 </button>

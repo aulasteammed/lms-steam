@@ -77,6 +77,11 @@ const filterTime = (time: Date) => {
   return hour >= 8 && hour <= 18
 }
 
+const MONTHS_ABBR = [
+  'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
+  'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+]
+
 export default function CreateEventPage() {
   const [imageUrl, setImageUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -87,14 +92,38 @@ export default function CreateEventPage() {
     defaultValues: {
       title: '',
       description: '',
-      location: '',
+      location: 'M3 - 119 Aula STEAM',
       date: new Date(),
-      startTime: createTimeWithHour(9), // 9 AM por defecto
-      endTime: createTimeWithHour(11), // 11 AM por defecto (2 horas después)
+      startTime: createTimeWithHour(10), // 10 AM por defecto
+      endTime: createTimeWithHour(12), // 12 PM por defecto
       link: '',
       imageUrl: '',
     },
   })
+
+  const previewTitle = form.watch('title')
+  const previewDescription = form.watch('description')
+  const previewLocation = form.watch('location')
+  const previewDate = form.watch('date')
+  const previewStartTime = form.watch('startTime')
+  const previewEndTime = form.watch('endTime')
+  const previewLink = form.watch('link')
+
+  const previewStart = new Date(previewDate)
+  previewStart.setHours(previewStartTime.getHours(), previewStartTime.getMinutes(), 0, 0)
+
+  const previewEnd = new Date(previewDate)
+  previewEnd.setHours(previewEndTime.getHours(), previewEndTime.getMinutes(), 0, 0)
+
+  const previewMonth = MONTHS_ABBR[previewStart.getMonth()]
+  const previewDay = previewStart.getDate()
+  const previewTimeRange = `${previewStart.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })} - ${previewEnd.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true)
@@ -266,14 +295,14 @@ export default function CreateEventPage() {
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:items-end">
             {/* Hora de inicio */}
             <FormField
               control={form.control}
               name="startTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">
+                  <FormLabel className="text-lg font-medium whitespace-nowrap">
                     Hora de inicio <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -293,9 +322,6 @@ export default function CreateEventPage() {
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Disponible de 8:00 AM a 5:30 PM
-                  </p>
                 </FormItem>
               )}
             />
@@ -306,7 +332,7 @@ export default function CreateEventPage() {
               name="endTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">
+                  <FormLabel className="text-lg font-medium whitespace-nowrap">
                     Hora de fin <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
@@ -326,9 +352,6 @@ export default function CreateEventPage() {
                     />
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Disponible de 8:30 AM a 6:00 PM
-                  </p>
                 </FormItem>
               )}
             />
@@ -374,29 +397,68 @@ export default function CreateEventPage() {
                 {form.formState.errors.imageUrl.message}
               </p>
             )}
-            {imageUrl && (
-              <div className="mt-4">
-                <img 
-                  src={imageUrl} 
-                  alt="Vista previa del evento" 
-                  className="w-full h-48 object-cover rounded-lg border" 
-                />
-              </div>
-            )}
-          </div>
+            <div className="mt-5 space-y-3">
+              <h3 className="text-sm font-semibold text-gray-700">Vista previa real del evento</h3>
+              <div className="max-w-lg mx-auto">
+                <div className="bg-white border border-amber-100 rounded-2xl shadow-md overflow-hidden">
+                  <div className="p-2.5 sm:p-3">
+                    <div className="mb-2.5 flex items-start justify-between gap-2.5">
+                      <div className="space-y-1">
+                        <h4 className="text-lg sm:text-xl font-semibold text-gray-800">
+                          {previewTitle || 'Título del evento'}
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg shadow-md">
+                          Inscribirme
+                        </span>
+                      </div>
+                    </div>
 
-          {/* Información adicional sobre horarios */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start space-x-2">
-              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h4 className="text-sm font-medium text-blue-800">Horarios disponibles</h4>
-                <p className="text-sm text-blue-700 mt-1">
-                  Los eventos pueden programarse únicamente entre las <strong>8:00 AM y las 6:00 PM</strong>. 
-                  Asegúrate de que tu evento termine antes de las 6:00 PM.
-                </p>
+                    <div className="relative mx-auto w-full max-w-[360px] aspect-[3/3.8] bg-gradient-to-b from-amber-50 to-orange-50 overflow-hidden rounded-2xl border border-amber-100">
+                      <div className="absolute top-3 left-3 bg-yellow-400 px-2 py-1 rounded-md text-center z-10 shadow-sm">
+                        <span className="block text-xs font-bold text-gray-800">{previewMonth}</span>
+                        <span className="block text-lg font-bold text-gray-800 leading-none">{previewDay}</span>
+                      </div>
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="Vista previa del evento"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-sm text-gray-500 bg-amber-50">
+                          Sube una imagen para previsualizar
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-2.5 space-y-2">
+                      <div className="flex items-center text-gray-700">
+                        <svg className="w-5 h-5 mr-3 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="font-medium">{previewLocation || 'Ubicación del evento'}</span>
+                      </div>
+
+                      <div className="flex items-center text-gray-700">
+                        <svg className="w-5 h-5 mr-3 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="font-medium">{previewTimeRange}</span>
+                      </div>
+
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {previewDescription || 'Descripción del evento'}
+                      </p>
+
+                      <p className="text-xs text-gray-500 break-all">
+                        {previewLink || 'https://tu-link-de-inscripcion.com'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
