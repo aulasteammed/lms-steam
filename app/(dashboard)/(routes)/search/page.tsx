@@ -31,18 +31,18 @@ export default async function SearchPage({ searchParams, }: {
 
     //if (!userId) return redirectToSignIn()
 
-    const categories = await db.category.findMany({
-        orderBy: {
-            name: 'asc',
-        },
-    });
-
     if (userId) {
-
-        const courses = await getCourses({
-            userId,
-            ...resolvedSearchParams,
-        });
+        const [categories, courses] = await Promise.all([
+            db.category.findMany({
+                orderBy: {
+                    name: 'asc',
+                },
+            }),
+            getCourses({
+                userId,
+                ...resolvedSearchParams,
+            })
+        ]);
 
         return (
             <>
@@ -56,10 +56,16 @@ export default async function SearchPage({ searchParams, }: {
             </>
         );
     } else {
-
-        const coursesUnauthenticated = await getAllCourses({
-            ...resolvedSearchParams,
-        });
+        const [categories, coursesUnauthenticated] = await Promise.all([
+            db.category.findMany({
+                orderBy: {
+                    name: 'asc',
+                },
+            }),
+            getAllCourses({
+                ...resolvedSearchParams,
+            })
+        ]);
 
         return (
             <>
@@ -74,4 +80,3 @@ export default async function SearchPage({ searchParams, }: {
         );
     }
 }
-

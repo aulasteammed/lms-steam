@@ -44,6 +44,8 @@ model Course {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([isPublished, createdAt])
 }
 
 model Category {
@@ -64,6 +66,7 @@ model CourseCategory {
   createdAt       DateTime @default(now())
 
   @@unique([courseId, categoryId])
+  @@index([categoryId])
 }
 
 model Attachment {
@@ -99,6 +102,8 @@ model Module {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([courseId, isPublished])
 }
 
 model UserProgress {
@@ -112,6 +117,8 @@ model UserProgress {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([userId, moduleId])
 }
 
 model Registration {
@@ -123,6 +130,8 @@ model Registration {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([userId, courseId])
 }
 
 model Rating {
