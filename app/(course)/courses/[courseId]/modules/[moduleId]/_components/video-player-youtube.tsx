@@ -37,7 +37,7 @@ const VideoPlayerYoutube = ({
                 <div>
                     <div className="flex items-center gap-x-2">
                         <IconBadge icon={LayoutDashboard} />
-                        <h2 className="text-xl">Video del módulo "{title}"</h2>
+                        <h2 className="text-xl">Video del módulo &quot;{title}&quot;</h2>
                     </div>
                     <div className="relative aspect-video mt-2">
                         <iframe

@@ -283,6 +283,7 @@ model Event {
   endDateTime   DateTime
   link          String
   location      String
+  clickCount    Int       @default(0)
   createdAt     DateTime  @default(now())
   
 }

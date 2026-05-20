@@ -17,6 +17,7 @@ interface Event {
   startDateTime: string // ISO
   endDateTime: string   // ISO
   userId: string
+  clickCount: number
 }
 
 export default function EventsPage() {

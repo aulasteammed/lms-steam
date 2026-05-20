@@ -2,6 +2,14 @@
 
 import { clerkClient } from "@clerk/nextjs/server";
 
+type ClerkUserLike = {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+  emailAddresses?: Array<{ emailAddress?: string | null }>;
+};
+
 export async function getClerkUsers(userIds: string[]) {
   if (!userIds || userIds.length === 0) return [];
 
@@ -10,7 +18,7 @@ export async function getClerkUsers(userIds: string[]) {
     const client = await clerkClient();
 
     const BATCH_SIZE = 100;
-    let allUsers: any[] = [];
+    let allUsers: ClerkUserLike[] = [];
 
     for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
       const batch = userIds.slice(i, i + BATCH_SIZE);
@@ -23,7 +31,7 @@ export async function getClerkUsers(userIds: string[]) {
     }
 
     // ✅ Mapeo limpio para usar en tablas
-    return allUsers.map((u: any) => ({
+    return allUsers.map((u) => ({
       id: u.id,
       name:
         ((u.firstName || "") + " " + (u.lastName || "")).trim() ||

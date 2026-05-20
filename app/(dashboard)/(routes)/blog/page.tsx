@@ -3,6 +3,8 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { BlogFeedClient } from "./_components/blog-feed-client";
 
+export const dynamic = "force-dynamic";
+
 const TEMPLATE_LABELS: Record<string, string> = {
     cover_person:   "Personaje",
     full_article:   "Artículo",

@@ -13,6 +13,7 @@ interface Event {
   endDateTime: string   // ISO
   location: string
   userId: string
+  clickCount: number
 }
 
 interface EventCardProps {
@@ -179,6 +180,13 @@ export default function EventCard({ event, selectedDate, onEventDeleted }: Event
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {timeRange}
+            </p>
+            <p className="text-sm text-gray-700 font-medium flex items-center">
+              <svg className="w-4 h-4 mr-2 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {event.clickCount.toLocaleString("es-CO")} visualizaciones
             </p>
           </div>
         </div>

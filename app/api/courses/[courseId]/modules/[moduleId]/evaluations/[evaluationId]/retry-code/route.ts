@@ -67,14 +67,13 @@ export async function POST(
     }
 
     const redeemed = await db.$transaction(async (tx) => {
-      const txAny = tx as any;
-      const activeCode = await getOrCreateActiveRetryCode(txAny);
+      const activeCode = await getOrCreateActiveRetryCode(tx);
 
       if (activeCode.code !== code) {
         return { ok: false as const, status: 400, message: "Código inválido" };
       }
 
-      const disabled = await txAny.retryAccessCode.updateMany({
+      const disabled = await tx.retryAccessCode.updateMany({
         where: {
           id: activeCode.id,
           code,
@@ -96,7 +95,7 @@ export async function POST(
         };
       }
 
-      await txAny.evaluationRetryGrant.create({
+      await tx.evaluationRetryGrant.create({
         data: {
           userId,
           evaluationId,
@@ -105,7 +104,7 @@ export async function POST(
         },
       });
 
-      const newCode = await rotateRetryCode(txAny);
+      const newCode = await rotateRetryCode(tx);
 
       return {
         ok: true as const,

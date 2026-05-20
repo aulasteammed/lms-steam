@@ -17,12 +17,12 @@ export async function POST(
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        const module = await db.module.findUnique({
+        const targetModule = await db.module.findUnique({
             where: { id: params.moduleId },
             select: { id: true },
         });
 
-        if (!module) {
+        if (!targetModule) {
             return new NextResponse("Modulo no encontrado", { status: 404 });
         }
 

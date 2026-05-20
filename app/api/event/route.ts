@@ -16,8 +16,19 @@ interface CreateEventData {
   link: string
 }
 
-function validateEventData(data: any): CreateEventData {
-  const { title, description, location, imageUrl, startDateTime, endDateTime, link } = data
+function validateEventData(data: unknown): CreateEventData {
+  if (typeof data !== "object" || data === null) {
+    throw new Error("Datos inválidos")
+  }
+
+  const payload = data as Record<string, unknown>
+  const title = payload.title
+  const description = payload.description
+  const location = payload.location
+  const imageUrl = payload.imageUrl
+  const startDateTime = payload.startDateTime
+  const endDateTime = payload.endDateTime
+  const link = payload.link
 
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
     throw new Error('El título es requerido')
@@ -27,7 +38,12 @@ function validateEventData(data: any): CreateEventData {
     throw new Error('La ubicación es requerida')
   }
 
-  if (!startDateTime || !endDateTime) {
+  if (
+    !startDateTime ||
+    !endDateTime ||
+    typeof startDateTime !== "string" ||
+    typeof endDateTime !== "string"
+  ) {
     throw new Error('Las fechas de inicio y fin son requeridas')
   }
 
@@ -58,9 +74,9 @@ function validateEventData(data: any): CreateEventData {
 
   return {
     title: title.trim(),
-    description: description?.trim(),
+    description: typeof description === "string" ? description.trim() : undefined,
     location: location.trim(),
-    imageUrl: imageUrl?.trim(),
+    imageUrl: typeof imageUrl === "string" ? imageUrl.trim() : undefined,
     startDateTime,
     endDateTime,
     link: link.trim()
@@ -94,7 +110,7 @@ export async function GET(req: NextRequest) {
         userId: true,
         createdAt: true,
         link: true,
-
+        clickCount: true,
       }
     })
 

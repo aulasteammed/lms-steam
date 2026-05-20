@@ -17,6 +17,7 @@ interface Event {
   endDateTime: string   // ISO
   userId: string
   link: string
+  clickCount: number
 }
 
 const MONTHS_ABBR = [
@@ -228,6 +229,21 @@ function EventCard({ event }: { event: Event }) {
   const openModal = () => setIsModalOpen(true)
   const closeModal = () => setIsModalOpen(false)
 
+  const trackInscriptionClick = async () => {
+    try {
+      await fetch('/api/event/click', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ eventId: event.id }),
+        keepalive: true,
+      })
+    } catch (error) {
+      console.error('Error tracking inscription click:', error)
+    }
+  }
+
   return (
     <>
       <div className={`bg-white border border-amber-100 rounded-2xl shadow-md overflow-hidden ${isPastEvent ? 'opacity-75' : ''}`}>
@@ -247,6 +263,7 @@ function EventCard({ event }: { event: Event }) {
                     href={event.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={trackInscriptionClick}
                     className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                   >
                     Inscribirme

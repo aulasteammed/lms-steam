@@ -39,6 +39,13 @@ function buildHookPhrase(source: string): string | null {
     return (lastSpace > 30 ? cut.slice(0, lastSpace) : cut).trim() + "...";
 }
 
+type ArticleBlock = {
+    type?: string;
+    content?: string;
+    imageUrl?: string;
+    items?: unknown[];
+};
+
 export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ slug: string }> }
@@ -68,7 +75,7 @@ export async function PATCH(
                 return new NextResponse("Cannot publish: missing title", { status: 400 });
             if (!article.authorName?.trim())
                 return new NextResponse("Cannot publish: missing author name", { status: 400 });
-            const blocks = Array.isArray(article.blocks) ? (article.blocks as any[]) : [];
+            const blocks = Array.isArray(article.blocks) ? (article.blocks as ArticleBlock[]) : [];
             if (blocks.length === 0)
                 return new NextResponse("Cannot publish: no content blocks", { status: 400 });
 

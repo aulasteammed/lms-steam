@@ -5,6 +5,26 @@ import { db } from "@/lib/db";
 import { sendExhaustedAttemptsEmail } from "@/lib/evaluation-email";
 import { getAllowedAttempts } from "@/lib/evaluation-retry";
 
+type SelectedAnswerInput = {
+  title: string;
+  questionId: string;
+  isCorrect: boolean;
+};
+
+function isSelectedAnswerArray(value: unknown): value is SelectedAnswerInput[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as SelectedAnswerInput).title === "string" &&
+        typeof (item as SelectedAnswerInput).questionId === "string" &&
+        typeof (item as SelectedAnswerInput).isCorrect === "boolean"
+    )
+  );
+}
+
 export async function POST(
   req: Request,
   props: {
@@ -17,9 +37,12 @@ export async function POST(
 
     if (!userId) return new NextResponse("Unauthorized", { status: 401 });
 
-    const { selectedAnswers, score } = await req.json();
+    const body: unknown = await req.json();
+    const selectedAnswers =
+      typeof body === "object" && body !== null ? (body as { selectedAnswers?: unknown }).selectedAnswers : undefined;
+    const score = typeof body === "object" && body !== null ? (body as { score?: unknown }).score : undefined;
 
-    if (!Array.isArray(selectedAnswers) || typeof score !== "number") {
+    if (!isSelectedAnswerArray(selectedAnswers) || typeof score !== "number") {
       return new NextResponse("Datos inválidos", { status: 400 });
     }
 
@@ -70,7 +93,7 @@ export async function POST(
       });
 
       await tx.selectedAnswer.createMany({
-        data: selectedAnswers.map((answer: any) => ({
+        data: selectedAnswers.map((answer) => ({
           title: answer.title,
           questionId: answer.questionId,
           isCorrect: answer.isCorrect,
@@ -84,7 +107,7 @@ export async function POST(
     const exhaustedAttempts = score < 80 && attempt >= allowedAttempts;
 
     if (exhaustedAttempts) {
-      const previousNotification = await (db as any).evaluationRetryEmailLog.findUnique({
+      const previousNotification = await db.evaluationRetryEmailLog.findUnique({
         where: {
           userId_evaluationId_attempt: {
             userId,
@@ -109,7 +132,7 @@ export async function POST(
             });
 
             if (emailResult.sent) {
-              await (db as any).evaluationRetryEmailLog.create({
+              await db.evaluationRetryEmailLog.create({
                 data: {
                   userId,
                   evaluationId,

@@ -36,18 +36,18 @@ export async function DELETE(
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const module = await db.module.findUnique({
+  const targetModule = await db.module.findUnique({
     where: {
       id: moduleId,
       courseId: courseId,
     },
   });
 
-  if (!module) {
+  if (!targetModule) {
     return new NextResponse("Not Found", { status:404 });
   }
 
-  await deleteUploadThingFilesByUrls([module.videoUrl]);
+  await deleteUploadThingFilesByUrls([targetModule.videoUrl]);
 
   // Clean up evaluation and its nested records before deleting the module
   const evaluation = await db.evaluation.findUnique({
@@ -131,7 +131,7 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const module = await db.module.update({
+    const updatedModule = await db.module.update({
       where: {
         id: params.moduleId,
         courseId: params.courseId,
@@ -141,7 +141,7 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(module);
+    return NextResponse.json(updatedModule);
   } catch (error) {
     console.log("[COURSES_MODULE_ID]", error);
     return new NextResponse("Internal error", { status: 500 });

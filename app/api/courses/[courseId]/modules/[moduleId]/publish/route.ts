@@ -33,14 +33,14 @@ export async function PATCH(
             return new NextResponse('Unauthorized', { status: 401 });
         }
 
-        const module = await db.module.findUnique({
+        const targetModule = await db.module.findUnique({
             where: {
                 courseId: params.courseId,
                 id: params.moduleId,
             }
         });
 
-        if(!module || !module.title || !module.description || !module.videoUrl) {
+        if(!targetModule || !targetModule.title || !targetModule.description || !targetModule.videoUrl) {
             return new NextResponse('Faltan campos obligatorios', { status: 400 });
         }
 

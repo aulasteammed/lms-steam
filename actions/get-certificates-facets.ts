@@ -20,6 +20,25 @@ type FacetCourse = {
   students: FacetStudent[];
 };
 
+type ClerkUserLike = {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+};
+
+function hasUserArrayData(value: unknown): value is { data: ClerkUserLike[] } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "data" in value &&
+    Array.isArray((value as { data?: unknown }).data)
+  );
+}
+
+function isClerkUserArray(value: unknown): value is ClerkUserLike[] {
+  return Array.isArray(value);
+}
+
 export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
   try {
     const { userId } = await auth();
@@ -69,20 +88,18 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
     try {
       const client = await clerkClient();
       const BATCH_SIZE = 100;
-      const userPromises: Promise<any>[] = [];
+      const userPromises: Promise<unknown>[] = [];
       for (var j = 0; j < uniqueUserIds.length; j += BATCH_SIZE) {
         const batchIds = uniqueUserIds.slice(j, j + BATCH_SIZE);
-        userPromises.push(
-          client.users.getUserList({ userId: batchIds }) as Promise<any>
-        );
+        userPromises.push(client.users.getUserList({ userId: batchIds }));
       }
       const batches = await Promise.all(userPromises);
-      let allUsers: any[] = [];
+      let allUsers: ClerkUserLike[] = [];
       for (var b = 0; b < batches.length; b++) {
         const r = batches[b];
-        if (r && r.data && Array.isArray(r.data)) {
+        if (hasUserArrayData(r)) {
           allUsers = allUsers.concat(r.data);
-        } else if (Array.isArray(r)) {
+        } else if (isClerkUserArray(r)) {
           allUsers = allUsers.concat(r);
         }
       }
@@ -149,8 +166,15 @@ export const getCertificatesFacets = async (): Promise<FacetCourse[]> => {
         }),
       };
     });
-  } catch (error: any) {
-    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      (error as { digest?: string }).digest === "DYNAMIC_SERVER_USAGE"
+    ) {
+      throw error;
+    }
     console.error("[GET_CERTIFICATES_FACETS]", error);
     return [];
   }

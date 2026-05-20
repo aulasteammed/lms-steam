@@ -31,7 +31,7 @@ export const getModule = async ({
             },
         });
 
-        const module = await db.module.findUnique({
+        const courseModule = await db.module.findUnique({
             where: {
                 id: moduleId,
                 isPublished: true,
@@ -46,7 +46,7 @@ export const getModule = async ({
             },
         });
 
-        if (!module || !course || !evaluation) {
+        if (!courseModule || !course || !evaluation) {
             throw new Error('Module, evaluation or course not found');
         }
 
@@ -61,13 +61,13 @@ export const getModule = async ({
             });
         }
 
-        if (module.isEnabled || registration) {
+        if (courseModule.isEnabled || registration) {
             nextModule = await db.module.findFirst({
                 where: {
                     courseId,
                     isPublished: true,
                     position: {
-                        gt: module.position,
+                        gt: courseModule.position,
                     },
                 },
                 orderBy: {
@@ -86,7 +86,7 @@ export const getModule = async ({
 
         return {
             evaluation,
-            module,
+            module: courseModule,
             course,
             attachments,
             nextModule,

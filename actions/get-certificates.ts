@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 // ✅ Esquema opcional de filtros válidos según tu modelo real
@@ -18,16 +19,17 @@ export async function getCertificates(
   try {
     const { courseId, userId, fromDate, toDate } = filters || {};
 
-    const where: any = {};
+    const where: Prisma.CertificateWhereInput = {};
 
     if (courseId) where.courseId = courseId;
     if (userId) where.userId = userId;
 
     // Filtros por rango de fechas si los deseas usar
     if (fromDate || toDate) {
-      where.issuedAt = {};
-      if (fromDate) where.issuedAt.gte = fromDate;
-      if (toDate) where.issuedAt.lte = toDate;
+      where.issuedAt = {
+        ...(fromDate ? { gte: fromDate } : {}),
+        ...(toDate ? { lte: toDate } : {}),
+      };
     }
 
     // ✅ Consulta a la base de datos

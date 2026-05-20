@@ -266,10 +266,9 @@ const Pagination = memo(function Pagination({
   onChange: (p: number) => void;
 }) {
   const totalPages = Math.ceil(total / pageSize);
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 1) return [];
 
-  if (totalPages <= 1) return null;
-
-   const visiblePages = useMemo(() => {
     const pages: (number | string)[] = [];
 
     // Si hay pocas páginas, mostramos todas
@@ -314,6 +313,8 @@ const Pagination = memo(function Pagination({
     return pages;
 
   }, [page, totalPages]);
+
+  if (totalPages <= 1) return null;
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-1.5 mt-8">
