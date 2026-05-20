@@ -8,7 +8,7 @@
     "db:migrate-course-categories": "tsx scripts/migrate-course-categories.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx,.js,.jsx",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -45,7 +45,6 @@
     "embla-carousel-react": "^8.5.2",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
-    "eslint-plugin-typescript-sort-keys": "^3.3.0",
     "framer-motion": "^12.6.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
@@ -72,12 +71,12 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@eslint/js": "^8.57.1",
+    "@eslint/js": "^9.39.4",
     "@types/node": "22.18.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "15.1.6",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.18",
     "eslint-plugin-react": "^7.37.4",
     "globals": "^15.14.0",
     "postcss": "^8.5.1",
