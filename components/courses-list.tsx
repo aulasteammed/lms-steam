@@ -1,10 +1,12 @@
-import { Category, Course, CourseCategory } from "@prisma/client";
+import { Course } from "@prisma/client";
 import { CourseCard } from '@/components/course-card';
 
-type CourseWithProgressWithCategory = Course & {
-    courseCategories: (CourseCategory & {
-        category: Category;
-    })[];
+type CourseWithProgressWithCategory = Pick<Course, "id" | "title" | "imageUrl" | "level"> & {
+    courseCategories: {
+        category: {
+            name: string;
+        };
+    }[];
     modules: { id: string }[];
     progress: number | null;
 };

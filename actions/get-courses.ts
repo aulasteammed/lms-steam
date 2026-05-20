@@ -1,11 +1,11 @@
-import { Category, Course, CourseCategory } from "@prisma/client";
+import { Category, Course } from "@prisma/client";
 import { getProgressBatch } from "@/actions/get-progress-batch";
 import { db } from "@/lib/db";
 
 type CourseWithProgressWithCategory = Pick<Course, "id" | "title" | "imageUrl" | "level" | "createdAt"> & {
-    courseCategories: (CourseCategory & {
+    courseCategories: {
         category: Pick<Category, "name">;
-    })[];
+    }[];
     modules: { id: string }[];
     progress: number | null;
 };

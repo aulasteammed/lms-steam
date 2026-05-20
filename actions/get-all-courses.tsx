@@ -1,11 +1,11 @@
-import { Category, Course, CourseCategory } from '@prisma/client';
+import { Category, Course } from '@prisma/client';
 
 import { db } from '@/lib/db';
 
 type CourseWithCategory = Pick<Course, "id" | "title" | "imageUrl" | "level" | "createdAt"> & {
-    courseCategories: (CourseCategory & {
+    courseCategories: {
         category: Pick<Category, "name">;
-    })[];
+    }[];
     modules: { id: string }[];
 };
 

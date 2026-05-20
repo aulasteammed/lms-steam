@@ -1,10 +1,12 @@
-import { Category, Course, CourseCategory } from "@prisma/client";
+import { Course } from "@prisma/client";
 import { AllCourseCard } from '@/components/all-course-card';
 
-type CourseWithCategory = Course & {
-    courseCategories: (CourseCategory & {
-        category: Category;
-    })[];
+type CourseWithCategory = Pick<Course, "id" | "title" | "imageUrl" | "level"> & {
+    courseCategories: {
+        category: {
+            name: string;
+        };
+    }[];
     modules: { id: string }[];
 };
 
