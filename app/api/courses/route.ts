@@ -22,6 +22,7 @@ export async function POST(req: Request) {
       data: {
         userId,
         title,
+        price: 0,
       },
     });
 
