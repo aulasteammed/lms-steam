@@ -156,7 +156,7 @@ function CoverSlide({ article, accent, totalPages }: {
                     </p>
                 )}
                 {article.hookPhrase && (
-                    <p className="text-[11px] italic text-white/60 leading-snug"
+                    <p className="text-[11px] italic text-white/70 leading-snug"
                         style={{ fontFamily: SERIF }}>
                         &ldquo;{article.hookPhrase}&rdquo;
                     </p>
@@ -171,11 +171,11 @@ function CoverSlide({ article, accent, totalPages }: {
                             : initials
                         }
                     </div>
-                    <span className="text-[11px] text-white/50">{article.authorName}</span>
+                    <span className="text-[11px] text-white/70">{article.authorName}</span>
                     <span className="ml-auto text-[10px] text-white/25" style={{ fontFamily: MONO }}>{date}</span>
                 </div>
 
-                <div className="text-[9px] text-white/20 text-center mt-0.5" style={{ fontFamily: MONO }}>
+                <div className="text-[9px] text-white/90 text-center mt-0.5" style={{ fontFamily: MONO }}>
                     {totalPages} {totalPages === 1 ? "página" : "páginas"} · desliza →
                 </div>
             </div>
@@ -278,33 +278,55 @@ export function MobileReader({ article, viewCount, articleId, articleSlug, prev,
     viewCount:   number;
     articleId:   string;
     articleSlug: string;
-    prev:      AdjacentArticle;
-    next:      AdjacentArticle;
+    prev:        AdjacentArticle;
+    next:        AdjacentArticle;
 }) {
     const accent = article.accentColor || "#e8622a";
 
-    // Sort and chunk blocks into pages
+    // Ordenamos todos los bloques linealmente
     const blocks = (Array.isArray(article.blocks) ? article.blocks as Block[] : [])
-        .sort((a, b) => a.position - b.position)
-        .filter(b => b.type !== "divider" || true); // keep all
+        .sort((a, b) => a.position - b.position);
 
-    // Split into pages of BLOCKS_PER_PAGE
-    const pages: Block[][] = [];
-    for (let i = 0; i < blocks.length; i += BLOCKS_PER_PAGE) {
-        pages.push(blocks.slice(i, i + BLOCKS_PER_PAGE));
-    }
-    // If no blocks, still show cover + end
-    if (pages.length === 0) pages.push([]);
-
-    // Slides: [cover, ...content pages, end]
-    const totalSlides  = 1 + pages.length + 1;
-    const lastSlide    = totalSlides - 1;
-
+    // Estados dinámicos para las páginas reales calculadas por el celular
+    const [contentPagesCount, setContentPagesCount] = useState(1);
     const [slide, setSlide] = useState(0);
+    
     const viewRecorded = useRef(false);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Register view when reaching end slide
+    // Diapositivas totales = 1 (Portada) + N (Páginas de contenido calculadas) + 1 (Cierre)
+    const totalSlides = 1 + contentPagesCount + 1;
+    const lastSlide = totalSlides - 1;
+
+    // Efecto para medir cuántas páginas de ancho generó el CSS dinámicamente
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        // Función que mide el ancho total del texto acomodado vs el ancho de la pantalla
+        const calculatePages = () => {
+            const totalWidth = container.scrollWidth;
+            const clientWidth = container.clientWidth;
+            if (totalWidth > 0 && clientWidth > 0) {
+                const pages = Math.round(totalWidth / clientWidth);
+                setContentPagesCount(pages > 0 ? pages : 1);
+            }
+        };
+
+        // Calculamos al cargar y si el usuario gira la pantalla
+        calculatePages();
+        window.addEventListener("resize", calculatePages);
+        
+        // Un pequeño timeout por si las fuentes tardan en renderizar
+        const timer = setTimeout(calculatePages, 300);
+
+        return () => {
+            window.removeEventListener("resize", calculatePages);
+            clearTimeout(timer);
+        };
+    }, [blocks]);
+
+    // Registrar vista en el slide final
     useEffect(() => {
         if (slide === lastSlide && !viewRecorded.current) {
             viewRecorded.current = true;
@@ -314,9 +336,23 @@ export function MobileReader({ article, viewCount, articleId, articleSlug, prev,
                 body:    JSON.stringify({ articleId }),
             }).catch(() => {});
         }
-    }, [slide, lastSlide, articleId]);
+    }, [slide, lastSlide, articleId, articleSlug]);
 
-    // Touch swipe
+    // Controlar el desplazamiento del contenedor interno de lectura al cambiar de slide
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        if (slide === 0 || slide === lastSlide) return; // Portada y final están fuera
+
+        const pageIndex = slide - 1; // Ajustamos el índice porque el slide 0 es la portada
+        container.scrollTo({
+            left: pageIndex * container.clientWidth,
+            behavior: "smooth"
+        });
+    }, [slide, lastSlide]);
+
+    // Touch swipe adaptado
     const touchStart = useRef<number | null>(null);
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStart.current = e.touches[0].clientX;
@@ -334,62 +370,81 @@ export function MobileReader({ article, viewCount, articleId, articleSlug, prev,
     const goSlide = (n: number) => setSlide(Math.max(0, Math.min(lastSlide, n)));
 
     return (
-        <div ref={containerRef}
-            className="relative w-full h-screen overflow-hidden flex flex-col"
+        <div className="relative w-full h-[100dvh] overflow-hidden flex flex-col"
             style={{ background: "#0d0f10" }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}>
 
-            {/* Slides track */}
+            {/* Vista principal (Estructura de 3 bloques lógicos: Portada, Cuerpo, Final) */}
             <div className="flex-1 min-h-0 relative overflow-hidden">
                 <div
                     className="flex h-full"
                     style={{
-                        width:     `${totalSlides * 100}%`,
-                        transform: `translateX(-${(slide / totalSlides) * 100}%)`,
+                        width: "300%", // 3 secciones maestras
+                        transform: `translateX(-${slide === 0 ? 0 : slide === lastSlide ? 200 / 3 : 100 / 3}%)`,
                         transition: "transform 0.38s cubic-bezier(0.77,0,0.18,1)",
                     }}>
 
-                    {/* Slide 0 — Cover */}
-                    <div className="h-full flex-shrink-0" style={{ width: `${100 / totalSlides}%` }}>
-                        <CoverSlide article={article} accent={accent} totalPages={pages.length} />
+                    {/* SECCIÓN 1: Portada */}
+                    <div className="h-full w-[33.333%]" style={{ flexShrink: 0 }}>
+                        <CoverSlide article={article} accent={accent} totalPages={contentPagesCount} />
                     </div>
 
-                    {/* Slides 1..N — Content pages */}
-                    {pages.map((pageBlocks, i) => (
-                        <div key={i} className="h-full flex-shrink-0" style={{ width: `${100 / totalSlides}%` }}>
-                            <ContentSlide
-                                blocks={pageBlocks}
-                                pageNum={i + 1}
-                                totalPages={pages.length}
-                                accent={accent}
-                                articleTitle={article.title}
-                            />
-                        </div>
-                    ))}
+                    {/* SECCIÓN 2: El libro de contenido completo */}
+                    <div className="h-full w-[33.333%]" style={{ flexShrink: 0 }}>
+                        <div className="w-full h-full flex flex-col" style={{ background: "#fafaf8" }}>
+                            
+                            {/* Mini header dinámico */}
+                            <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#e2ddd8] flex-shrink-0">
+                                <span className="text-[9px] text-[#8a8682] truncate max-w-[180px]" style={{ fontFamily: MONO }}>
+                                    {article.title}
+                                </span>
+                                <span className="text-[9px] text-[#8a8682] flex-shrink-0 ml-2" style={{ fontFamily: MONO }}>
+                                    {slide > 0 && slide < lastSlide ? `${slide}/${contentPagesCount}` : `1/${contentPagesCount}`}
+                                </span>
+                            </div>
 
-                    {/* Last slide — End */}
-                    <div className="h-full flex-shrink-0" style={{ width: `${100 / totalSlides}%` }}>
+                            {/* Contenedor inteligente Multicolumna */}
+                            <div 
+                                ref={scrollContainerRef}
+                                className="flex-1 overflow-x-hidden overflow-y-hidden px-5 py-4"
+                                style={{
+                                    columnWidth: "100vw", 
+                                    columnGap: "40px",
+                                    height: "100%",
+                                }}
+                            >
+                                {blocks.map(block => (
+                                    <div key={block.id} className="break-inside-avoid-column inline-block w-full">
+                                        <MobileBlock block={block} accent={accent} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SECCIÓN 3: Cierre */}
+                    <div className="h-full w-[33.333%]" style={{ flexShrink: 0 }}>
                         <EndSlide article={article} accent={accent} next={next} viewCount={viewCount} />
                     </div>
                 </div>
             </div>
 
-            {/* Bottom controls */}
+            {/* Bottom controls (¡AQUÍ SALEN TODOS LOS PUNTOS Y BOTONES REALES!) */}
             <div className="flex-shrink-0 flex items-center justify-between px-4 py-3"
-                style={{ background: "#0d0f10" }}>
+                style={{ background: "rgba(13, 15, 16, 0.75)" }}>
 
-                {/* Prev button */}
+                {/* Botón Atrás */}
                 <button
                     onClick={() => goSlide(slide - 1)}
                     disabled={slide === 0}
                     className="w-9 h-9 rounded-full flex items-center justify-center text-white text-lg transition-colors disabled:opacity-10"
-                    style={{ background: "rgba(255,255,255,0.05)" }}>
+                    style={{ background: "rgba(255,255,255,0.1)" }}>
                     ‹
                 </button>
 
-                {/* Dots */}
-                <div className="flex items-center gap-1.5">
+                {/* Puntitos dinámicos adaptados a la cantidad real de páginas */}
+                <div className="flex items-center gap-1.5 flex-wrap justify-center max-w-[60%]">
                     {Array.from({ length: totalSlides }).map((_, i) => (
                         <button key={i} onClick={() => goSlide(i)}
                             className="transition-all duration-200 rounded-full"
@@ -402,12 +457,12 @@ export function MobileReader({ article, viewCount, articleId, articleSlug, prev,
                     ))}
                 </div>
 
-                {/* Next button */}
+                {/* Botón Siguiente */}
                 <button
                     onClick={() => goSlide(slide + 1)}
                     disabled={slide === lastSlide}
                     className="w-9 h-9 rounded-full flex items-center justify-center text-white text-lg transition-colors disabled:opacity-10"
-                    style={{ background: "rgba(255,255,255,0.05)" }}>
+                    style={{ background: "rgba(255,255,255,0.1)" }}>
                     ›
                 </button>
             </div>
