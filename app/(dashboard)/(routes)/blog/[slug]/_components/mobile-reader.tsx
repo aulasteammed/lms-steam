@@ -371,7 +371,7 @@ export function MobileReader({ article, viewCount, articleId, articleSlug, prev,
 
     return (
         <div className="relative w-full h-[100dvh] overflow-hidden flex flex-col"
-            style={{ background: "#0d0f10" }}
+            style={{ background: article.darkColColor || "#12110f" }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}>
 
@@ -407,11 +407,12 @@ export function MobileReader({ article, viewCount, articleId, articleSlug, prev,
                             {/* Contenedor inteligente Multicolumna */}
                             <div 
                                 ref={scrollContainerRef}
-                                className="flex-1 overflow-x-hidden overflow-y-hidden px-5 py-4"
+                                className="flex-1 max-h-full overflow-x-hidden overflow-y-hidden px-5 py-4"
                                 style={{
                                     columnWidth: "100vw", 
                                     columnGap: "40px",
                                     height: "100%",
+                                    boxSizing: "border-box"
                                 }}
                             >
                                 {blocks.map(block => (
