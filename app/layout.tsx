@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import {esES} from "@clerk/localizations";
 
 import "./globals.css";
 import { ToasterProvider } from "@/components/providers/toaster-provider";
@@ -19,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={esES}>
       <html lang="en">
         <body className={inter.className}>
           <ToasterProvider />

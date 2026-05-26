@@ -1,7 +1,7 @@
 'use client';
 
 import { UserButton, useAuth } from '@clerk/nextjs';
-import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck } from 'lucide-react';
+import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck, CircleUserRound } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -87,12 +87,20 @@ export const NavbarRoutes = () => {
                     ) : null
                 ) : (
                     // Usuario no autenticado
-                    <Link href="/sign-in">
-                        <Button size="sm" variant="outline">
-                            <LogIn className="h-4 w-4 mr-2 text-green-500" />
-                            Iniciar sesión
-                        </Button>
-                    </Link>
+                    <>
+                        <Link href="/sign-up">
+                            <Button size="sm" variant="outline">
+                                <CircleUserRound className="h-4 w-4 mr-2 text-blue-500" />
+                                Registrarse
+                            </Button>
+                        </Link>
+                        <Link href="/sign-in">
+                            <Button size="sm" variant="outline">
+                                <LogIn className="h-4 w-4 mr-2 text-green-500" />
+                                Iniciar sesión
+                            </Button>
+                        </Link>
+                    </>
                 )}
 
                 <UserButton afterSwitchSessionUrl="/" />
