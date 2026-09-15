@@ -1,7 +1,7 @@
 'use client';
 
 import { UserButton, useAuth } from '@clerk/nextjs';
-import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck, CircleUserRound } from 'lucide-react';
+import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck, CircleUserRound, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -35,7 +35,7 @@ export const NavbarRoutes = () => {
                     {/* Inventario*/}
                     <Link href='https://aula-steam.pages.dev/inventario/' target='_blank'>
                         <Button size="sm" variant="outline">
-                            <Package className="h-4 w-4 mr-2 text-orange-500" />
+                            <Package className="h-4 w-4 mr-2 text-orange-400" />
                             Inventario
                         </Button>
                     </Link>
@@ -48,13 +48,24 @@ export const NavbarRoutes = () => {
                         </Button>
                     </Link>
 
+
+                    {/* Impresiones 3D*/}
+                    <Link href='https://asistencias-web-aula.vercel.app/admin.html' target='_blank'>
+                        <Button size="sm" variant="outline">
+                            <Printer className="h-4 w-4 mr-2 text-orange-600" />
+                            Impresiones 3D
+                        </Button>
+                    </Link>
+
                     {/* Asistencia*/}
                     <Link href='https://asistencias-web-aula.vercel.app/admin.html' target='_blank'>
                         <Button size="sm" variant="outline">
-                            <ClipboardList className="h-4 w-4 mr-2 text-orange-500" />
+                            <ClipboardList className="h-4 w-4 mr-2 text-orange-700" />
                             Asistencia
                         </Button>
                     </Link>
+
+
                 </div>
             )}
 
