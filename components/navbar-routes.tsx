@@ -50,10 +50,10 @@ export const NavbarRoutes = () => {
 
 
                     {/* Impresiones 3D*/}
-                    <Link href='https://asistencias-web-aula.vercel.app/admin.html' target='_blank'>
+                    <Link href='https://aplicativo-impresiones-3d.vercel.app/' target='_blank'>
                         <Button size="sm" variant="outline">
                             <Printer className="h-4 w-4 mr-2 text-orange-600" />
-                            Impresiones 3D
+                            Impresión 3D
                         </Button>
                     </Link>
 
