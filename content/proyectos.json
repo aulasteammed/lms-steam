@@ -1,0 +1,61 @@
+[
+  {
+    "id": "comuna-1",
+    "titulo": "Entre Aguas",
+    "lugar": "Santo Domingo Savio, Comuna 1, Medellín",
+    "anio": "2024 – 2026",
+    "descripcion": "Cinco familias de Santo Domingo Savio y dos universidades públicas diseñaron un sistema para reutilizar el agua de las lavadoras. El proceso quedó contado en el periódico comunitario «Entre Aguas».",
+    "coordenadas": { "latitud": 6.2946, "longitud": -75.5418 },
+    "fotos": [
+      {
+        "archivo": "fotos/01.jpg",
+        "descripcion": "La ladera de Santo Domingo Savio con el Parque Biblioteca al fondo"
+      },
+      {
+        "archivo": "fotos/02.jpg",
+        "descripcion": "Fotografía histórica de una vivienda del barrio"
+      }
+    ],
+    "publicacion": {
+      "titulo": "Entre Aguas · Periódico Comuna 1",
+      "carpeta": "periodico",
+      "paginas": 24
+    }
+  },
+  {
+    "id": "proyecto-2",
+    "titulo": "Proyecto comunitario 2",
+    "lugar": "Moravia, Medellín",
+    "anio": "2024",
+    "descripcion": "Descripción corta del proyecto: con quién se trabajó, qué se construyó y qué aprendizajes dejó para la comunidad.",
+    "coordenadas": { "latitud": 6.2765, "longitud": -75.5655 },
+    "fotos": [
+      { "archivo": "/images/Slide_02.jpg", "descripcion": "Foto de ejemplo" },
+      { "archivo": "/images/Slide_03.jpg", "descripcion": "Otra foto de ejemplo" }
+    ]
+  },
+  {
+    "id": "proyecto-3",
+    "titulo": "Proyecto comunitario 3",
+    "lugar": "Quibdó, Chocó",
+    "anio": "2024",
+    "descripcion": "Descripción corta del proyecto: con quién se trabajó, qué se construyó y qué aprendizajes dejó para la comunidad.",
+    "coordenadas": { "latitud": 5.6919, "longitud": -76.6583 },
+    "fotos": [
+      { "archivo": "/images/Slide_03.jpg", "descripcion": "Foto de ejemplo" },
+      { "archivo": "/images/Slide_04.jpg", "descripcion": "Otra foto de ejemplo" }
+    ]
+  },
+  {
+    "id": "proyecto-4",
+    "titulo": "Proyecto comunitario 4",
+    "lugar": "Santa Marta, Magdalena",
+    "anio": "2023",
+    "descripcion": "Descripción corta del proyecto: con quién se trabajó, qué se construyó y qué aprendizajes dejó para la comunidad.",
+    "coordenadas": { "latitud": 11.2408, "longitud": -74.199 },
+    "fotos": [
+      { "archivo": "/images/Slide_04.jpg", "descripcion": "Foto de ejemplo" },
+      { "archivo": "/images/Slide_01.jpg", "descripcion": "Otra foto de ejemplo" }
+    ]
+  }
+]

@@ -1,0 +1,89 @@
+/* Marcadores numerados del mapa de proyectos (acento naranja cálido). */
+.project-marker {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.project-marker__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: #ea580c; /* orange-600 */
+  color: #fff;
+  font: 600 14px/1 ui-sans-serif, system-ui, sans-serif;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2), 0 4px 10px rgba(15, 23, 42, 0.25);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-marker:hover .project-marker__dot {
+  transform: scale(1.1);
+}
+
+.project-marker:focus-visible {
+  outline: none;
+}
+
+.project-marker:focus-visible .project-marker__dot {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #f97316;
+}
+
+.project-marker.is-active {
+  z-index: 2;
+}
+
+.project-marker.is-active .project-marker__dot {
+  background: #c2410c; /* orange-700 */
+  transform: scale(1.2);
+  box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.28), 0 4px 12px rgba(15, 23, 42, 0.3);
+}
+
+/* Etiqueta con el nombre, a la derecha del punto */
+.project-marker__label {
+  position: absolute;
+  left: 46px;
+  top: 50%;
+  transform: translate(-6px, -50%);
+  white-space: nowrap;
+  background: #fff;
+  color: #0f172a; /* slate-900 */
+  font: 600 14px/1.2 ui-sans-serif, system-ui, sans-serif;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(226, 232, 240, 0.9); /* slate-200 */
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.project-marker:hover .project-marker__label,
+.project-marker.is-active .project-marker__label {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* Columna de cards sin barra de scroll visible */
+.story-scroller {
+  scrollbar-width: none;
+}
+.story-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-marker__dot,
+  .project-marker__label,
+  .story-card {
+    transition: none !important;
+  }
+}
