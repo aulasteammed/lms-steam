@@ -299,6 +299,7 @@ Se recomienda realizar revisiones periódicas en la base de datos, seguridad y a
 
 - Juan D. Villa ( https://github.com/danielvillam ) - _Desarrollador_
 - Nicolás Ruiz (https://github.com/Nicorb72) - _Desarrollador_
+- Julieth A. Bautista (https://github.com/JulbautistaT) * _Desarolladora_
 
 ---
 

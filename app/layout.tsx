@@ -10,8 +10,27 @@ import React from 'react';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LMS",
-  description: "Plataforma LMS",
+  metadataBase: new URL("https://lms-aula-steam.vercel.app"),
+  title: {
+    default: "Aula STEAM Sonny Jiménez | UNALMED",
+    template: "%s | Aula STEAM",
+  },
+  description: "Cursos, blog y mapa de proyectos, alianzas y participaciones del Aula STEAM Sonny Jiménez, Facultad de Minas, Universidad Nacional de Colombia sede Medellín.",
+  keywords: [
+    "Aula STEAM",
+    "Sonny Jiménez",
+    "STEAM",
+    "UNAL",
+    "Universidad Nacional de Colombia",
+    "Medellín",
+    "Facultad de Minas",
+    "cursos",
+    "ciencia",
+    "tecnología",
+    "ingeniería",
+    "artes",
+    "matemáticas",
+  ],
 };
 
 export default function RootLayout({
@@ -21,7 +40,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider localization={esES}>
-      <html lang="en">
+      <html lang="es-CO">
         <body className={inter.className}>
           <ToasterProvider />
           {children}
