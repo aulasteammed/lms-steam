@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     "artes",
     "matemáticas",
   ],
+  verification: {
+    google: "g-WuiQHK5a_l6oJ9r-5nVvSNRpQOENKbbtLJn8FD65Q",
+  },
 };
 
 export default function RootLayout({
