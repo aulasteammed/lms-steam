@@ -3,6 +3,13 @@ import { createClerkClient } from "@clerk/backend";
 import CourseCertificatePreviewPDF from "@/app/(course)/courses/[courseId]/certificates/[certificateId]/_components/course-certificate-preview";
 import CopyShareButtons from "./components/share-button";
 import { Check, Award, Calendar, User, BookOpen } from "lucide-react";
+import type { Metadata } from "next";
+
+// Certificates contain personal data: keep them out of search results
+export const metadata: Metadata = {
+  title: "Verificación de certificado",
+  robots: { index: false, follow: false },
+};
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
