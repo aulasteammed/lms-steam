@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://lms-aula-steam.vercel.app"),
   title: {
-    default: "Aula STEAM Sonny Jiménez | UNALMED",
+    default: "Aula STEAM Sonny Jiménez",
     template: "%s | Aula STEAM",
   },
   description: "Cursos, blog y mapa de proyectos, alianzas y participaciones del Aula STEAM Sonny Jiménez, Facultad de Minas, Universidad Nacional de Colombia sede Medellín.",
@@ -21,6 +21,7 @@ export const metadata: Metadata = {
     "Sonny Jiménez",
     "STEAM",
     "UNAL",
+    "UNALMED",
     "Universidad Nacional de Colombia",
     "Medellín",
     "Facultad de Minas",
