@@ -47,6 +47,19 @@
   box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.28), 0 4px 12px rgba(15, 23, 42, 0.3);
 }
 
+/* Proyectos con periódico o revista: punto azul en la esquina del marcador */
+.project-marker.has-publication::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 9999px;
+  background: #1b1472; /* azul del identificador */
+  border: 2px solid #fff;
+}
+
 /* Etiqueta con el nombre, a la derecha del punto */
 .project-marker__label {
   position: absolute;

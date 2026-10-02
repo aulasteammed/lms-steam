@@ -5,22 +5,81 @@
     "lugar": "Santo Domingo Savio, Comuna 1, Medellín",
     "anio": "2024 – 2026",
     "descripcion": "Cinco familias de Santo Domingo Savio y dos universidades públicas diseñaron un sistema para reutilizar el agua de las lavadoras. El proceso quedó contado en el periódico comunitario «Entre Aguas».",
-    "coordenadas": { "latitud": 6.2946, "longitud": -75.5418 },
+    "coordenadas": {
+      "latitud": 6.2946,
+      "longitud": -75.5418
+    },
     "fotos": [
       {
         "archivo": "fotos/01.jpg",
-        "descripcion": "La ladera de Santo Domingo Savio con el Parque Biblioteca al fondo"
+        "descripcion": "La ladera de Santo Domingo Savio con el Parque Biblioteca al fondo",
+        "credito": "[Autor de la fotografía], [año]"
       },
       {
         "archivo": "fotos/02.jpg",
         "descripcion": "Fotografía histórica de una vivienda del barrio"
       }
     ],
-    "publicacion": {
-      "titulo": "Entre Aguas · Periódico Comuna 1",
-      "carpeta": "periodico",
-      "paginas": 24
-    }
+    "instituciones": [
+      "[Universidad pública 1]",
+      "[Universidad pública 2]"
+    ],
+    "personas": [
+      {
+        "nombre": "[Nombre de la persona]",
+        "rol": "Coordinación"
+      },
+      {
+        "nombre": "[Nombre de la persona]",
+        "rol": "[Rol en el proyecto]"
+      }
+    ],
+    "relato": {
+      "titulo": "[Subtítulo del relato]",
+      "parrafos": [
+        "[Primer párrafo del relato del proyecto. Cómo se llegó al barrio, con quién se trabajó y qué pedía el lugar. Dos o tres párrafos bastan antes de la segunda imagen.]",
+        "[Segundo párrafo: el proceso. Talleres, decisiones que cambiaron en obra, materiales conseguidos localmente, quién quedó a cargo del sistema.]",
+        "[Tercer párrafo: qué está pasando hoy y qué se aprendió para los próximos proyectos del mapa.]"
+      ]
+    },
+    "cita": {
+      "texto": "[Frase de alguien del territorio que resuma lo que cambió con el proyecto.]",
+      "autor": "[Nombre]",
+      "rol": "[Rol u organización]"
+    },
+    "agradecimientos": "[Personas o entidades a destacar, solo si corresponde.]",
+    "relacionados": [
+      {
+        "tipo": "participacion",
+        "titulo": "[Nombre del evento y edición]",
+        "detalle": "[AAAA-MM-DD] · [Ciudad] · Presencial"
+      },
+      {
+        "tipo": "alianza",
+        "titulo": "[Institución u organización aliada]",
+        "detalle": "[AAAA – AAAA] · [Ciudad, país]"
+      }
+    ],
+    "documentos": [
+      {
+        "id": "periodico",
+        "titulo": "Entre Aguas · Periódico Comuna 1",
+        "tipo": "Periódico",
+        "descripcion": "El proceso contado por la comunidad: las familias, los talleres y el sistema que construyeron.",
+        "pdf": "periodico.pdf",
+        "carpeta": "periodico",
+        "paginas": 24
+      },
+      {
+        "id": "informe",
+        "titulo": "[Título del informe del proyecto]",
+        "tipo": "Informe",
+        "descripcion": "Informe de ejemplo en tamaño carta, para probar el visor y la descarga.",
+        "pdf": "/proyectos/proyecto-3/informe.pdf",
+        "carpeta": "/proyectos/proyecto-3/informe",
+        "paginas": 6
+      }
+    ]
   },
   {
     "id": "proyecto-2",
@@ -28,10 +87,19 @@
     "lugar": "Moravia, Medellín",
     "anio": "2024",
     "descripcion": "Descripción corta del proyecto: con quién se trabajó, qué se construyó y qué aprendizajes dejó para la comunidad.",
-    "coordenadas": { "latitud": 6.2765, "longitud": -75.5655 },
+    "coordenadas": {
+      "latitud": 6.2765,
+      "longitud": -75.5655
+    },
     "fotos": [
-      { "archivo": "/images/Slide_02.jpg", "descripcion": "Foto de ejemplo" },
-      { "archivo": "/images/Slide_03.jpg", "descripcion": "Otra foto de ejemplo" }
+      {
+        "archivo": "/images/Slide_02.jpg",
+        "descripcion": "Foto de ejemplo"
+      },
+      {
+        "archivo": "/images/Slide_03.jpg",
+        "descripcion": "Otra foto de ejemplo"
+      }
     ]
   },
   {
@@ -40,10 +108,48 @@
     "lugar": "Quibdó, Chocó",
     "anio": "2024",
     "descripcion": "Descripción corta del proyecto: con quién se trabajó, qué se construyó y qué aprendizajes dejó para la comunidad.",
-    "coordenadas": { "latitud": 5.6919, "longitud": -76.6583 },
+    "coordenadas": {
+      "latitud": 5.6919,
+      "longitud": -76.6583
+    },
     "fotos": [
-      { "archivo": "/images/Slide_03.jpg", "descripcion": "Foto de ejemplo" },
-      { "archivo": "/images/Slide_04.jpg", "descripcion": "Otra foto de ejemplo" }
+      {
+        "archivo": "/images/Slide_03.jpg",
+        "descripcion": "Foto de ejemplo"
+      },
+      {
+        "archivo": "/images/Slide_04.jpg",
+        "descripcion": "Otra foto de ejemplo"
+      }
+    ],
+    "instituciones": [
+      "[Institución 1]",
+      "[Institución 2]",
+      "[Institución 3]"
+    ],
+    "personas": [
+      {
+        "nombre": "[Nombre de la persona]",
+        "rol": "Coordinación"
+      }
+    ],
+    "relacionados": [
+      {
+        "tipo": "alianza",
+        "titulo": "[Institución u organización aliada]",
+        "detalle": "[AAAA] · [Ciudad, país]"
+      }
+    ],
+    "documentos": [
+      {
+        "id": "informe",
+        "titulo": "[Título del informe del proyecto]",
+        "tipo": "Informe",
+        "descripcion": "Informe de ejemplo en tamaño carta, para probar el visor y la descarga.",
+        "pdf": "/proyectos/proyecto-3/informe.pdf",
+        "carpeta": "/proyectos/proyecto-3/informe",
+        "paginas": 6
+      }
     ]
   },
   {
@@ -52,10 +158,29 @@
     "lugar": "Santa Marta, Magdalena",
     "anio": "2023",
     "descripcion": "Descripción corta del proyecto: con quién se trabajó, qué se construyó y qué aprendizajes dejó para la comunidad.",
-    "coordenadas": { "latitud": 11.2408, "longitud": -74.199 },
+    "coordenadas": {
+      "latitud": 11.2408,
+      "longitud": -74.199
+    },
     "fotos": [
-      { "archivo": "/images/Slide_04.jpg", "descripcion": "Foto de ejemplo" },
-      { "archivo": "/images/Slide_01.jpg", "descripcion": "Otra foto de ejemplo" }
+      {
+        "archivo": "/images/Slide_04.jpg",
+        "descripcion": "Foto de ejemplo"
+      },
+      {
+        "archivo": "/images/Slide_01.jpg",
+        "descripcion": "Otra foto de ejemplo"
+      }
+    ],
+    "documentos": [
+      {
+        "id": "revista",
+        "titulo": "Revista [Nombre] — Número 01",
+        "tipo": "Revista",
+        "pdf": "/proyectos/comuna-1/periodico.pdf",
+        "carpeta": "/proyectos/comuna-1/periodico",
+        "paginas": 24
+      }
     ]
   }
 ]

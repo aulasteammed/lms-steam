@@ -8,7 +8,8 @@ import type {
   StyleSpecification,
   LayerSpecification,
 } from "maplibre-gl";
-import { Globe, Loader2, Minus, Plus } from "lucide-react";
+import Link from "next/link";
+import { Globe, Library, Loader2, Minus, Plus } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./projects-map.css";
 
@@ -342,7 +343,9 @@ export const ProjectsMap = ({ projects, intro }: ProjectsMapProps) => {
       markersRef.current = projects.map((project, i) => {
         const el = document.createElement("button");
         el.type = "button";
-        el.className = "project-marker";
+        el.className = project.publication
+          ? "project-marker has-publication"
+          : "project-marker";
         el.setAttribute("aria-label", `${i + 1}. ${project.title}`);
         el.innerHTML = `<span class="project-marker__dot">${i + 1}</span><span class="project-marker__label">${escapeHtml(project.title)}</span>`;
         el.addEventListener("click", (ev) => {
@@ -450,6 +453,13 @@ export const ProjectsMap = ({ projects, intro }: ProjectsMapProps) => {
           storyVisible ? "bottom-[calc(60%+12px)] md:bottom-8" : "bottom-8"
         }`}
       >
+        <Link
+          href="/proyectos/publicaciones"
+          className="flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-md transition hover:bg-orange-50 hover:text-orange-700"
+        >
+          <Library className="h-4 w-4" />
+          Publicaciones
+        </Link>
         <button
           type="button"
           onClick={showAll}

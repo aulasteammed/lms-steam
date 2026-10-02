@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { PageFlip } from "page-flip";
 import {
   TransformComponent,
@@ -10,6 +11,7 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
+  Download,
   Maximize,
   Minimize,
   Minus,
@@ -17,10 +19,18 @@ import {
 } from "lucide-react";
 import "./flip-book.css";
 
-import { pageUrl, type ProjectPublication } from "@/lib/projects";
+import { pageUrl, type ProjectDocument } from "@/lib/projects";
+import { BackLink } from "../../_components/back-link";
 
 type FlipBookProps = {
-  publication: ProjectPublication;
+  publication: ProjectDocument;
+  /**
+   * Modo inmersivo: el lector abre ocupando toda la ventana y, al salir,
+   * lleva a esta ruta (la página del proyecto) en lugar de encogerse.
+   */
+  exitHref?: string;
+  /** Texto del enlace de salida en modo inmersivo. */
+  exitLabel?: string;
 };
 
 type Orientation = "portrait" | "landscape";
@@ -35,21 +45,47 @@ type ZoomSession = {
   startScale: number;
 };
 
-/** Proporción de una página (tabloide 792 × 1224 pt). */
+/**
+ * Tamaño base de una página. El alto real se toma de la primera imagen del
+ * documento: un periódico tabloide y un informe en carta no miden lo mismo.
+ */
 const PAGE_WIDTH = 550;
-const PAGE_HEIGHT = 850;
+const DEFAULT_PAGE_HEIGHT = 850;
 const MAX_SCALE = 4;
+
+/** Alto de una página de ancho PAGE_WIDTH, según la primera imagen. */
+const measurePageHeight = (src: string) =>
+  new Promise<number>((resolve) => {
+    const img = new Image();
+    img.onload = () =>
+      resolve(
+        img.naturalWidth > 0
+          ? Math.round((PAGE_WIDTH * img.naturalHeight) / img.naturalWidth)
+          : DEFAULT_PAGE_HEIGHT
+      );
+    img.onerror = () => resolve(DEFAULT_PAGE_HEIGHT);
+    img.src = src;
+  });
+/** Margen alrededor del libro en modo inmersivo (p-4). */
+const STAGE_PADDING = 32;
 
 /**
  * Lector de publicaciones con efecto de pasar páginas (page-flip).
  * - Muestra imágenes WebP de cada página y solo carga las cercanas.
- * - En la página normal la rueda del mouse sigue desplazando la página.
- * - En pantalla completa: rueda / pellizco acercan hacia el cursor, arrastrar
+ * - Incrustado, la rueda del mouse sigue desplazando la página.
+ * - Con `exitHref` abre directo a ventana completa (modo inmersivo).
+ * - A ventana completa: rueda / pellizco acercan hacia el cursor, arrastrar
  *   mueve la página ampliada, doble clic vuelve al libro.
  * - Teclado: ← → pasan página; + − acercan; Esc quita el zoom o sale.
  */
-export const FlipBook = ({ publication }: FlipBookProps) => {
+export const FlipBook = ({
+  publication,
+  exitHref,
+  exitLabel = "Volver",
+}: FlipBookProps) => {
   const total = publication.pageCount;
+  const immersive = Boolean(exitHref);
+  const router = useRouter();
 
   const readerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -63,9 +99,20 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
   const [ready, setReady] = useState(false);
   const [current, setCurrent] = useState(0);
   const [orientation, setOrientation] = useState<Orientation>("landscape");
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(immersive);
+  /** Pantalla completa nativa del navegador (además de ocupar la ventana). */
+  const [nativeFs, setNativeFs] = useState(false);
   const [zoom, setZoom] = useState<ZoomSession | null>(null);
   const [scale, setScale] = useState(1);
+  /** Ancho del libro en modo inmersivo (px CSS), ajustado al espacio disponible. */
+  const [bookWidth, setBookWidth] = useState<number | null>(null);
+  /** Ancho / alto del libro abierto (dos páginas). */
+  const [spreadRatio, setSpreadRatio] = useState(
+    (PAGE_WIDTH * 2) / DEFAULT_PAGE_HEIGHT
+  );
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  /** Zoom del navegador con el que se ajustó el libro por última vez. */
+  const fitDprRef = useRef<number | null>(null);
 
   /** Carga las imágenes de las páginas alrededor de la actual. */
   const loadAround = useCallback((index: number) => {
@@ -84,8 +131,12 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
     const host = hostRef.current;
 
     (async () => {
-      const { PageFlip } = await import("page-flip");
+      const [{ PageFlip }, pageHeight] = await Promise.all([
+        import("page-flip"),
+        measurePageHeight(pageUrl(publication, 1, "md")),
+      ]);
       if (cancelled || !host) return;
+      setSpreadRatio((PAGE_WIDTH * 2) / pageHeight);
 
       const book = document.createElement("div");
       host.appendChild(book);
@@ -117,12 +168,12 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
 
       const flip = new PageFlip(book, {
         width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
+        height: pageHeight,
         size: "stretch",
         minWidth: 240,
         maxWidth: 1000,
-        minHeight: 371,
-        maxHeight: 1545,
+        minHeight: Math.round((240 * pageHeight) / PAGE_WIDTH),
+        maxHeight: Math.round((1000 * pageHeight) / PAGE_WIDTH),
         showCover: true,
         usePortrait: true,
         mobileScrollSupport: false,
@@ -199,23 +250,66 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
   }, []);
 
   const exitExpanded = useCallback(() => {
-    setExpanded(false);
-    setZoom(null);
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     nativeFullscreenRef.current = false;
+    if (exitHref) {
+      router.push(exitHref);
+      return;
+    }
+    setExpanded(false);
+    setZoom(null);
+  }, [exitHref, router]);
+
+  /** En modo inmersivo el botón alterna solo la pantalla completa nativa. */
+  const toggleNativeFs = useCallback(() => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else readerRef.current?.requestFullscreen?.().catch(() => {});
   }, []);
 
   useEffect(() => {
     const onChange = () => {
+      setNativeFs(Boolean(document.fullscreenElement));
       if (!document.fullscreenElement && nativeFullscreenRef.current) {
         nativeFullscreenRef.current = false;
+        if (immersive) return;
         setExpanded(false);
         setZoom(null);
       }
     };
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
+  }, [immersive]);
+
+  // Modo inmersivo: el libro se ajusta al espacio disponible. Si lo que cambia
+  // es el zoom del navegador (Ctrl +), se conserva el ancho: así el pliego
+  // completo crece y aparece el desplazamiento, en vez de encogerse a una página.
+  useEffect(() => {
+    if (!immersive) return;
+    const fit = () => {
+      const stage = stageRef.current;
+      if (!stage) return;
+      const dpr = window.devicePixelRatio;
+      if (fitDprRef.current !== null && fitDprRef.current !== dpr) return;
+      fitDprRef.current = dpr;
+      setBookWidth(
+        Math.floor(
+          Math.min(
+            (stage.clientHeight - STAGE_PADDING) * spreadRatio,
+            stage.clientWidth - STAGE_PADDING
+          )
+        )
+      );
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [immersive, spreadRatio]);
+
+  useEffect(() => {
+    if (bookWidth === null) return;
+    const raf = requestAnimationFrame(() => flipRef.current?.update());
+    return () => cancelAnimationFrame(raf);
+  }, [bookWidth, ready]);
 
   // El libro se recalcula al cambiar de tamaño; se bloquea el scroll de fondo.
   useEffect(() => {
@@ -239,8 +333,33 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
       const b = block.getBoundingClientRect();
       zoomArmedRef.current = false;
       setScale(1);
+
+      let rect: Rect = {
+        left: b.left - s.left,
+        top: b.top - s.top,
+        width: b.width,
+        height: b.height,
+      };
+      // Con el navegador ampliado el libro puede ser más grande que el
+      // escenario: la vista ampliada parte entonces de un encuadre que sí cabe.
+      const overflows =
+        rect.left < 0 ||
+        rect.top < 0 ||
+        rect.left + rect.width > s.width + 1 ||
+        rect.top + rect.height > s.height + 1;
+      if (overflows) {
+        const k = Math.min(
+          (s.width - STAGE_PADDING) / b.width,
+          (s.height - STAGE_PADDING) / b.height
+        );
+        const width = b.width * k;
+        const height = b.height * k;
+        rect = { left: (s.width - width) / 2, top: (s.height - height) / 2, width, height };
+        anchor = undefined;
+      }
+
       setZoom({
-        rect: { left: b.left - s.left, top: b.top - s.top, width: b.width, height: b.height },
+        rect,
         anchor: anchor ?? { x: s.width / 2, y: s.height / 2 },
         startScale,
       });
@@ -264,6 +383,16 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
       return { x: clientX - s.left, y: clientY - s.top };
     };
     const onWheel = (e: WheelEvent) => {
+      // Si el libro no cabe (navegador ampliado), la rueda desplaza como en
+      // cualquier página; el zoom del lector sigue disponible con el botón +.
+      const scroller = scrollerRef.current;
+      if (
+        scroller &&
+        (scroller.scrollHeight > scroller.clientHeight + 1 ||
+          scroller.scrollWidth > scroller.clientWidth + 1)
+      ) {
+        return;
+      }
       e.preventDefault();
       if (e.deltaY < 0) startZoom(toStage(e.clientX, e.clientY), 1.25);
     };
@@ -317,29 +446,65 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
           : "flex flex-col gap-4 rounded-2xl border border-slate-200 bg-stone-100 p-3 md:p-6"
       }
     >
+      {immersive && exitHref && (
+        <div className="flex min-h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 py-2">
+          <BackLink href={exitHref}>{exitLabel}</BackLink>
+          <span className="h-4 w-px shrink-0 bg-slate-300" />
+          <h1 className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
+            {publication.title}
+          </h1>
+          <a
+            href={publication.pdf}
+            download
+            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Descargar</span>
+          </a>
+        </div>
+      )}
+
       {/* Escenario: libro y, encima, la vista ampliada */}
       <div
         ref={stageRef}
         className={`relative ${
-          expanded
-            ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 pt-4"
-            : ""
+          immersive
+            ? "min-h-0 flex-1"
+            : expanded
+              ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 pt-4"
+              : ""
         }`}
       >
+        {/* En modo inmersivo el libro va en un área con desplazamiento propio:
+            con margen automático queda centrado si cabe y alcanzable si no. */}
         <div
-          className={`relative mx-auto w-full ${zoom ? "invisible" : ""}`}
-          style={{
-            maxWidth: expanded
-              ? "calc((100vh - 110px) * 1.294)"
-              : "calc((100vh - 280px) * 1.294)",
-          }}
+          ref={scrollerRef}
+          className={immersive ? "absolute inset-0 flex overflow-auto p-4" : "contents"}
         >
-          {!ready && (
-            <div className="mx-auto flex aspect-[1100/850] w-full items-center justify-center rounded-lg bg-white/60 text-sm text-slate-500">
-              Cargando publicación…
-            </div>
-          )}
-          <div ref={hostRef} aria-label={publication.title} role="region" />
+          <div
+            className={`relative ${immersive ? "m-auto shrink-0" : "mx-auto w-full"} ${
+              zoom ? "invisible" : ""
+            }`}
+            style={
+              immersive
+                ? { width: bookWidth ?? `min(100%, calc((100vh - 160px) * ${spreadRatio}))` }
+                : {
+                    maxWidth: expanded
+                      ? `calc((100vh - 110px) * ${spreadRatio})`
+                      : `calc((100vh - 280px) * ${spreadRatio})`,
+                  }
+            }
+          >
+            {!ready && (
+              <div
+                className="mx-auto flex w-full items-center justify-center rounded-lg bg-white/60 text-sm text-slate-500"
+                style={{ aspectRatio: spreadRatio }}
+              >
+                Cargando documento…
+              </div>
+            )}
+            <div ref={hostRef} aria-label={publication.title} role="region" />
+          </div>
         </div>
 
         {zoom && (
@@ -464,25 +629,32 @@ export const FlipBook = ({ publication }: FlipBookProps) => {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => (expanded ? exitExpanded() : enterExpanded())}
-          className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-orange-50 hover:text-orange-700"
-          title={expanded ? "Salir (Esc)" : "Pantalla completa (con zoom)"}
-        >
-          {expanded ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-          <span className="hidden sm:inline">
-            {expanded ? "Salir" : "Pantalla completa"}
-          </span>
-        </button>
-
-        {expanded && (
-          <p className="hidden w-full text-center text-xs text-slate-500 md:block">
-            {zoom
-              ? "Arrastra para moverte · doble clic para volver al libro"
-              : "Usa la rueda del mouse o pellizca para acercar"}
-          </p>
+        {immersive ? (
+          <button
+            type="button"
+            onClick={toggleNativeFs}
+            className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-orange-50 hover:text-orange-700"
+            title={nativeFs ? "Salir de pantalla completa (Esc)" : "Pantalla completa"}
+          >
+            {nativeFs ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+            <span className="hidden sm:inline">
+              {nativeFs ? "Salir de pantalla completa" : "Pantalla completa"}
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => (expanded ? exitExpanded() : enterExpanded())}
+            className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-orange-50 hover:text-orange-700"
+            title={expanded ? "Salir (Esc)" : "Pantalla completa (con zoom)"}
+          >
+            {expanded ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+            <span className="hidden sm:inline">
+              {expanded ? "Salir" : "Pantalla completa"}
+            </span>
+          </button>
         )}
+
       </div>
     </div>
   );

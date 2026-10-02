@@ -53,6 +53,13 @@ export const ProjectCard = ({
           />
         ))}
 
+        {project.publication && (
+          <span className="absolute left-2.5 top-2.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#1b1472] px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+            <BookOpen className="h-3.5 w-3.5" />
+            Con {project.publication.kind.toLowerCase()}
+          </span>
+        )}
+
         <button
           type="button"
           onClick={onClose}
