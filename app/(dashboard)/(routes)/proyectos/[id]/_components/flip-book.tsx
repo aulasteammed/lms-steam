@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import "./flip-book.css";
 
-import { pageUrl, type ProjectDocument } from "@/lib/projects";
+import type { ProjectDocument } from "@/lib/projects";
 import { BackLink } from "../../_components/back-link";
 
 type FlipBookProps = {
@@ -46,26 +46,11 @@ type ZoomSession = {
 };
 
 /**
- * Tamaño base de una página. El alto real se toma de la primera imagen del
+ * Ancho base de una página. El alto sale de la proporción de la hoja del
  * documento: un periódico tabloide y un informe en carta no miden lo mismo.
  */
 const PAGE_WIDTH = 550;
-const DEFAULT_PAGE_HEIGHT = 850;
 const MAX_SCALE = 4;
-
-/** Alto de una página de ancho PAGE_WIDTH, según la primera imagen. */
-const measurePageHeight = (src: string) =>
-  new Promise<number>((resolve) => {
-    const img = new Image();
-    img.onload = () =>
-      resolve(
-        img.naturalWidth > 0
-          ? Math.round((PAGE_WIDTH * img.naturalHeight) / img.naturalWidth)
-          : DEFAULT_PAGE_HEIGHT
-      );
-    img.onerror = () => resolve(DEFAULT_PAGE_HEIGHT);
-    img.src = src;
-  });
 /** Margen alrededor del libro en modo inmersivo (p-4). */
 const STAGE_PADDING = 32;
 
@@ -84,6 +69,11 @@ export const FlipBook = ({
   exitLabel = "Volver",
 }: FlipBookProps) => {
   const total = publication.pageCount;
+  const pageHeight = Math.round(
+    (PAGE_WIDTH * publication.pageHeight) / publication.pageWidth
+  );
+  /** Ancho / alto del libro abierto (dos páginas). */
+  const spreadRatio = (PAGE_WIDTH * 2) / pageHeight;
   const immersive = Boolean(exitHref);
   const router = useRouter();
 
@@ -106,10 +96,6 @@ export const FlipBook = ({
   const [scale, setScale] = useState(1);
   /** Ancho del libro en modo inmersivo (px CSS), ajustado al espacio disponible. */
   const [bookWidth, setBookWidth] = useState<number | null>(null);
-  /** Ancho / alto del libro abierto (dos páginas). */
-  const [spreadRatio, setSpreadRatio] = useState(
-    (PAGE_WIDTH * 2) / DEFAULT_PAGE_HEIGHT
-  );
   const scrollerRef = useRef<HTMLDivElement>(null);
   /** Zoom del navegador con el que se ajustó el libro por última vez. */
   const fitDprRef = useRef<number | null>(null);
@@ -131,12 +117,8 @@ export const FlipBook = ({
     const host = hostRef.current;
 
     (async () => {
-      const [{ PageFlip }, pageHeight] = await Promise.all([
-        import("page-flip"),
-        measurePageHeight(pageUrl(publication, 1, "md")),
-      ]);
+      const { PageFlip } = await import("page-flip");
       if (cancelled || !host) return;
-      setSpreadRatio((PAGE_WIDTH * 2) / pageHeight);
 
       const book = document.createElement("div");
       host.appendChild(book);
@@ -152,7 +134,7 @@ export const FlipBook = ({
         img.alt = `Página ${n} de ${total}`;
         img.decoding = "async";
         img.draggable = false;
-        img.dataset.src = pageUrl(publication, n, "md");
+        img.dataset.src = publication.pages[n - 1].url;
 
         page.appendChild(img);
         book.appendChild(page);
@@ -209,7 +191,7 @@ export const FlipBook = ({
       imgsRef.current = [];
       if (host) host.innerHTML = "";
     };
-  }, [publication, total, loadAround]);
+  }, [publication, total, pageHeight, loadAround]);
 
   const label =
     orientation === "portrait"
@@ -553,7 +535,7 @@ export const FlipBook = ({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           key={i}
-                          src={pageUrl(publication, i + 1, "lg")}
+                          src={publication.pages[i].urlLarge ?? publication.pages[i].url}
                           alt={`Página ${i + 1} de ${total}`}
                           draggable={false}
                           className="h-full min-w-0 flex-1 select-none bg-white object-cover shadow-md"

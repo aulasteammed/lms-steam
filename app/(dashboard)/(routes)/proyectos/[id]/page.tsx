@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  BookOpen,
-  CalendarDays,
-  Download,
-  ExternalLink,
-  Handshake,
-} from "lucide-react";
+import { CalendarDays, ExternalLink, Handshake } from "lucide-react";
 
-import { PROJECTS, getProject, readLabel, readerHref } from "@/lib/projects";
+import { PROJECTS, getProject, readerHref } from "@/lib/projects";
 import { PageBar } from "../_components/back-link";
+import { DocumentActions } from "../_components/document-actions";
 import { PublicationCover } from "../_components/publication-cover";
 import { ShareButton } from "../_components/share-button";
 import { MiniMap } from "./_components/mini-map";
@@ -29,8 +23,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500";
-const primaryButton =
-  "inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
 const secondaryButton =
   "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
 
@@ -139,17 +131,11 @@ export default async function ProjectPage({ params }: Props) {
                     {pub.description}
                   </p>
                 )}
-                {/* Único botón de lectura de la página */}
-                <div className="mt-5 flex flex-wrap justify-center gap-3">
-                  <Link href={readerHref(project, pub)} className={primaryButton}>
-                    <BookOpen className="h-4 w-4" />
-                    {readLabel(pub)}
-                  </Link>
-                  <a href={pub.pdf} download className={secondaryButton}>
-                    <Download className="h-4 w-4" />
-                    Descargar
-                  </a>
-                </div>
+                <DocumentActions
+                  document={pub}
+                  readHref={readerHref(project, pub)}
+                  className="mt-5 justify-center"
+                />
               </div>
             </div>
           )}
@@ -243,16 +229,11 @@ export default async function ProjectPage({ params }: Props) {
                         {doc.description}
                       </p>
                     )}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Link href={readerHref(project, doc)} className={secondaryButton}>
-                        <BookOpen className="h-4 w-4" />
-                        {readLabel(doc)}
-                      </Link>
-                      <a href={doc.pdf} download className={secondaryButton}>
-                        <Download className="h-4 w-4" />
-                        Descargar
-                      </a>
-                    </div>
+                    <DocumentActions
+                      document={doc}
+                      readHref={readerHref(project, doc)}
+                      className="mt-3"
+                    />
                   </div>
                 </li>
               ))}

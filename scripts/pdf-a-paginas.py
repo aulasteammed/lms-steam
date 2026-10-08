@@ -8,7 +8,7 @@ Uso (desde la raíz del proyecto):
 Genera dos tamaños en la carpeta de destino:
     md/  páginas del libro (1100 px)
     lg/  vista ampliada (1600 px)
-y muestra cuántas páginas tiene el PDF (valor para "paginas" en proyectos.json).
+y muestra los valores de "paginas", "ancho" y "alto" para proyectos.json.
 """
 import io
 import sys
@@ -43,7 +43,12 @@ def main() -> None:
             )
         print(f"  página {number}/{doc.page_count}")
 
-    print(f'\nListo. En proyectos.json usa "paginas": {doc.page_count}')
+    width = SIZES["md"][0]
+    first = doc[0].rect
+    print(
+        f'\nListo. En proyectos.json usa "paginas": {doc.page_count}, '
+        f'"ancho": {width}, "alto": {round(first.height * width / first.width)}'
+    )
 
 
 if __name__ == "__main__":

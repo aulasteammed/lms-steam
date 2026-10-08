@@ -29,6 +29,9 @@ const documentoSchema = z.object({
   pdf: z.string().min(1, "Cada documento necesita su PDF para la descarga"),
   carpeta: z.string().min(1),
   paginas: z.number().int().positive(),
+  /** Tamaño en píxeles de una página (la de `md`); da la proporción de la hoja. */
+  ancho: z.number().int().positive(),
+  alto: z.number().int().positive(),
 });
 
 /** Nombres que ya son rutas de la sección y no pueden ser el id de un proyecto. */
@@ -92,6 +95,13 @@ const projectSchema = z.object({
 
 export type ProjectImage = { src: string; alt: string; credit?: string };
 
+/** Una página de un documento, como imagen para el visor. */
+export type DocumentPage = {
+  url: string;
+  /** Versión de mayor resolución para el zoom. Sin ella, el zoom usa `url`. */
+  urlLarge?: string;
+};
+
 export type ProjectDocument = {
   /** Identificador dentro del proyecto; forma la dirección del visor. */
   id: string;
@@ -102,21 +112,17 @@ export type ProjectDocument = {
   /** PDF original, para la descarga. */
   pdf: string;
   pageCount: number;
-  /** Carpeta con las imágenes de las páginas (subcarpetas md y lg). */
-  pagesBase: string;
+  /** Las páginas como imágenes, en orden. */
+  pages: DocumentPage[];
+  /** Tamaño de una página en píxeles; da la proporción de la hoja al visor. */
+  pageWidth: number;
+  pageHeight: number;
   /** Informes y entregables: se listan aparte de las publicaciones. */
   isReport: boolean;
 };
 
-export type PageSize = "md" | "lg";
-
-/** URL de la imagen de la página `n` (1..pageCount) en el tamaño pedido. */
-export const pageUrl = (doc: ProjectDocument, n: number, size: PageSize) =>
-  `${doc.pagesBase}/${size}/${String(n).padStart(2, "0")}.webp`;
-
 /** Portada de un documento: su primera página. */
-export const coverUrl = (doc: ProjectDocument, size: PageSize = "md") =>
-  pageUrl(doc, 1, size);
+export const coverUrl = (doc: ProjectDocument) => doc.pages[0].url;
 
 export type Project = {
   id: string;
@@ -165,16 +171,26 @@ if (duplicated) {
 }
 
 export const PROJECTS: Project[] = parsed.data.map((p) => {
-  const documents: ProjectDocument[] = (p.documentos ?? []).map((d) => ({
-    id: d.id,
-    title: d.titulo,
-    kind: d.tipo,
-    description: d.descripcion,
-    pdf: resolvePath(p.id, d.pdf),
-    pageCount: d.paginas,
-    pagesBase: resolvePath(p.id, d.carpeta),
-    isReport: isReportKind(d.tipo),
-  }));
+  const documents: ProjectDocument[] = (p.documentos ?? []).map((d) => {
+    const base = resolvePath(p.id, d.carpeta);
+    return {
+      id: d.id,
+      title: d.titulo,
+      kind: d.tipo,
+      description: d.descripcion,
+      pdf: resolvePath(p.id, d.pdf),
+      pageCount: d.paginas,
+      // Los archivos de prueba tienen dos tamaños (md y lg). Los documentos
+      // de la base de datos traerán uno solo, sin `urlLarge`.
+      pages: Array.from({ length: d.paginas }, (_, i) => {
+        const file = `${String(i + 1).padStart(2, "0")}.webp`;
+        return { url: `${base}/md/${file}`, urlLarge: `${base}/lg/${file}` };
+      }),
+      pageWidth: d.ancho,
+      pageHeight: d.alto,
+      isReport: isReportKind(d.tipo),
+    };
+  });
 
   return {
     id: p.id,
@@ -220,18 +236,6 @@ export const getDocument = (project: Project, documentId: string) =>
 export const ALL_DOCUMENTS = PROJECTS.flatMap((project) =>
   project.documents.map((document) => ({ project, document }))
 );
-
-const READ_LABELS: Record<string, string> = {
-  periódico: "Leer el periódico",
-  revista: "Leer la revista",
-  cartilla: "Leer la cartilla",
-  libro: "Leer el libro",
-  informe: "Leer el informe",
-};
-
-/** Texto del botón para abrir el visor, según el tipo de documento. */
-export const readLabel = (doc: ProjectDocument) =>
-  READ_LABELS[doc.kind.toLowerCase()] ?? "Leer el documento";
 
 /** Desde dónde se abrió el visor, para que "Volver" regrese al mismo lugar. */
 export type ReaderOrigin = "publicaciones";

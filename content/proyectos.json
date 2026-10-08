@@ -68,7 +68,9 @@
         "descripcion": "El proceso contado por la comunidad: las familias, los talleres y el sistema que construyeron.",
         "pdf": "periodico.pdf",
         "carpeta": "periodico",
-        "paginas": 24
+        "paginas": 24,
+        "ancho": 1100,
+        "alto": 1700
       },
       {
         "id": "informe",
@@ -77,7 +79,9 @@
         "descripcion": "Informe de ejemplo en tamaño carta, para probar el visor y la descarga.",
         "pdf": "/proyectos/proyecto-3/informe.pdf",
         "carpeta": "/proyectos/proyecto-3/informe",
-        "paginas": 6
+        "paginas": 6,
+        "ancho": 1100,
+        "alto": 1424
       }
     ]
   },
@@ -148,7 +152,9 @@
         "descripcion": "Informe de ejemplo en tamaño carta, para probar el visor y la descarga.",
         "pdf": "/proyectos/proyecto-3/informe.pdf",
         "carpeta": "/proyectos/proyecto-3/informe",
-        "paginas": 6
+        "paginas": 6,
+        "ancho": 1100,
+        "alto": 1424
       }
     ]
   },
@@ -179,7 +185,9 @@
         "tipo": "Revista",
         "pdf": "/proyectos/comuna-1/periodico.pdf",
         "carpeta": "/proyectos/comuna-1/periodico",
-        "paginas": 24
+        "paginas": 24,
+        "ancho": 1100,
+        "alto": 1700
       }
     ]
   }

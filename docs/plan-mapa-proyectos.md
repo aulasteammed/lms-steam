@@ -1,7 +1,7 @@
 # Plan: mapa y línea de tiempo de proyectos, participaciones y alianzas
 
 Documento de trabajo. Reúne lo que se sabe, lo que se decidió y lo que falta por hacer.
-Última actualización: 2026-10-01. Rama de trabajo: `Proyectos`.
+Última actualización: 2026-10-06. Rama de trabajo: `Proyectos`.
 
 ## 1. Objetivo
 
@@ -63,7 +63,7 @@ de la guía no se ha revisado en esta conversación:
 
 - **Mantenimiento:** lo hará personal del aula, no desarrolladores. Por eso se necesita un panel.
 - **Datos en base de datos** (MongoDB con Prisma), no en JSON. Las imágenes van en UploadThing, no en el repositorio.
-- **Una sola colección** para los tres tipos, con un campo `type`.
+- **Los tres tipos de registro van en una misma colección,** con un campo `type`. Las instituciones y los documentos tienen colección propia (ver sección 5).
 - **Nombre de la pestaña:** "Participaciones", para no confundir con los eventos de `/feed`.
 - **Selector de tipo** arriba a la derecha del mapa, con Proyectos por defecto.
 - **Línea de tiempo** semitransparente en la parte inferior del mapa. En celular va como una fila delgada de años encima de las tarjetas.
@@ -72,19 +72,21 @@ de la guía no se ha revisado en esta conversación:
 
 ## 5. Modelo de datos propuesto
 
-Colección `TimelineEntry`:
+La versión vigente está en [propuesta-base-de-datos-proyectos.md](propuesta-base-de-datos-proyectos.md)
+(aprobado y aplicado el 2026-10-06 en la base de pruebas `pruebasLMS`; falta producción). Son tres
+colecciones: `TimelineEntry` (proyectos, participaciones y alianzas), `TimelineInstitution`
+(instituciones) y `TimelineDocument` (periódicos, revistas, informes y entregables).
 
-| Grupo | Campos |
-|---|---|
-| Comunes | `type`, `slug`, `title`, `shortDescription`, `timelineYear`, `startYear`, `endYear`, `locationText`, `latitude`, `longitude`, `images[]` (url y texto alternativo), `status` (borrador o publicado) |
-| Solo proyecto | `deliverableUrl`, `people[]`, `institutions[]`, `acknowledgements`, `publication` (lector tipo libro) |
-| Solo participación | `eventDate`, `modality`, `reason`, `speakerName`, `speakerRole` |
-| Solo alianza | `institution`, `relatedEntryIds[]` |
+Respuestas de Julieth del 2026-10-06:
 
-Las instituciones quedan como texto. Se pueden pasar a una colección propia más adelante.
-
-Este modelo se debe revisar después de definir las páginas de detalle (sección 6), porque
-el diseño pide campos que hoy no están aquí ni en la guía.
+- Sin `createdBy`: los registros los crea siempre el mismo usuario.
+- Personas sin red social; biografía corta (quién es).
+- Instituciones en colección propia, para no perder información.
+- Plan de UploadThing: gratuito, 2 GB, 83,68 MB usados.
+- La palabra "eventos" queda solo para `/feed`. El nombre visible "Participaciones" queda fijo.
+- La lista de tipos de documento no es definitiva.
+- Un solo tamaño de página por documento, de 1400 px.
+- Todos los slugs siguen la misma regla y llevan el año de finalización; "Entre Aguas" pasará de `comuna-1` a `entre-aguas-2026` al migrarlo. Los registros en curso se publican sin año y lo ganan al cerrarse, con redirección desde la dirección anterior (`previousSlugs`).
 
 ## 6. Páginas de detalle (trabajo actual)
 
@@ -160,6 +162,16 @@ Cambios del 2026-10-02 sobre documentos:
 - **Botón de volver unificado** (`_components/back-link.tsx`): siempre "Volver a <lugar>". El visor vuelve al proyecto o a la estantería, según desde dónde se abrió.
 - Archivos de prueba: `public/proyectos/comuna-1/periodico.pdf` es provisional, armado con las páginas (6,3 MB); hay que reemplazarlo por el original. `public/proyectos/proyecto-3/informe*` es un informe de ejemplo de 6 páginas.
 
+- Los botones "Leer" y "Descargar" van siempre juntos, lado a lado y con el mismo texto (`_components/document-actions.tsx`).
+
+Conversión del PDF al visor (pendiente, va con el panel del paso 4):
+
+- Regla de Julieth: de cada entregable se sube **solo el PDF** y el sistema debe convertirlo para el visor.
+- **Hoy no es automático.** La conversión se hace a mano con `scripts/pdf-a-paginas.py` (requiere Python) y editando `content/proyectos.json`.
+- Propuesta: convertir en el navegador al subir, con pdf.js. El panel dibuja cada página, la guarda como WebP y sube las páginas junto con el PDF. No necesita servidor de conversión, así que funciona en Vercel.
+- Alternativa descartada por ahora: que el visor dibuje el PDF directamente al leer. Ahorra almacenamiento, pero el visitante tendría que descargar el PDF completo antes de ver la primera página.
+- Por decidir: guardar un solo tamaño de página en vez de dos, para gastar menos almacenamiento.
+
 Consecuencias para la guía y el backend:
 
 - La guía pide el informe como enlace de Drive o como `.md`. Ahora se necesita el **PDF**. Un informe en `.md` habría que convertirlo a PDF.
@@ -195,8 +207,8 @@ Por confirmar: el límite de optimización de imágenes del plan de Vercel.
 
 | # | Paso | Estado |
 |---|---|---|
-| 0 | Diseño de las páginas de detalle por tipo, con datos de prueba | En curso |
-| 1 | Esquema en la base de datos y capa de datos con caché. Migrar los proyectos del JSON. | Pendiente |
+| 0 | Diseño de las páginas de detalle por tipo, con datos de prueba | Hecho |
+| 1 | Esquema en la base de datos y capa de datos con caché. Migrar los proyectos del JSON. | Esquema e índices aplicados en pruebas. Falta la capa de datos con caché y la migración. |
 | 2 | Mapa con agrupación, selector de tipo y línea de tiempo | Pendiente |
 | 3 | Importador del `.txt`, con reporte de errores | Pendiente, depende de que llegue la información |
 | 4 | Panel de profesor para crear y editar, con compresión de imágenes | Pendiente |
@@ -204,7 +216,7 @@ Por confirmar: el límite de optimización de imágenes del plan de Vercel.
 
 ## 9. Fuera del alcance por ahora
 
-- Colección propia de instituciones.
+- Logo de las instituciones.
 - Líneas en el mapa que conecten alianzas con sus proyectos.
 - Tarjetas automáticas para compartir en redes por cada registro.
 

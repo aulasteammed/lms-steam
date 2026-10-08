@@ -47,4 +47,5 @@ yarn-error.log*
 /.clerk/
 
 # claude
-docs\plan-mapa-proyectos.md
+docs/plan-mapa-proyectos.md
+docs/propuesta-base-de-datos-proyectos.md

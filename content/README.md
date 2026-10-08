@@ -46,7 +46,9 @@ Todos los documentos se leen en el mismo visor y se pueden descargar.
     "descripcion": "Texto corto opcional.",
     "pdf": "periodico.pdf",
     "carpeta": "periodico",
-    "paginas": 24
+    "paginas": 24,
+    "ancho": 1100,
+    "alto": 1700
   }
 ]
 ```
@@ -57,10 +59,11 @@ Todos los documentos se leen en el mismo visor y se pueden descargar.
 | `tipo` | `Periódico`, `Revista`, `Cartilla`, `Informe`… Los que empiezan por "Informe" o "Entregable" se listan aparte, en "Informes y documentos". |
 | `pdf` | Obligatorio. Es el archivo que se descarga. |
 | `carpeta` y `paginas` | Dónde están las páginas en WebP y cuántas son. |
+| `ancho` y `alto` | Tamaño en píxeles de una página de la carpeta `md`. Da la proporción de la hoja. |
 
 El primer documento que no sea informe es la publicación destacada: su portada
 va en el encabezado de la página del proyecto. El visor toma la proporción de
-la hoja de la primera página, así que sirve igual para tabloide o carta.
+la hoja de `ancho` y `alto`, así que sirve igual para tabloide o carta.
 
 ## Recomendaciones para las fotos
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Download } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { ALL_DOCUMENTS, readLabel, readerHref } from "@/lib/projects";
+import { ALL_DOCUMENTS, readerHref } from "@/lib/projects";
 import { PageBar } from "../_components/back-link";
+import { DocumentActions } from "../_components/document-actions";
 import { PublicationCover } from "../_components/publication-cover";
 
 export const metadata: Metadata = {
@@ -42,23 +43,7 @@ const Shelf = ({ items }: { items: ShelfItem[] }) => (
               {project.title} · {project.place} · {project.year}
             </p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <Link
-                href={href}
-                className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-700"
-              >
-                <BookOpen className="h-4 w-4" />
-                {readLabel(document)}
-              </Link>
-              <a
-                href={document.pdf}
-                download
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                <Download className="h-4 w-4" />
-                Descargar
-              </a>
-            </div>
+            <DocumentActions document={document} readHref={href} className="mt-4" />
             <Link
               href={project.href}
               className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-orange-700"
