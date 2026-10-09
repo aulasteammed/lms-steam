@@ -209,7 +209,7 @@ Por confirmar: el límite de optimización de imágenes del plan de Vercel.
 |---|---|---|
 | 0 | Diseño de las páginas de detalle por tipo, con datos de prueba | Hecho |
 | 1 | Esquema en la base de datos y capa de datos con caché. Migrar los proyectos del JSON. | Esquema e índices aplicados en pruebas. Falta la capa de datos con caché y la migración. |
-| 2 | Mapa con agrupación, selector de tipo y línea de tiempo | Pendiente |
+| 2 | Mapa con agrupación, selector de tipo y línea de tiempo | Construido el 2026-10-08 con datos de prueba (`lib/timeline-sample.ts`). Falta la revisión visual de Julieth. |
 | 3 | Importador del `.txt`, con reporte de errores | Pendiente, depende de que llegue la información |
 | 4 | Panel de profesor para crear y editar, con compresión de imágenes | Pendiente |
 | 5 | Agregar los registros al sitemap | Pendiente |

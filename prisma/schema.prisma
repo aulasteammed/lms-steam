@@ -371,19 +371,19 @@ enum TimelineEntryStatus {
 }
 
 enum ParticipationModality {
-  presencial
+  in_person
   virtual
-  hibrida
+  hybrid
 }
 
 enum TimelineDocumentKind {
-  periodico
-  revista
-  cartilla
-  libro
-  informe
-  entregable
-  otro
+  newspaper
+  magazine
+  booklet
+  book
+  report
+  deliverable
+  other
 }
 
 

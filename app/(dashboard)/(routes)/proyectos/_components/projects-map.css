@@ -1,28 +1,56 @@
-/* Marcadores numerados del mapa de proyectos (acento naranja cálido). */
+/*
+ * Puntos del mapa de /proyectos. Cada tipo de registro tiene su color:
+ * proyectos en naranja, participaciones en el azul del menú del sitio y alianzas en morado.
+ */
 .project-marker {
+  --marker: #ea580c; /* orange-600 */
+  --marker-strong: #c2410c; /* orange-700 */
+  --marker-ring: rgba(249, 115, 22, 0.28);
   position: relative;
   display: block;
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
 }
 
+.project-marker.is-participation {
+  --marker: #0284c7; /* sky-600 */
+  --marker-strong: #0369a1; /* sky-700 */
+  --marker-ring: rgba(2, 132, 199, 0.28);
+}
+
+.project-marker.is-alliance {
+  --marker: #a855f7; /* purple-500 */
+  --marker-strong: #9333ea; /* purple-600 */
+  --marker-ring: rgba(168, 85, 247, 0.28);
+}
+
+/* Grupo de puntos cercanos: más grande y con la cantidad adentro */
+.project-marker.is-cluster {
+  width: 42px;
+  height: 42px;
+}
+
 .project-marker__dot {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 100%;
+  height: 100%;
   border-radius: 9999px;
-  background: #ea580c; /* orange-600 */
+  background: var(--marker);
   color: #fff;
-  font: 600 14px/1 ui-sans-serif, system-ui, sans-serif;
+  font: 600 15px/1 ui-sans-serif, system-ui, sans-serif;
   border: 2px solid #fff;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2), 0 4px 10px rgba(15, 23, 42, 0.25);
   transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-marker.is-cluster .project-marker__dot {
+  box-shadow: 0 0 0 5px var(--marker-ring), 0 4px 10px rgba(15, 23, 42, 0.25);
 }
 
 .project-marker:hover .project-marker__dot {
@@ -34,7 +62,7 @@
 }
 
 .project-marker:focus-visible .project-marker__dot {
-  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #f97316;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--marker);
 }
 
 .project-marker.is-active {
@@ -42,19 +70,19 @@
 }
 
 .project-marker.is-active .project-marker__dot {
-  background: #c2410c; /* orange-700 */
+  background: var(--marker-strong);
   transform: scale(1.2);
-  box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.28), 0 4px 12px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(15, 23, 42, 0.3);
 }
 
 /* Proyectos con periódico o revista: punto azul en la esquina del marcador */
 .project-marker.has-publication::after {
   content: "";
   position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 13px;
-  height: 13px;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
   border-radius: 9999px;
   background: #1b1472; /* azul del identificador */
   border: 2px solid #fff;
@@ -63,7 +91,7 @@
 /* Etiqueta con el nombre, a la derecha del punto */
 .project-marker__label {
   position: absolute;
-  left: 46px;
+  left: calc(100% + 12px);
   top: 50%;
   transform: translate(-6px, -50%);
   white-space: nowrap;
@@ -83,6 +111,11 @@
 .project-marker.is-active .project-marker__label {
   opacity: 1;
   transform: translate(0, -50%);
+}
+
+/* Los créditos del mapa suben para no quedar debajo de la línea de tiempo */
+.maplibregl-ctrl-bottom-right {
+  bottom: 64px;
 }
 
 /* Columna de cards sin barra de scroll visible */
