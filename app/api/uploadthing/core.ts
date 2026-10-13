@@ -79,6 +79,24 @@ export const ourFileRouter = {
             console.log("Upload complete for userId:", metadata.userId);
             console.log("File URL:", file.ufsUrl);
         }),
+
+    // Mapa y línea de tiempo: fotos de un registro, ya comprimidas a WebP en el navegador
+    timelineImage: f({ image: { maxFileSize: "4MB", maxFileCount: 2 } })
+        .input(z.object({}))
+        .middleware(async ({ req }) => handleAuth(req))
+        .onUploadComplete(() => {}),
+
+    // Mapa y línea de tiempo: PDF original de un documento, para la descarga
+    timelinePdf: f({ pdf: { maxFileSize: "32MB", maxFileCount: 1 } })
+        .input(z.object({}))
+        .middleware(async ({ req }) => handleAuth(req))
+        .onUploadComplete(() => {}),
+
+    // Mapa y línea de tiempo: páginas de un documento como imagen, para el visor
+    timelinePage: f({ image: { maxFileSize: "2MB", maxFileCount: 12 } })
+        .input(z.object({}))
+        .middleware(async ({ req }) => handleAuth(req))
+        .onUploadComplete(() => {}),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

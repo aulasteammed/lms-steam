@@ -112,6 +112,11 @@ const teacherRoutes = [
     href: "/teacher/blog",
   },
   {
+    icon: MapPinned,
+    label: "Proyectos",
+    href: "/teacher/proyectos",
+  },
+  {
     icon: Award,
     label: "Constancias",
     href: "/teacher/certificates",

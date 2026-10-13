@@ -5,6 +5,8 @@ type MiniMapProps = {
   /** [longitud, latitud] */
   coordinates: [number, number];
   place: string;
+  /** El panel de edición lo muestra sin el enlace al mapa completo. */
+  showLink?: boolean;
 };
 
 const ZOOM = 10;
@@ -14,7 +16,7 @@ const TILE_HOST = "https://tile.openstreetmap.org";
  * Mapa pequeño y estático del lugar del proyecto: cuatro teselas de
  * OpenStreetMap con un punto encima. No carga la librería del mapa.
  */
-export const MiniMap = ({ coordinates, place }: MiniMapProps) => {
+export const MiniMap = ({ coordinates, place, showLink = true }: MiniMapProps) => {
   const [lon, lat] = coordinates;
   const n = 2 ** ZOOM;
   const rad = (lat * Math.PI) / 180;
@@ -59,13 +61,15 @@ export const MiniMap = ({ coordinates, place }: MiniMapProps) => {
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
           {place}
         </p>
-        <Link
-          href="/proyectos"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-700 hover:underline"
-        >
-          Ver en el mapa completo
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        {showLink && (
+          <Link
+            href="/proyectos"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-700 hover:underline"
+          >
+            Ver en el mapa completo
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        )}
       </div>
     </div>
   );

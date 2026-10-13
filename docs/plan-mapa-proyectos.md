@@ -1,7 +1,7 @@
 # Plan: mapa y línea de tiempo de proyectos, participaciones y alianzas
 
 Documento de trabajo. Reúne lo que se sabe, lo que se decidió y lo que falta por hacer.
-Última actualización: 2026-10-06. Rama de trabajo: `Proyectos`.
+Última actualización: 2026-10-12. Rama de trabajo: `Proyectos`.
 
 ## 1. Objetivo
 
@@ -164,7 +164,7 @@ Cambios del 2026-10-02 sobre documentos:
 
 - Los botones "Leer" y "Descargar" van siempre juntos, lado a lado y con el mismo texto (`_components/document-actions.tsx`).
 
-Conversión del PDF al visor (pendiente, va con el panel del paso 4):
+Conversión del PDF al visor (resuelta en el panel el 2026-10-12, ver sección 8.1; lo que sigue es el análisis anterior):
 
 - Regla de Julieth: de cada entregable se sube **solo el PDF** y el sistema debe convertirlo para el visor.
 - **Hoy no es automático.** La conversión se hace a mano con `scripts/pdf-a-paginas.py` (requiere Python) y editando `content/proyectos.json`.
@@ -211,8 +211,40 @@ Por confirmar: el límite de optimización de imágenes del plan de Vercel.
 | 1 | Esquema en la base de datos y capa de datos con caché. Migrar los proyectos del JSON. | Esquema e índices aplicados en pruebas. Falta la capa de datos con caché y la migración. |
 | 2 | Mapa con agrupación, selector de tipo y línea de tiempo | Construido el 2026-10-08 con datos de prueba (`lib/timeline-sample.ts`). Falta la revisión visual de Julieth. |
 | 3 | Importador del `.txt`, con reporte de errores | Pendiente, depende de que llegue la información |
-| 4 | Panel de profesor para crear y editar, con compresión de imágenes | Pendiente |
+| 4 | Panel de profesor para crear y editar, con compresión de imágenes | Construido el 2026-10-12 y conectado a la base de datos (ver sección 8.1). Falta la prueba de Julieth en el navegador. |
 | 5 | Agregar los registros al sitemap | Pendiente |
+
+### 8.1 Panel de profesor (2026-10-12)
+
+Decisión de Julieth: el panel copia el flujo de cursos, y lo primero es elegir el tipo.
+
+| Pantalla | Ruta | Qué copia |
+|---|---|---|
+| Lista | `/teacher/proyectos` | Tabla de cursos, con pestañas por tipo |
+| Crear | `/teacher/proyectos/create` | Tarjeta "Crea tu curso": tipo y nombre |
+| Editar | `/teacher/proyectos/<id>` | Configuración del curso: dos columnas y una tarjeta por campo |
+
+Reglas:
+
+- El tipo no se puede cambiar después de crear el registro.
+- Para publicar se exige título, descripción corta, periodo (o fecha y modalidad), ubicación con punto y una imagen; en las alianzas, también la institución. Lo demás es opcional.
+- El punto del mapa se saca de un enlace largo de Google Maps o de las coordenadas pegadas. Una participación virtual no pide punto.
+- **Documentos de un proyecto, en dos tarjetas** (decisión de Julieth): "Publicaciones y entregables" (periódico, revista, cartilla, libro, entregable, otro) e "Informes". Un entregable vale lo mismo que un periódico: se muestra con portada y puede ir en el encabezado. Solo los informes van aparte. El sitio público sigue la misma regla (`isReportKind` en `lib/projects.ts`).
+
+Cómo funciona:
+
+- Lee y guarda en la base de datos (`lib/timeline-admin.ts` para leer, `actions/timeline.ts` para guardar). Las acciones verifican que quien guarda es el profesor.
+- Cada tarjeta guarda sola. El cambio se ve de inmediato y, si el servidor lo rechaza, se deshace y la tarjeta se vuelve a abrir con lo escrito.
+- Las fotos se reducen a 1600 px y se pasan a WebP en el navegador antes de subirlas (`lib/timeline-upload.ts`). Se suben al guardar la tarjeta, no al elegirlas, para no dejar archivos sueltos.
+- **La conversión del PDF ya es automática:** al subir un documento, el navegador dibuja cada página a 1400 px de ancho con pdf.js, la guarda como WebP y sube las páginas junto con el PDF. Un solo tamaño por página. `public/pdf.worker.min.mjs` es una copia del archivo de `pdfjs-dist` y debe ser de la misma versión.
+- Al borrar una imagen, un documento o un registro, sus archivos se borran de UploadThing.
+- La dirección (`slug`) sigue al título mientras el registro no se haya publicado. Después solo cambia al cerrarse un registro en curso, y la dirección anterior queda en `previousSlugs`.
+- Un borrador recién creado aún no tiene periodo, pero `startYear` es obligatorio en el esquema: se guarda 0 y el panel lo lee como "sin dato".
+
+Pendiente del panel:
+
+- No se puede cambiar el título, el tipo ni el orden de un documento ya subido: hay que borrarlo y subirlo otra vez.
+- **El sitio público todavía lee `content/proyectos.json`.** Lo que se guarda en el panel no aparece aún en el mapa ni en las páginas de `/proyectos`; eso es el paso 1 (capa de datos con caché y migración).
 
 ## 9. Fuera del alcance por ahora
 

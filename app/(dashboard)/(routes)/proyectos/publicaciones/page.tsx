@@ -90,7 +90,7 @@ export default function PublicationsPage() {
         {publications.length > 0 && (
           <section className="mt-10">
             <h2 className="mb-6 border-b border-slate-200 pb-3 text-xl font-bold tracking-tight text-slate-900">
-              Periódicos y revistas
+              Publicaciones y entregables
             </h2>
             <Shelf items={publications} />
           </section>
@@ -99,7 +99,7 @@ export default function PublicationsPage() {
         {reports.length > 0 && (
           <section className="mt-14">
             <h2 className="mb-6 border-b border-slate-200 pb-3 text-xl font-bold tracking-tight text-slate-900">
-              Informes y entregables
+              Informes
             </h2>
             <Shelf items={reports} />
           </section>

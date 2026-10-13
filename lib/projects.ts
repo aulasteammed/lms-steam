@@ -117,7 +117,7 @@ export type ProjectDocument = {
   /** Tamaño de una página en píxeles; da la proporción de la hoja al visor. */
   pageWidth: number;
   pageHeight: number;
-  /** Informes y entregables: se listan aparte de las publicaciones. */
+  /** Informes: se listan aparte de las publicaciones y los entregables. */
   isReport: boolean;
 };
 
@@ -154,7 +154,8 @@ const resolvePath = (id: string, path: string) =>
     ? path
     : `/proyectos/${id}/${path.replace(/^\.?\//, "")}`;
 
-const isReportKind = (kind: string) => /^(informe|entregable)/i.test(kind.trim());
+/** Un entregable es lo que el proyecto produjo: se destaca igual que un periódico. */
+const isReportKind = (kind: string) => /^informe/i.test(kind.trim());
 
 const parsed = z.array(projectSchema).safeParse(rawProjects);
 if (!parsed.success) {
