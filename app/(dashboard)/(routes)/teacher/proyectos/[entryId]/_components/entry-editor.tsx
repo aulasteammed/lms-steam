@@ -185,7 +185,7 @@ export const EntryEditor = ({
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">Información general</h2>
               </div>
-              <TitleSection {...section} />
+              <TitleSection {...section} knownInstitutions={knownInstitutions} />
               <ShortDescriptionSection {...section} />
               {draft.type === "participation" ? (
                 <DateModalitySection {...section} />
@@ -223,10 +223,15 @@ export const EntryEditor = ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={MapPin} />
-                <h2 className="text-xl">Lugar e instituciones</h2>
+                <h2 className="text-xl">
+                  {draft.type === "alliance" ? "Lugar" : "Lugar e instituciones"}
+                </h2>
               </div>
               <LocationSection {...section} />
-              <InstitutionsSection {...section} knownInstitutions={knownInstitutions} />
+              {/* En una alianza la institución es el título: no se pide otra vez. */}
+              {draft.type !== "alliance" && (
+                <InstitutionsSection {...section} knownInstitutions={knownInstitutions} />
+              )}
             </div>
 
             {draft.type === "project" ? (

@@ -122,6 +122,7 @@ export const draftPeriodLabel = (
 export const requiredFields = (draft: EntryDraft) => {
   const isVirtual = draft.type === "participation" && draft.modality === "virtual";
   const fields = [
+    // En una alianza, el título es el nombre de la institución aliada.
     { label: "Título", done: draft.title.trim().length > 0 },
     { label: "Descripción corta", done: draft.shortDescription.trim().length > 0 },
     draft.type === "participation"
@@ -135,8 +136,5 @@ export const requiredFields = (draft: EntryDraft) => {
     },
     { label: "Imagen", done: draft.images.length > 0 },
   ];
-  if (draft.type === "alliance") {
-    fields.push({ label: "Institución aliada", done: draft.institutions.length > 0 });
-  }
   return fields;
 };

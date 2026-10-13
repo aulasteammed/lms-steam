@@ -39,21 +39,43 @@ const TITLE_LABELS: Record<EntryType, { label: string; placeholder: string }> = 
     label: "Nombre del evento y edición",
     placeholder: "p.ej. 'Congreso Nacional de Educación STEAM · 2025'",
   },
-  alliance: { label: "Nombre de la alianza", placeholder: "p.ej. 'Parque Explora'" },
+  alliance: { label: "Institución aliada", placeholder: "p.ej. 'Parque Explora'" },
 };
 
-export const TitleSection = ({ draft, onChange }: SectionProps) => (
+type TitleSectionProps = SectionProps & {
+  /** Instituciones ya registradas: en una alianza, el nombre es el de una institución. */
+  knownInstitutions: string[];
+};
+
+export const TitleSection = ({ draft, onChange, knownInstitutions }: TitleSectionProps) => (
   <EditCard
     label={TITLE_LABELS[draft.type].label}
     editLabel="Editar nombre"
     value={draft.title}
     view={(title) => title}
     edit={(title, setTitle) => (
-      <Input
-        value={title}
-        onChange={(event) => setTitle(event.target.value)}
-        placeholder={TITLE_LABELS[draft.type].placeholder}
-      />
+      <>
+        <Input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder={TITLE_LABELS[draft.type].placeholder}
+          list={draft.type === "alliance" ? "title-institutions" : undefined}
+        />
+        {draft.type === "alliance" && (
+          <>
+            <datalist id="title-institutions">
+              {knownInstitutions.map((institution) => (
+                <option key={institution} value={institution} />
+              ))}
+            </datalist>
+            <p className="text-xs text-muted-foreground">
+              Es la misma institución que se elige en los proyectos. Si corriges el
+              nombre aquí, cambia también en los proyectos donde aparece. Si escribes
+              el de otra institución ya registrada, la alianza pasa a ser con esa.
+            </p>
+          </>
+        )}
+      </>
     )}
     validate={(title) => (title.trim() ? null : "Se requiere nombre")}
     onSave={(title) => onChange({ title: title.trim() })}
@@ -556,6 +578,7 @@ export const LocationSection = ({ draft, onChange }: SectionProps) => {
 const INSTITUTION_LABELS: Record<EntryType, { label: string; empty: string }> = {
   project: { label: "Instituciones involucradas", empty: "Sin instituciones" },
   participation: { label: "Quién organizó", empty: "Sin organizador" },
+  // Una alianza no usa esta tarjeta: su institución es su título.
   alliance: { label: "Institución aliada", empty: "Sin institución" },
 };
 
@@ -570,8 +593,6 @@ export const InstitutionsSection = ({
   knownInstitutions,
 }: InstitutionsSectionProps) => {
   const [name, setName] = useState("");
-  // Una alianza es con una sola institución.
-  const max = draft.type === "alliance" ? 1 : Infinity;
 
   return (
     <EditCard<string[]>
@@ -580,7 +601,7 @@ export const InstitutionsSection = ({
       value={draft.institutions}
       isEmpty={draft.institutions.length === 0}
       emptyText={INSTITUTION_LABELS[draft.type].empty}
-      optional={draft.type !== "alliance"}
+      optional
       view={(institutions) => (
         <ul className="list-disc space-y-1 pl-5">
           {institutions.map((institution) => (
@@ -621,31 +642,29 @@ export const InstitutionsSection = ({
                 ))}
               </ul>
             )}
-            {institutions.length < max && (
-              <div className="flex gap-2">
-                <Input
-                  list="known-institutions"
-                  placeholder="Nombre completo, sin siglas sueltas"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      add();
-                    }
-                  }}
-                />
-                <datalist id="known-institutions">
-                  {knownInstitutions.map((institution) => (
-                    <option key={institution} value={institution} />
-                  ))}
-                </datalist>
-                <Button type="button" variant="outline" onClick={add} disabled={!name.trim()}>
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Añadir
-                </Button>
-              </div>
-            )}
+            <div className="flex gap-2">
+              <Input
+                list="known-institutions"
+                placeholder="Nombre completo, sin siglas sueltas"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    add();
+                  }
+                }}
+              />
+              <datalist id="known-institutions">
+                {knownInstitutions.map((institution) => (
+                  <option key={institution} value={institution} />
+                ))}
+              </datalist>
+              <Button type="button" variant="outline" onClick={add} disabled={!name.trim()}>
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Añadir
+              </Button>
+            </div>
             <div className="text-xs text-muted-foreground">
               Al escribir aparecen las instituciones ya registradas. Elige la que
               exista antes de crear una nueva.

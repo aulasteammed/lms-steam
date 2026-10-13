@@ -83,6 +83,45 @@ const uniqueSlug = async (base: string, ownId?: string) => {
   }
 };
 
+/**
+ * Una alianza es con una institución, y su título es el nombre de esa
+ * institución: la misma que se elige en "Instituciones involucradas" de un
+ * proyecto. Devuelve la institución que le corresponde al título:
+ * - si ya existe una con ese nombre, la alianza pasa a ser con ella;
+ * - si no, se le cambia el nombre a la que tenía (y así cambia en todos los
+ *   proyectos donde aparece) o se crea una nueva.
+ */
+const allianceInstitution = async (
+  title: string,
+  entryId?: string,
+  linkedId?: string
+): Promise<{ id: string } | { error: string }> => {
+  const slug = slugify(title);
+  const existing = await db.timelineInstitution.findUnique({ where: { slug }, select: { id: true } });
+
+  if (existing && existing.id !== linkedId) {
+    const taken = await db.timelineEntry.findFirst({
+      where: {
+        type: "alliance",
+        institutionIds: { has: existing.id },
+        ...(entryId ? { NOT: { id: entryId } } : {}),
+      },
+      select: { id: true },
+    });
+    if (taken) return { error: "Ya hay una alianza con esa institución" };
+    return existing;
+  }
+
+  if (linkedId) {
+    return db.timelineInstitution.update({
+      where: { id: linkedId },
+      data: { name: title, slug },
+      select: { id: true },
+    });
+  }
+  return db.timelineInstitution.create({ data: { name: title, slug }, select: { id: true } });
+};
+
 const createSchema = z.object({
   type: z.enum(["project", "participation", "alliance"]),
   title: text(200).min(1),
@@ -94,6 +133,10 @@ export async function createEntry(input: z.infer<typeof createSchema>): Promise<
   if (!parsed.success) return fail("Elige el tipo y escribe el nombre");
 
   try {
+    const institution =
+      parsed.data.type === "alliance" ? await allianceInstitution(parsed.data.title) : null;
+    if (institution && "error" in institution) return fail(institution.error);
+
     const entry = await db.timelineEntry.create({
       data: {
         type: parsed.data.type,
@@ -102,6 +145,7 @@ export async function createEntry(input: z.infer<typeof createSchema>): Promise<
         shortDescription: "",
         startYear: NO_YEAR,
         locationText: "",
+        ...(institution && { institutions: { connect: { id: institution.id } } }),
       },
       select: { id: true },
     });
@@ -170,6 +214,7 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
         slug: true,
         endYear: true,
         publishedAt: true,
+        institutionIds: true,
         images: { select: { url: true } },
       },
     });
@@ -197,7 +242,14 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
       data.images = images.map((image) => ({ ...image, credit: image.credit || null }));
     }
 
-    if (institutions !== undefined) {
+    if (current.type === "alliance") {
+      // La institución de una alianza sale de su título, no de una lista aparte.
+      if (input.title !== undefined) {
+        const institution = await allianceInstitution(input.title, id, current.institutionIds[0]);
+        if ("error" in institution) return fail(institution.error);
+        data.institutions = { set: [{ id: institution.id }] };
+      }
+    } else if (institutions !== undefined) {
       // Cada institución se registra una sola vez: se busca por su nombre sin
       // tildes ni mayúsculas y solo se crea si no existe.
       const names = [...new Map(institutions.map((name) => [slugify(name), name])).entries()];
