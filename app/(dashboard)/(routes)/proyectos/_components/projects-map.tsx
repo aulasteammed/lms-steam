@@ -168,20 +168,22 @@ const buildStyle = async (): Promise<StyleSpecification | string> => {
   }
 };
 
+/** Un punto por cada lugar de cada registro; `place` es su posición en la lista. */
 const toGeoJSON = (entries: MapEntry[]) => ({
   type: "FeatureCollection" as const,
   features: entries.flatMap((entry) =>
-    entry.coordinates
-      ? [
-          {
-            type: "Feature" as const,
-            properties: { id: entry.id },
-            geometry: { type: "Point" as const, coordinates: entry.coordinates },
-          },
-        ]
-      : []
+    entry.places.map((place, index) => ({
+      type: "Feature" as const,
+      properties: { id: entry.id, place: index },
+      geometry: { type: "Point" as const, coordinates: place.coordinates },
+    }))
   ),
 });
+
+/** Registros distintos entre los puntos de un grupo: un registro puede tener varios lugares. */
+const distinctIds = (leaves: { properties?: Record<string, unknown> | null }[]) => [
+  ...new Set(leaves.map((leaf) => String(leaf.properties?.id))),
+];
 
 /**
  * Mapa interactivo con relieve y recorrido de registros (estilo StoryMaps):
@@ -193,8 +195,11 @@ const toGeoJSON = (entries: MapEntry[]) => ({
  * - Al hacer scroll sobre la columna de cards se pasa de un registro a otro
  *   y el mapa vuela al punto de la card que queda en el centro.
  * - Al hacer clic en un punto, la columna se desplaza hasta su card.
- * - Los puntos cercanos se agrupan. Un grupo se abre al tocarlo; si sus
- *   registros están en el mismo lugar, se listan en la columna.
+ * - Un registro con varios lugares tiene un punto por cada uno: todos abren
+ *   la misma card y, mientras está abierta, se resaltan juntos.
+ * - Los puntos cercanos se agrupan y el grupo muestra cuántos registros
+ *   distintos tiene. Un grupo se abre al tocarlo; si sus registros están en
+ *   el mismo lugar, se listan en la columna.
  * - Al arrastrar o hacer zoom en el mapa, las cards se ocultan para explorar.
  */
 export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) => {
@@ -287,7 +292,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
   };
 
   const getBounds = (list: MapEntry[]): [[number, number], [number, number]] | null => {
-    const points = list.flatMap((e) => (e.coordinates ? [e.coordinates] : []));
+    const points = list.flatMap((e) => e.places.map((place) => place.coordinates));
     if (points.length === 0) return null;
     const lngs = points.map((p) => p[0]);
     const lats = points.map((p) => p[1]);
@@ -319,11 +324,23 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
   }, []);
 
   const flyToEntry = useCallback((index: number) => {
-    const coordinates = cardsRef.current[index]?.coordinates;
+    const entry = cardsRef.current[index];
     // Las participaciones virtuales no tienen punto: el mapa se queda donde está.
-    if (!coordinates) return;
+    if (!entry || entry.places.length === 0) return;
+    if (entry.places.length > 1) {
+      // Varios lugares: se encuadran todos, para ver el alcance del registro.
+      const bounds = getBounds([entry]);
+      if (bounds) {
+        mapRef.current?.fitBounds(bounds, {
+          padding: getFitPadding(true),
+          maxZoom: ENTRY_ZOOM,
+          duration: 1500,
+        });
+      }
+      return;
+    }
     mapRef.current?.flyTo({
-      center: coordinates,
+      center: entry.places[0].coordinates,
       zoom: ENTRY_ZOOM,
       offset: getOffset(),
       speed: 1.4,
@@ -424,25 +441,29 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
     const activeEntry = storyVisibleRef.current
       ? cardsRef.current[activeRef.current]
       : undefined;
-    const activePoint = activeEntry?.coordinates ? map.project(activeEntry.coordinates) : null;
+    const activePoints = (activeEntry?.places ?? []).map((place) =>
+      map.project(place.coordinates)
+    );
     const seen = new Set<string>();
 
     for (const feature of map.querySourceFeatures(SOURCE)) {
       if (feature.geometry.type !== "Point") continue;
       const props = feature.properties as {
         id?: string;
+        place?: number;
         cluster?: boolean;
         cluster_id?: number;
         point_count?: number;
       };
-      const key = props.cluster ? `c${props.cluster_id}` : `p${props.id}`;
+      const key = props.cluster ? `c${props.cluster_id}` : `p${props.id}-${props.place}`;
       // El mismo punto puede venir repetido, una vez por cada tesela que toca.
       if (seen.has(key)) continue;
       seen.add(key);
 
       const entry = props.cluster ? undefined : list.find((e) => e.id === props.id);
+      const place = entry?.places[props.place ?? 0];
       const coordinates =
-        entry?.coordinates ?? (feature.geometry.coordinates as [number, number]);
+        place?.coordinates ?? (feature.geometry.coordinates as [number, number]);
 
       let item = markers.get(key);
       if (!item) {
@@ -454,11 +475,24 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
           const clusterId = props.cluster_id!;
           const count = props.point_count ?? 0;
           el.className = `${typeClass} is-cluster`;
-          el.setAttribute(
-            "aria-label",
-            `${count} ${TYPE_LABELS[typeRef.current].plural.toLowerCase()} en esta zona`
-          );
-          el.innerHTML = `<span class="project-marker__dot">${count}</span>`;
+          // El número es de registros, no de puntos. Hasta saberlo se muestra
+          // el de puntos, que es igual salvo que un registro repita lugar aquí.
+          const setCount = (records: number) => {
+            const labels = TYPE_LABELS[typeRef.current];
+            el.setAttribute(
+              "aria-label",
+              `${records} ${(records === 1 ? labels.singular : labels.plural).toLowerCase()} en esta zona`
+            );
+            el.innerHTML = `<span class="project-marker__dot">${records}</span>`;
+          };
+          setCount(count);
+          const leavesSource = map.getSource(SOURCE) as GeoJSONSource | undefined;
+          leavesSource
+            ?.getClusterLeaves(clusterId, count, 0)
+            .then((leaves) => setCount(distinctIds(leaves).length))
+            .catch(() => {
+              // El grupo ya no existe (cambió el zoom o el filtro).
+            });
           el.addEventListener("click", async (ev) => {
             ev.stopPropagation();
             const source = map.getSource(SOURCE) as GeoJSONSource | undefined;
@@ -468,9 +502,13 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
                 source.getClusterExpansionZoom(clusterId),
                 source.getClusterLeaves(clusterId, count, 0),
               ]);
-              if (zoom > MAX_ZOOM) {
+              const ids = distinctIds(leaves);
+              if (ids.length === 1) {
+                // Todos los puntos del grupo son lugares del mismo registro.
+                goToRef.current(ids[0]);
+              } else if (zoom > MAX_ZOOM) {
                 // No se puede separar: sus registros están en el mismo lugar.
-                showGroupRef.current(leaves.map((leaf) => String(leaf.properties?.id)));
+                showGroupRef.current(ids);
               } else {
                 map.easeTo({
                   center: coordinates,
@@ -484,8 +522,11 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
           });
         } else if (entry) {
           el.className = entry.publication ? `${typeClass} has-publication` : typeClass;
-          el.setAttribute("aria-label", entry.title);
-          el.innerHTML = `<span class="project-marker__dot"></span><span class="project-marker__label">${escapeHtml(entry.title)}</span>`;
+          // Con varios lugares, la etiqueta dice también cuál es este.
+          const name =
+            entry.places.length > 1 && place ? `${entry.title} · ${place.name}` : entry.title;
+          el.setAttribute("aria-label", name);
+          el.innerHTML = `<span class="project-marker__dot"></span><span class="project-marker__label">${escapeHtml(name)}</span>`;
           el.addEventListener("click", (ev) => {
             ev.stopPropagation();
             goToRef.current(entry.id);
@@ -501,16 +542,21 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
         markers.set(key, item);
       }
 
-      // Activo: el punto de la card actual o el grupo que lo contiene.
+      // Activo: un punto de la card actual o el grupo que contiene alguno.
+      // Con varios lugares, el primero lleva la etiqueta y los demás solo se resaltan.
       let isActive = false;
-      if (props.cluster && activePoint) {
+      let isRelated = false;
+      if (props.cluster) {
         const point = map.project(coordinates);
-        isActive =
-          Math.hypot(point.x - activePoint.x, point.y - activePoint.y) <= CLUSTER_RADIUS;
-      } else if (!props.cluster) {
-        isActive = activeEntry?.id === props.id;
+        isActive = activePoints.some(
+          (active) => Math.hypot(point.x - active.x, point.y - active.y) <= CLUSTER_RADIUS
+        );
+      } else if (activeEntry?.id === props.id) {
+        isActive = (props.place ?? 0) === 0;
+        isRelated = !isActive;
       }
       item.el.classList.toggle("is-active", isActive);
+      item.el.classList.toggle("is-related", isRelated);
     }
 
     for (const [key, item] of markers) {

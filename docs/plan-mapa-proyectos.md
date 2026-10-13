@@ -1,7 +1,7 @@
 # Plan: mapa y línea de tiempo de proyectos, participaciones y alianzas
 
 Documento de trabajo. Reúne lo que se sabe, lo que se decidió y lo que falta por hacer.
-Última actualización: 2026-10-12. Rama de trabajo: `Proyectos`.
+Última actualización: 2026-10-13. Rama de trabajo: `Proyectos`.
 
 ## 1. Objetivo
 
@@ -208,11 +208,11 @@ Por confirmar: el límite de optimización de imágenes del plan de Vercel.
 | # | Paso | Estado |
 |---|---|---|
 | 0 | Diseño de las páginas de detalle por tipo, con datos de prueba | Hecho |
-| 1 | Esquema en la base de datos y capa de datos con caché. Migrar los proyectos del JSON. | Esquema e índices aplicados en pruebas. Falta la capa de datos con caché y la migración. |
-| 2 | Mapa con agrupación, selector de tipo y línea de tiempo | Construido el 2026-10-08 con datos de prueba (`lib/timeline-sample.ts`). Falta la revisión visual de Julieth. |
+| 1 | Esquema en la base de datos y capa de datos con caché. | Hecho el 2026-10-13 en la base de pruebas (ver sección 8.2). Falta aplicar el esquema en producción. No hubo migración del JSON: Julieth carga los registros a mano desde el panel. |
+| 2 | Mapa con agrupación, selector de tipo y línea de tiempo | Construido el 2026-10-08. Desde el 2026-10-13 lee la base de datos. |
 | 3 | Importador del `.txt`, con reporte de errores | Pendiente, depende de que llegue la información |
 | 4 | Panel de profesor para crear y editar, con compresión de imágenes | Construido el 2026-10-12 y conectado a la base de datos (ver sección 8.1). Falta la prueba de Julieth en el navegador. |
-| 5 | Agregar los registros al sitemap | Pendiente |
+| 5 | Agregar los registros al sitemap | Hecho el 2026-10-13: el mapa, la estantería y cada proyecto publicado. |
 
 ### 8.1 Panel de profesor (2026-10-12)
 
@@ -244,7 +244,26 @@ Cómo funciona:
 Pendiente del panel:
 
 - No se puede cambiar el título, el tipo ni el orden de un documento ya subido: hay que borrarlo y subirlo otra vez.
-- **El sitio público todavía lee `content/proyectos.json`.** Lo que se guarda en el panel no aparece aún en el mapa ni en las páginas de `/proyectos`; eso es el paso 1 (capa de datos con caché y migración).
+
+### 8.2 El sitio público lee la base de datos (2026-10-13)
+
+- El mapa, la página de cada proyecto, el visor y la estantería leen de `lib/timeline-data.ts`. Solo salen los registros **publicados**; un borrador se ve únicamente en el panel.
+- Las lecturas van en caché con la etiqueta `timeline`. Guardar, publicar o borrar un registro publicado desde el panel la invalida, y el sitio se actualiza sin desplegar.
+- La página de un proyecto se genera la primera vez que alguien la visita y queda guardada. Una dirección anterior (`previousSlugs`) redirige a la actual.
+- **Se borraron los datos de prueba de la fase 1:** `content/proyectos.json`, `lib/timeline-sample.ts` y los archivos de `public/proyectos/proyecto-3`. `lib/projects.ts` quedó solo con tipos. Las pruebas ahora las hace Julieth creando registros a mano en el panel, como lo haría cualquier persona.
+- Queda `public/proyectos/comuna-1` (fotos y periódico de "Entre Aguas"): ya no lo usa el sitio, pero es el material real para volver a subirlo por el panel. Se puede borrar después.
+- `scripts/pdf-a-paginas.py` ya no hace falta.
+
+### 8.3 Varios lugares por registro (2026-10-13)
+
+Decisión de Julieth: un registro puede tener hasta **6 lugares**, porque hay proyectos que tocan varias regiones del país.
+
+- **Esquema:** `TimelineEntry.locations` es una lista de lugares (`name`, `latitude`, `longitude`) y reemplaza a los campos `latitude` y `longitude`. `locationText` queda como resumen ("Cauca, Chocó y Antioquia"). Aplicado en la base de pruebas, donde el punto que ya existía se pasó a la lista. **Falta producción.**
+- **Panel:** la tarjeta de Ubicación es una lista con "Añadir otro lugar". Con un solo lugar, el resumen es su nombre; con varios se puede escribir o se arma solo con los nombres.
+- **Mapa:** sale un punto por lugar y todos abren la misma tarjeta. Al abrirla, el mapa encuadra todos sus lugares y los resalta; la etiqueta de cada punto dice el registro y el lugar.
+- **Conteos:** el selector, la línea de tiempo y el número de los grupos cuentan registros, no puntos.
+- **Mapa pequeño** de la página del proyecto: se aleja hasta que quepan todos los puntos.
+- Una participación virtual sigue sin lugares.
 
 ## 9. Fuera del alcance por ahora
 

@@ -9,6 +9,8 @@ import type { EntryType, Modality } from "@/lib/timeline";
 
 export type DraftImage = { url: string; alt: string; credit?: string };
 export type DraftPerson = { name: string; role: string };
+/** Un lugar del registro: su nombre y su punto en el mapa. */
+export type DraftLocation = { name: string; latitude: number; longitude: number };
 
 export type DocumentKind =
   | "newspaper"
@@ -38,9 +40,10 @@ export type EntryDraft = {
   startYear: number | null;
   /** `null` = en curso. */
   endYear: number | null;
+  /** Resumen de la ubicación: "Cauca, Chocó y Antioquia". */
   locationText: string;
-  latitude: number | null;
-  longitude: number | null;
+  /** Lugares del registro; vacío en participaciones virtuales. */
+  locations: DraftLocation[];
   images: DraftImage[];
   /** Nombres de las instituciones. */
   institutions: string[];
@@ -70,6 +73,9 @@ export type EntryPatch = Partial<
 >;
 
 export const SHORT_DESCRIPTION_MAX = 250;
+
+/** Cuántos lugares (puntos en el mapa) puede tener un registro. */
+export const MAX_LOCATIONS = 6;
 
 /** Proyectos: 2 imágenes. Participaciones y alianzas: 1. */
 export const maxImages = (type: EntryType) => (type === "project" ? 2 : 1);
@@ -125,7 +131,7 @@ export const requiredFields = (draft: EntryDraft) => {
       label: "Ubicación",
       done:
         draft.locationText.trim().length > 0 &&
-        (isVirtual || (draft.latitude !== null && draft.longitude !== null)),
+        (isVirtual || draft.locations.length > 0),
     },
     { label: "Imagen", done: draft.images.length > 0 },
   ];

@@ -69,6 +69,16 @@
   z-index: 2;
 }
 
+/* Los demás lugares del registro abierto: resaltados, sin etiqueta */
+.project-marker.is-related {
+  z-index: 1;
+}
+
+.project-marker.is-related .project-marker__dot {
+  background: var(--marker-strong);
+  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(15, 23, 42, 0.3);
+}
+
 .project-marker.is-active .project-marker__dot {
   background: var(--marker-strong);
   transform: scale(1.2);

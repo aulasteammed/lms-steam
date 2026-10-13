@@ -3,13 +3,18 @@
  * participaciones y alianzas.
  *
  * `MapEntry` es la lista liviana que recibe el mapa. Tiene la forma del modelo
- * `TimelineEntry` de la base de datos, para que al conectarla solo cambie de
- * dónde salen los datos (hoy, `lib/timeline-sample.ts`).
+ * `TimelineEntry` de la base de datos; la arma `lib/timeline-data.ts`.
  */
 import type { ProjectDocument, ProjectImage } from "@/lib/projects";
 
 export type EntryType = "project" | "participation" | "alliance";
 export type Modality = "in_person" | "virtual" | "hybrid";
+
+export type MapPlace = {
+  name: string;
+  /** [longitud, latitud], el orden que usa el mapa. */
+  coordinates: [number, number];
+};
 
 export type MapEntry = {
   id: string;
@@ -17,13 +22,17 @@ export type MapEntry = {
   /** Nombre del proyecto, de la participación o de la alianza. */
   title: string;
   description: string;
+  /** Resumen de la ubicación: "Cauca, Chocó y Antioquia". */
   place: string;
   /** Año de inicio. En participaciones, el año en que ocurrió. */
   startYear: number;
   /** Año de cierre. Sin dato = en curso. */
   endYear?: number;
-  /** [longitud, latitud]. `null` en participaciones virtuales: no van en el mapa. */
-  coordinates: [number, number] | null;
+  /**
+   * Lugares del registro: en el mapa sale un punto por cada uno y todos abren
+   * la misma tarjeta. Vacío en participaciones virtuales: no van en el mapa.
+   */
+  places: MapPlace[];
   images: ProjectImage[];
 
   // ── Solo proyectos ──

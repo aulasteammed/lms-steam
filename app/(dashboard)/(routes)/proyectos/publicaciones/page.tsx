@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { ALL_DOCUMENTS, readerHref } from "@/lib/projects";
+import { readerHref } from "@/lib/projects";
+import { getAllDocuments, type ShelfItem } from "@/lib/timeline-data";
 import { PageBar } from "../_components/back-link";
 import { DocumentActions } from "../_components/document-actions";
 import { PublicationCover } from "../_components/publication-cover";
@@ -14,8 +15,6 @@ export const metadata: Metadata = {
 };
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500";
-
-type ShelfItem = (typeof ALL_DOCUMENTS)[number];
 
 const Shelf = ({ items }: { items: ShelfItem[] }) => (
   <ul className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -62,10 +61,11 @@ const Shelf = ({ items }: { items: ShelfItem[] }) => (
  * Estantería con todos los documentos de los proyectos, para encontrarlos
  * sin tener que saber qué proyecto tiene cada uno.
  */
-export default function PublicationsPage() {
-  const publications = ALL_DOCUMENTS.filter(({ document }) => !document.isReport);
-  const reports = ALL_DOCUMENTS.filter(({ document }) => document.isReport);
-  const total = ALL_DOCUMENTS.length;
+export default async function PublicationsPage() {
+  const documents = await getAllDocuments();
+  const publications = documents.filter(({ document }) => !document.isReport);
+  const reports = documents.filter(({ document }) => document.isReport);
+  const total = documents.length;
 
   return (
     <div className="pb-16">

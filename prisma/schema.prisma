@@ -394,6 +394,15 @@ type TimelineImage {
 }
 
 
+/// Un lugar del registro: su nombre y su punto en el mapa.
+type TimelineLocation {
+  /// "Guapi, Cauca".
+  name      String
+  latitude  Float
+  longitude Float
+}
+
+
 type TimelinePerson {
   name         String
   role         String
@@ -443,11 +452,12 @@ model TimelineEntry {
   /// Año de cierre. Vacío = en curso (se ubica en el año actual).
   endYear   Int?
 
-  /// "Santo Domingo Savio, Comuna 1, Medellín".
+  /// Resumen de la ubicación: "Santo Domingo Savio, Comuna 1, Medellín" o,
+  /// con varios lugares, "Cauca, Chocó y Antioquia".
   locationText String
-  /// Vacías en participaciones virtuales: van en la línea de tiempo, no en el mapa.
-  latitude     Float?
-  longitude    Float?
+  /// Lugares del registro, máximo 6: en el mapa sale un punto por cada uno.
+  /// Vacío en participaciones virtuales: van en la línea de tiempo, no en el mapa.
+  locations    TimelineLocation[]
 
   images TimelineImage[]
 

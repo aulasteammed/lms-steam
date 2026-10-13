@@ -1,30 +1,78 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { CalendarDays, ExternalLink, Handshake } from "lucide-react";
+import { notFound, permanentRedirect } from "next/navigation";
+import { CalendarDays, ExternalLink, Handshake, Quote } from "lucide-react";
 
-import { PROJECTS, getProject, readerHref } from "@/lib/projects";
+import { readerHref, type Project, type ProjectDocument } from "@/lib/projects";
+import { getProject } from "@/lib/timeline-data";
 import { PageBar } from "../_components/back-link";
 import { DocumentActions } from "../_components/document-actions";
 import { PublicationCover } from "../_components/publication-cover";
 import { ShareButton } from "../_components/share-button";
 import { MiniMap } from "./_components/mini-map";
+import { PhotoGallery } from "./_components/photo-gallery";
 
 type Props = { params: Promise<{ id: string }> };
 
+/**
+ * Ninguna página se arma al compilar: cada una se genera la primera vez que
+ * alguien la visita y queda guardada hasta que el proyecto cambia en el panel.
+ */
 export function generateStaticParams() {
-  return PROJECTS.map((p) => ({ id: p.id }));
+  return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const project = getProject(id);
-  if (!project) return {};
-  return { title: project.title, description: project.description };
+  const found = await getProject(id);
+  if (!found || "redirectTo" in found) return {};
+  return { title: found.project.title, description: found.project.description };
 }
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500";
 const secondaryButton =
   "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
+
+/** "Docente" → "Docentes", "Coordinador" → "Coordinadores". Un rol de varias palabras se deja igual. */
+const pluralRole = (role: string) =>
+  /\s/.test(role.trim()) ? role : /[aeiouáéíóú]$/i.test(role) ? `${role}s` : `${role}es`;
+
+const DocumentList = ({
+  title,
+  project,
+  documents,
+}: {
+  title: string;
+  project: Project;
+  documents: ProjectDocument[];
+}) => (
+  <section>
+    <h2 className={label}>{title}</h2>
+    <ul className="mt-3 grid gap-4 md:grid-cols-2">
+      {documents.map((doc) => (
+        <li
+          key={doc.id}
+          className="flex gap-4 rounded-2xl border border-slate-200 bg-stone-50 p-4"
+        >
+          <PublicationCover
+            publication={doc}
+            href={readerHref(project, doc)}
+            className="w-20 shrink-0 self-start"
+          />
+          <div className="min-w-0">
+            <p className={label}>
+              {doc.kind} · {doc.pageCount} páginas
+            </p>
+            <h3 className="mt-1 font-semibold leading-snug text-slate-900">{doc.title}</h3>
+            {doc.description && (
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">{doc.description}</p>
+            )}
+            <DocumentActions document={doc} readHref={readerHref(project, doc)} className="mt-3" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+);
 
 const FACT_COLUMNS: Record<number, string> = {
   2: "md:grid-cols-2",
@@ -36,59 +84,54 @@ const FACT_COLUMNS: Record<number, string> = {
  * Página de detalle de un proyecto. Una sola plantilla con bloques opcionales:
  * cada bloque aparece solo si el proyecto tiene ese dato, así que con lo mínimo
  * queda una ficha y con todo, un reportaje. La publicación (periódico, revista)
- * va en el encabezado porque es lo más valioso del proyecto; los informes y
- * demás entregables se listan aparte. Todos se leen en el visor y se descargan.
+ * o entregable va en el encabezado porque es lo más valioso del proyecto; los
+ * informes se listan aparte. Todos se leen en el visor y se descargan.
  */
 export default async function ProjectPage({ params }: Props) {
   const { id } = await params;
-  const project = getProject(id);
-  if (!project) return notFound();
+  const found = await getProject(id);
+  if (!found) return notFound();
+  // Dirección anterior de un proyecto que se cerró y ganó el año.
+  if ("redirectTo" in found) return permanentRedirect(found.redirectTo);
+  const { project } = found;
 
   const pub = project.publication;
-  const otherDocuments = project.documents.filter((d) => d !== pub);
-  const coordinator = project.people[0];
+  // La destacada ya va en el encabezado: se compara por id, porque los datos
+  // llegan de la caché como copias y el mismo documento no es el mismo objeto.
+  const morePublications = project.documents.filter((d) => !d.isReport && d.id !== pub?.id);
+  const reports = project.documents.filter((d) => d.isReport);
+  // En la fila de datos van todas las personas que comparten el rol de la primera.
+  const leadRole = project.people[0]?.role;
+  const leads = project.people.filter(
+    (person) => person.role.trim().toLowerCase() === leadRole?.trim().toLowerCase()
+  );
   const participations = project.related.filter((r) => r.type === "participacion");
   const alliances = project.related.filter((r) => r.type === "alianza");
 
-  const facts = [
-    { term: "Ubicación", value: project.place },
-    { term: "Periodo", value: project.year },
+  /** Cada dato lleva una lista de valores: van uno por renglón. */
+  const facts: { term: string; values: string[] }[] = [
+    { term: "Ubicación", values: [project.place] },
+    { term: "Periodo", values: [project.year] },
     ...(project.institutions.length > 0
-      ? [{ term: "Instituciones", value: project.institutions.join(" · ") }]
+      ? [
+          {
+            term: project.institutions.length > 1 ? "Instituciones" : "Institución",
+            values: project.institutions,
+          },
+        ]
       : []),
-    ...(coordinator
-      ? [{ term: coordinator.role, value: coordinator.name }]
+    ...(leadRole
+      ? [
+          {
+            term: leads.length > 1 ? pluralRole(leadRole) : leadRole,
+            values: leads.map((person) => person.name),
+          },
+        ]
       : []),
   ];
 
-  /** Las fotos van juntas en una sola sección, pequeñas; al tocarlas se abren completas. */
-  const photos = (
-    <section aria-label="Fotos del proyecto">
-      <div className="grid grid-cols-2 gap-3 md:gap-4">
-        {project.images.map((image) => (
-          <figure key={image.src} className="min-w-0">
-            <a
-              href={image.src}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block overflow-hidden rounded-xl border border-slate-200"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={image.src}
-                alt={image.alt}
-                loading="lazy"
-                className="h-40 w-full object-cover transition duration-300 md:h-52 hover:scale-[1.03]"
-              />
-            </a>
-            {image.credit && (
-              <figcaption className="mt-1.5 text-xs text-slate-500">{image.credit}</figcaption>
-            )}
-          </figure>
-        ))}
-      </div>
-    </section>
-  );
+  /** Las fotos van juntas en una sola sección, pequeñas; al tocarlas se abren sobre la página. */
+  const photos = project.images.length > 0 && <PhotoGallery images={project.images} />;
 
   return (
     <article className="pb-16">
@@ -148,7 +191,17 @@ export default async function ProjectPage({ params }: Props) {
           {facts.map((fact) => (
             <div key={fact.term} className="min-w-0">
               <dt className={label}>{fact.term}</dt>
-              <dd className="mt-1.5 text-sm leading-snug text-slate-900">{fact.value}</dd>
+              <dd className="mt-1.5 text-sm leading-snug text-slate-900">
+                {fact.values.length === 1 ? (
+                  fact.values[0]
+                ) : (
+                  <ul className="space-y-1.5">
+                    {fact.values.map((value) => (
+                      <li key={value}>{value}</li>
+                    ))}
+                  </ul>
+                )}
+              </dd>
             </div>
           ))}
         </dl>
@@ -169,26 +222,37 @@ export default async function ProjectPage({ params }: Props) {
           ) : (
             photos
           )}
-          <MiniMap coordinates={project.coordinates} place={project.place} />
+          <MiniMap points={project.points} place={project.place} />
         </section>
 
         {project.story && photos}
 
         {/* Cita */}
         {project.quote && (
-          <figure className="mx-auto max-w-3xl py-4 text-center">
-            <blockquote className="text-2xl font-semibold leading-snug tracking-tight text-slate-900 md:text-3xl">
-              «{project.quote.text}»
+          <figure className="relative mx-auto max-w-3xl rounded-3xl bg-orange-50/70 px-8 pb-8 pt-12 md:px-12 md:pb-10 md:pt-14">
+            <span
+              aria-hidden
+              className="absolute -top-5 left-8 flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-white shadow-md md:left-12"
+            >
+              <Quote className="h-5 w-5 fill-current" />
+            </span>
+            <blockquote className="text-xl font-medium italic leading-relaxed text-slate-800 md:text-2xl">
+              “{project.quote.text}”
             </blockquote>
-            <figcaption className={`mt-4 ${label}`}>
-              {project.quote.author}
-              {project.quote.role && ` · ${project.quote.role}`}
+            <figcaption className="mt-5 flex items-center gap-3 text-sm">
+              <span aria-hidden className="h-px w-8 bg-orange-600" />
+              <span>
+                <span className="font-semibold text-slate-900">{project.quote.author}</span>
+                {project.quote.role && (
+                  <span className="text-slate-500"> · {project.quote.role}</span>
+                )}
+              </span>
             </figcaption>
           </figure>
         )}
 
-        {/* Equipo (solo si hay más personas que la del encabezado de datos) */}
-        {project.people.length > 1 && (
+        {/* Equipo (solo si hay más personas que las de la fila de datos) */}
+        {project.people.length > leads.length && (
           <section>
             <h2 className={label}>Equipo</h2>
             <ul className="mt-3 grid gap-x-8 gap-y-3 sm:grid-cols-2">
@@ -202,43 +266,18 @@ export default async function ProjectPage({ params }: Props) {
           </section>
         )}
 
-        {/* Informes y demás entregables: se leen en el mismo visor y se descargan */}
-        {otherDocuments.length > 0 && (
-          <section>
-            <h2 className={label}>Informes y documentos</h2>
-            <ul className="mt-3 grid gap-4 md:grid-cols-2">
-              {otherDocuments.map((doc) => (
-                <li
-                  key={doc.id}
-                  className="flex gap-4 rounded-2xl border border-slate-200 bg-stone-50 p-4"
-                >
-                  <PublicationCover
-                    publication={doc}
-                    href={readerHref(project, doc)}
-                    className="w-20 shrink-0 self-start"
-                  />
-                  <div className="min-w-0">
-                    <p className={label}>
-                      {doc.kind} · {doc.pageCount} páginas
-                    </p>
-                    <h3 className="mt-1 font-semibold leading-snug text-slate-900">
-                      {doc.title}
-                    </h3>
-                    {doc.description && (
-                      <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                        {doc.description}
-                      </p>
-                    )}
-                    <DocumentActions
-                      document={doc}
-                      readHref={readerHref(project, doc)}
-                      className="mt-3"
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+        {/* Las demás publicaciones y entregables, si hay más de una */}
+        {morePublications.length > 0 && (
+          <DocumentList
+            title="Más publicaciones y entregables"
+            project={project}
+            documents={morePublications}
+          />
+        )}
+
+        {/* Informes: se leen en el mismo visor y se descargan */}
+        {reports.length > 0 && (
+          <DocumentList title="Informes" project={project} documents={reports} />
         )}
 
         {project.externalLink && (

@@ -145,7 +145,7 @@ export const EntryCard = ({ entry, active, onClose }: EntryCardProps) => {
           {entry.description}
         </p>
 
-        {!entry.coordinates && (
+        {entry.places.length === 0 && (
           <p className="flex items-center gap-1.5 text-xs text-slate-500">
             <MapPinOff className="h-3.5 w-3.5" />
             Sin punto en el mapa

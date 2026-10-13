@@ -7,7 +7,7 @@
  */
 import { auth } from "@clerk/nextjs/server";
 import type { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { UTApi } from "uploadthing/server";
 import { z } from "zod";
@@ -15,7 +15,9 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
 import { NO_YEAR, getAdminEntry, slugify } from "@/lib/timeline-admin";
+import { TIMELINE_TAG } from "@/lib/timeline-data";
 import {
+  MAX_LOCATIONS,
   SHORT_DESCRIPTION_MAX,
   maxImages,
   requiredFields,
@@ -30,6 +32,14 @@ const LIST_PATH = "/teacher/proyectos";
 const RESERVED_SLUGS = ["publicaciones"];
 
 const utapi = new UTApi();
+
+/**
+ * Hace que el mapa y las páginas de `/proyectos` vuelvan a leer la base de
+ * datos. Los borradores no salen en el sitio, así que guardarlos no la toca.
+ */
+const refreshSite = (status: "draft" | "published") => {
+  if (status === "published") revalidateTag(TIMELINE_TAG);
+};
 
 const fail = (error: string): Result<never> => ({ ok: false, error });
 const done = <T,>(data: T): Result<T> => ({ ok: true, data });
@@ -112,8 +122,15 @@ const patchSchema = z
     startYear: year,
     endYear: year.nullable(),
     locationText: text(200),
-    latitude: z.number().min(-90).max(90).nullable(),
-    longitude: z.number().min(-180).max(180).nullable(),
+    locations: z
+      .array(
+        z.object({
+          name: text(120).min(1),
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+        })
+      )
+      .max(MAX_LOCATIONS),
     images: z
       .array(z.object({ url: uploadUrl, alt: text(300).min(1), credit: text(120).optional() }))
       .max(2),
@@ -148,6 +165,7 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
       where: { id },
       select: {
         type: true,
+        status: true,
         title: true,
         slug: true,
         endYear: true,
@@ -216,6 +234,7 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
       const kept = new Set(images.map((image) => image.url));
       deleteFilesLater(current.images.map((image) => image.url).filter((url) => !kept.has(url)));
     }
+    refreshSite(current.status);
     // Solo estos campos se ven en la tabla; los demás no la invalidan.
     if (
       input.title !== undefined ||
@@ -256,6 +275,7 @@ export async function setEntryPublished(id: string, published: boolean): Promise
       },
       select: { id: true },
     });
+    revalidateTag(TIMELINE_TAG);
     revalidatePath(LIST_PATH);
     return done(undefined);
   } catch (error) {
@@ -272,6 +292,7 @@ export async function deleteEntry(id: string): Promise<Result> {
     const entry = await db.timelineEntry.findUnique({
       where: { id },
       select: {
+        status: true,
         images: { select: { url: true } },
         documents: { select: { pdfUrl: true, pages: true } },
       },
@@ -306,6 +327,7 @@ export async function deleteEntry(id: string): Promise<Result> {
         ...document.pages.map((page) => page.url),
       ]),
     ]);
+    refreshSite(entry.status);
     revalidatePath(LIST_PATH);
     return done(undefined);
   } catch (error) {
@@ -340,7 +362,11 @@ export async function addDocument(
   try {
     const entry = await db.timelineEntry.findUnique({
       where: { id: entryId },
-      select: { type: true, documents: { select: { slug: true, position: true } } },
+      select: {
+        type: true,
+        status: true,
+        documents: { select: { slug: true, position: true } },
+      },
     });
     if (!entry) return fail("El registro ya no existe");
     if (entry.type !== "project") return fail("Solo los proyectos tienen documentos");
@@ -361,6 +387,7 @@ export async function addDocument(
       },
       select: { id: true },
     });
+    refreshSite(entry.status);
 
     return done({
       id: document.id,
@@ -383,8 +410,9 @@ export async function deleteDocument(documentId: string): Promise<Result> {
   try {
     const document = await db.timelineDocument.delete({
       where: { id: documentId },
-      select: { pdfUrl: true, pages: true },
+      select: { pdfUrl: true, pages: true, entry: { select: { status: true } } },
     });
+    refreshSite(document.entry.status);
     deleteFilesLater([document.pdfUrl, ...document.pages.map((page) => page.url)]);
     return done(undefined);
   } catch (error) {

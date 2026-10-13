@@ -18,6 +18,7 @@ import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/proyectos/_components/en
 
 import { EditCard } from "../../_components/edit-card";
 import {
+  MAX_LOCATIONS,
   SHORT_DESCRIPTION_MAX,
   draftPeriodLabel,
   maxImages,
@@ -278,8 +279,9 @@ export const ImagesSection = ({ draft, onChange }: SectionProps) => {
             )}
             {fileError && <p className="text-sm font-medium text-destructive">{fileError}</p>}
             <div className="text-xs text-muted-foreground">
-              La imagen se reduce sola al guardar. La descripción la leen los lectores
+              La descripción la leen los lectores
               de pantalla y los buscadores.
+              Aclaración: Si no puede previsualizar la imagen, intente cargando otra vez o cambiando el formato de esta.
             </div>
           </div>
         );
@@ -335,92 +337,216 @@ const parseCoordinates = (text: string): { latitude: number; longitude: number }
   return null;
 };
 
-type LocationValue = { locationText: string; point: string };
+/** "Cauca", "Cauca y Chocó", "Cauca, Chocó y Antioquia". */
+const joinNames = (names: string[]) =>
+  names.length <= 1
+    ? (names[0] ?? "")
+    : `${names.slice(0, -1).join(", ")} y ${names[names.length - 1]}`;
+
+/** Un lugar mientras se edita: el punto es el texto que pegó la persona. */
+type PlaceValue = { name: string; point: string };
+type LocationValue = { summary: string; places: PlaceValue[] };
+
+const pointError = (point: string) => {
+  if (!point.trim()) return "Falta el punto";
+  if (/goo\.gl/.test(point)) {
+    return "Ese enlace es corto y no trae el punto: ábrelo y copia el enlace completo o las coordenadas";
+  }
+  return parseCoordinates(point) ? null : "No se encontraron coordenadas en ese texto";
+};
 
 export const LocationSection = ({ draft, onChange }: SectionProps) => {
   // Una participación virtual no tiene punto: va en la línea de tiempo, no en el mapa.
   const isVirtual = draft.type === "participation" && draft.modality === "virtual";
-  const hasPoint = draft.latitude !== null && draft.longitude !== null;
 
   return (
     <EditCard<LocationValue>
       label="Ubicación"
       editLabel="Editar ubicación"
       value={{
-        locationText: draft.locationText,
-        point: hasPoint ? `${draft.latitude}, ${draft.longitude}` : "",
+        // Con un solo lugar el resumen es su nombre: no se arrastra al añadir otro.
+        summary: isVirtual || draft.locations.length > 1 ? draft.locationText : "",
+        places: draft.locations.length
+          ? draft.locations.map((location) => ({
+              name: location.name,
+              point: `${location.latitude}, ${location.longitude}`,
+            }))
+          : [{ name: "", point: "" }],
       }}
-      isEmpty={!draft.locationText}
+      isEmpty={!draft.locationText && draft.locations.length === 0}
       emptyText="Sin ubicación"
-      view={(location) => (
+      view={() => (
         <div className="space-y-3">
           {isVirtual ? (
-            <p>{location.locationText} · no aparece en el mapa, solo en la línea de tiempo</p>
-          ) : hasPoint ? (
-            <div className="max-w-xs">
-              <MiniMap
-                coordinates={[draft.longitude as number, draft.latitude as number]}
-                place={location.locationText}
-                showLink={false}
-              />
-            </div>
+            <p>{draft.locationText} · no aparece en el mapa, solo en la línea de tiempo</p>
+          ) : draft.locations.length > 0 ? (
+            <>
+              <div className="max-w-xs">
+                <MiniMap
+                  points={draft.locations.map((place) => [place.longitude, place.latitude])}
+                  place={draft.locationText}
+                  showLink={false}
+                />
+              </div>
+              {draft.locations.length > 1 && (
+                <ul className="list-disc space-y-1 pl-5">
+                  {draft.locations.map((place, index) => (
+                    <li key={index}>{place.name}</li>
+                  ))}
+                </ul>
+              )}
+            </>
           ) : (
             <>
-              <p>{location.locationText}</p>
+              <p>{draft.locationText}</p>
               <p className="italic text-slate-500">Falta el punto en el mapa</p>
             </>
           )}
         </div>
       )}
       edit={(location, setLocation) => {
-        const parsed = parseCoordinates(location.point);
-        return (
-          <div className="space-y-3">
+        const update = (index: number, patch: Partial<PlaceValue>) =>
+          setLocation({
+            ...location,
+            places: location.places.map((place, i) => (i === index ? { ...place, ...patch } : place)),
+          });
+
+        if (isVirtual) {
+          return (
             <div className="space-y-1.5">
-              <Label htmlFor="location-text">Lugar</Label>
+              <Label htmlFor="location-summary">Lugar</Label>
               <Input
-                id="location-text"
-                placeholder={
-                  isVirtual ? "Virtual" : "p.ej. 'Santo Domingo Savio, Comuna 1, Medellín'"
-                }
-                value={location.locationText}
-                onChange={(event) => setLocation({ ...location, locationText: event.target.value })}
+                id="location-summary"
+                placeholder="Virtual"
+                value={location.summary}
+                onChange={(event) => setLocation({ ...location, summary: event.target.value })}
               />
             </div>
-            {!isVirtual && (
+          );
+        }
+
+        return (
+          <div className="space-y-3">
+            {location.places.map((place, index) => {
+              const parsed = parseCoordinates(place.point);
+              return (
+                <div key={index} className="space-y-2 rounded-md border bg-white p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-600">
+                      {location.places.length > 1 ? `Lugar ${index + 1}` : "Lugar"}
+                    </span>
+                    {location.places.length > 1 && (
+                      <button
+                        type="button"
+                        aria-label={`Quitar el lugar ${index + 1}`}
+                        className="text-slate-500 hover:text-slate-900"
+                        onClick={() =>
+                          setLocation({
+                            ...location,
+                            places: location.places.filter((_, i) => i !== index),
+                          })
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    aria-label={`Nombre del lugar ${index + 1}`}
+                    placeholder="Nombre del lugar, p.ej. 'Guapi, Cauca'"
+                    value={place.name}
+                    onChange={(event) => update(index, { name: event.target.value })}
+                  />
+                  <Input
+                    aria-label={`Punto exacto del lugar ${index + 1}`}
+                    placeholder="Enlace de Google Maps o coordenadas (6.2616, -75.5773)"
+                    value={place.point}
+                    onChange={(event) => update(index, { point: event.target.value })}
+                  />
+                  {place.point.trim() && (
+                    <p
+                      className={cn(
+                        "text-xs",
+                        parsed ? "text-muted-foreground" : "font-medium text-destructive"
+                      )}
+                    >
+                      {parsed
+                        ? `Punto encontrado: latitud ${parsed.latitude}, longitud ${parsed.longitude}`
+                        : pointError(place.point)}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+
+            {location.places.length < MAX_LOCATIONS ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setLocation({ ...location, places: [...location.places, { name: "", point: "" }] })
+                }
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Añadir otro lugar
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Un registro puede tener máximo {MAX_LOCATIONS} lugares.
+              </p>
+            )}
+
+            {location.places.length > 1 && (
               <div className="space-y-1.5">
-                <Label htmlFor="location-point">Punto exacto</Label>
+                <Label htmlFor="location-summary">Resumen de la ubicación</Label>
                 <Input
-                  id="location-point"
-                  placeholder="Enlace de Google Maps o coordenadas (6.2616, -75.5773)"
-                  value={location.point}
-                  onChange={(event) => setLocation({ ...location, point: event.target.value })}
+                  id="location-summary"
+                  placeholder={joinNames(
+                    location.places.map((place) => place.name.trim()).filter(Boolean)
+                  )}
+                  value={location.summary}
+                  onChange={(event) => setLocation({ ...location, summary: event.target.value })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {parsed
-                    ? `Punto encontrado: latitud ${parsed.latitude}, longitud ${parsed.longitude}`
-                    : "En Google Maps, haz clic derecho sobre el lugar y copia las coordenadas, o pega el enlace completo de la barra de direcciones."}
+                  Es el texto que sale en la tarjeta y en la página, p.ej. &quot;Cauca,
+                  Chocó y Antioquia&quot;. Si lo dejas vacío se arma con los nombres de
+                  los lugares.
                 </p>
               </div>
             )}
+
+            <p className="text-xs text-muted-foreground">
+              Para el punto: en Google Maps, haz clic derecho sobre el lugar y copia las
+              coordenadas, o pega el enlace completo de la barra de direcciones. En el
+              mapa sale un punto por cada lugar y todos abren este mismo registro.
+            </p>
           </div>
         );
       }}
       validate={(location) => {
-        if (!location.locationText.trim()) return "Se requiere el lugar";
-        if (isVirtual) return null;
-        if (!location.point.trim()) return "Se requiere el punto exacto";
-        if (/goo\.gl/.test(location.point)) {
-          return "Ese enlace es corto y no trae el punto: ábrelo y copia el enlace completo o las coordenadas";
+        if (isVirtual) return location.summary.trim() ? null : "Se requiere el lugar";
+        for (const [index, place] of location.places.entries()) {
+          const which = location.places.length > 1 ? ` del lugar ${index + 1}` : "";
+          if (!place.name.trim()) return `Falta el nombre${which}`;
+          const error = pointError(place.point);
+          if (error) return location.places.length > 1 ? `Lugar ${index + 1}: ${error}` : error;
         }
-        return parseCoordinates(location.point) ? null : "No se encontraron coordenadas en ese texto";
+        return null;
       }}
       onSave={(location) => {
-        const parsed = isVirtual ? null : parseCoordinates(location.point);
+        if (isVirtual) return onChange({ locationText: location.summary.trim(), locations: [] });
+
+        const locations = location.places.map((place) => ({
+          name: place.name.trim(),
+          ...(parseCoordinates(place.point) as { latitude: number; longitude: number }),
+        }));
+        const names = locations.map((place) => place.name);
         return onChange({
-          locationText: location.locationText.trim(),
-          latitude: parsed?.latitude ?? null,
-          longitude: parsed?.longitude ?? null,
+          // Con un solo lugar, el resumen es su nombre.
+          locationText:
+            locations.length > 1 ? location.summary.trim() || joinNames(names) : names[0],
+          locations,
         });
       }}
     />

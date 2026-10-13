@@ -117,7 +117,7 @@ export const StorySection = ({ draft, onChange }: SectionProps) => (
           <Label htmlFor="story-title">Subtítulo</Label>
           <Input
             id="story-title"
-            placeholder="p.ej. 'Un periódico hecho por el barrio'"
+            placeholder="p.ej. 'Mirando desde otra perspectiva'"
             value={story.title}
             onChange={(event) => setStory({ ...story, title: event.target.value })}
           />
@@ -314,8 +314,8 @@ export const DateModalitySection = ({ draft, onChange }: SectionProps) => (
         modality: when.modality,
         startYear: year,
         endYear: year,
-        // Al pasar a virtual se suelta el punto que tuviera.
-        ...(when.modality === "virtual" ? { latitude: null, longitude: null } : {}),
+        // Al pasar a virtual se sueltan los puntos que tuviera.
+        ...(when.modality === "virtual" ? { locations: [] } : {}),
       });
     }}
   />

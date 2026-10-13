@@ -90,8 +90,7 @@ export const getAdminEntry = async (id: string): Promise<EntryDraft | null> => {
     startYear: entry.startYear === NO_YEAR ? null : entry.startYear,
     endYear: entry.endYear,
     locationText: entry.locationText,
-    latitude: entry.latitude,
-    longitude: entry.longitude,
+    locations: entry.locations,
     images: entry.images.map((image) => ({
       url: image.url,
       alt: image.alt,

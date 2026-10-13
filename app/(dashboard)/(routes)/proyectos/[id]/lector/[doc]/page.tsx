@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
-import { getDocument, getProject } from "@/lib/projects";
+import { getDocument } from "@/lib/projects";
+import { getProject } from "@/lib/timeline-data";
 import { FlipBook } from "../../_components/flip-book";
 
 type Props = {
@@ -11,8 +12,8 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id, doc } = await params;
-  const project = getProject(id);
-  const document = project && getDocument(project, doc);
+  const found = await getProject(id);
+  const document = found && "project" in found && getDocument(found.project, doc);
   if (!document) return {};
   return { title: document.title, description: document.description };
 }
@@ -25,9 +26,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ReaderPage({ params, searchParams }: Props) {
   const { id, doc } = await params;
   const { desde } = await searchParams;
-  const project = getProject(id);
-  const document = project && getDocument(project, doc);
-  if (!project || !document) return notFound();
+  const found = await getProject(id);
+  if (!found) return notFound();
+  if ("redirectTo" in found) return permanentRedirect(`${found.redirectTo}/lector/${doc}`);
+  const { project } = found;
+  const document = getDocument(project, doc);
+  if (!document) return notFound();
 
   const fromShelf = desde === "publicaciones";
 

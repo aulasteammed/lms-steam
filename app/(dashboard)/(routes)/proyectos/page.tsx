@@ -1,4 +1,4 @@
-import { MAP_ENTRIES } from "@/lib/timeline-sample";
+import { getMapEntries } from "@/lib/timeline-data";
 import intro from "@/content/proyectos-portada.json";
 import { ProjectsMap } from "./_components/projects-map";
 
@@ -12,11 +12,13 @@ export const metadata = {
  * viven en la card de portada del recorrido (texto editable en
  * content/proyectos-portada.json).
  */
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const entries = await getMapEntries();
+
   return (
     <div className="relative h-full min-h-[480px]">
       <ProjectsMap
-        entries={MAP_ENTRIES}
+        entries={entries}
         intro={{ title: intro.titulo, text: intro.texto }}
         currentYear={new Date().getFullYear()}
       />
