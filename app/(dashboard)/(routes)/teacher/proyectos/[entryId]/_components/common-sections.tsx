@@ -577,7 +577,8 @@ export const LocationSection = ({ draft, onChange }: SectionProps) => {
 
 const INSTITUTION_LABELS: Record<EntryType, { label: string; empty: string }> = {
   project: { label: "Instituciones involucradas", empty: "Sin instituciones" },
-  participation: { label: "Quién organizó", empty: "Sin organizador" },
+  // Con quiénes fue el aula. Quien organizó el evento va en su propia tarjeta.
+  participation: { label: "Instituciones aliadas", empty: "Sin instituciones aliadas" },
   // Una alianza no usa esta tarjeta: su institución es su título.
   alliance: { label: "Institución aliada", empty: "Sin institución" },
 };

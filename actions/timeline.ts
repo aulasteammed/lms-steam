@@ -192,6 +192,7 @@ const patchSchema = z
     reason: text(1000),
     speakerName: text(120),
     speakerRole: text(120),
+    organizer: text(200),
     relatedEntryIds: z.array(objectId).max(50),
   })
   .partial()
@@ -231,6 +232,7 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
       ...(plain.reason !== undefined && { reason: plain.reason || null }),
       ...(plain.speakerName !== undefined && { speakerName: plain.speakerName || null }),
       ...(plain.speakerRole !== undefined && { speakerRole: plain.speakerRole || null }),
+      ...(plain.organizer !== undefined && { organizer: plain.organizer || null }),
     };
 
     if (participationDate !== undefined) data.participationDate = new Date(participationDate);

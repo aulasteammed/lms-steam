@@ -97,6 +97,8 @@ export const getMapEntries = cached(async (): Promise<MapEntry[]> => {
       reason: true,
       speakerName: true,
       speakerRole: true,
+      organizer: true,
+      institutions: { select: { name: true }, orderBy: { name: "asc" } },
       relatedEntryIds: true,
       // Del mapa solo se usa la publicación destacada: su tipo y su portada.
       documents: {
@@ -138,6 +140,11 @@ export const getMapEntries = cached(async (): Promise<MapEntry[]> => {
     speaker: entry.speakerName
       ? { name: entry.speakerName, role: entry.speakerRole ?? undefined }
       : undefined,
+    organizer: entry.organizer ?? undefined,
+    partners:
+      entry.type === "participation" && entry.institutions.length > 0
+        ? entry.institutions.map((institution) => institution.name)
+        : undefined,
     // Solo se nombran los relacionados que también están publicados.
     related: entry.relatedEntryIds.flatMap((id) => {
       const other = byId.get(id);
@@ -202,6 +209,7 @@ export const getProject = cached(
         points: entry.locations.map(
           (location) => [location.longitude, location.latitude] as [number, number]
         ),
+        placeNames: entry.locations.map((location) => location.name),
         images: entry.images.map((image) => ({
           src: image.url,
           alt: image.alt,

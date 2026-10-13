@@ -32,10 +32,6 @@ const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-
 const secondaryButton =
   "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
 
-/** "Docente" → "Docentes", "Coordinador" → "Coordinadores". Un rol de varias palabras se deja igual. */
-const pluralRole = (role: string) =>
-  /\s/.test(role.trim()) ? role : /[aeiouáéíóú]$/i.test(role) ? `${role}s` : `${role}es`;
-
 const DocumentList = ({
   title,
   project,
@@ -100,33 +96,19 @@ export default async function ProjectPage({ params }: Props) {
   // llegan de la caché como copias y el mismo documento no es el mismo objeto.
   const morePublications = project.documents.filter((d) => !d.isReport && d.id !== pub?.id);
   const reports = project.documents.filter((d) => d.isReport);
-  // En la fila de datos van todas las personas que comparten el rol de la primera.
-  const leadRole = project.people[0]?.role;
-  const leads = project.people.filter(
-    (person) => person.role.trim().toLowerCase() === leadRole?.trim().toLowerCase()
-  );
   const participations = project.related.filter((r) => r.type === "participacion");
   const alliances = project.related.filter((r) => r.type === "alianza");
 
   /** Cada dato lleva una lista de valores: van uno por renglón. */
   const facts: { term: string; values: string[] }[] = [
-    { term: "Ubicación", values: [project.place] },
+    // Con varios lugares va uno por renglón; con uno, el resumen.
+    {
+      term: project.placeNames.length > 1 ? "Ubicaciones" : "Ubicación",
+      values: project.placeNames.length > 1 ? project.placeNames : [project.place],
+    },
     { term: "Periodo", values: [project.year] },
     ...(project.institutions.length > 0
-      ? [
-          {
-            term: project.institutions.length > 1 ? "Instituciones" : "Institución",
-            values: project.institutions,
-          },
-        ]
-      : []),
-    ...(leadRole
-      ? [
-          {
-            term: leads.length > 1 ? pluralRole(leadRole) : leadRole,
-            values: leads.map((person) => person.name),
-          },
-        ]
+      ? [{ term: "En colaboración con", values: project.institutions }]
       : []),
   ];
 
@@ -207,22 +189,27 @@ export default async function ProjectPage({ params }: Props) {
         </dl>
 
         {/* Relato con mapa pequeño; sin relato, las fotos ocupan su lugar */}
-        <section className="grid items-start gap-8 md:grid-cols-[1fr_300px] md:gap-12">
-          {project.story ? (
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-                {project.story.title}
-              </h2>
-              <div className="mt-4 space-y-4 text-base leading-relaxed text-slate-700">
+        <section>
+          {/* El subtítulo va arriba, solo: el mapa arranca a la altura del primer párrafo */}
+          {project.story && (
+            <h2 className="mb-4 text-2xl font-bold tracking-tight text-slate-900">
+              {project.story.title}
+            </h2>
+          )}
+          <div className="grid items-start gap-8 md:grid-cols-[1fr_300px] md:gap-12">
+            {project.story ? (
+              // El interlineado deja un aire sobre la primera línea; se compensa
+              // para que el texto y el borde del mapa queden a la misma altura.
+              <div className="space-y-4 text-base leading-relaxed text-slate-700 md:-mt-1.5">
                 {project.story.paragraphs.map((paragraph, i) => (
                   <p key={i}>{paragraph}</p>
                 ))}
               </div>
-            </div>
-          ) : (
-            photos
-          )}
-          <MiniMap points={project.points} place={project.place} />
+            ) : (
+              photos
+            )}
+            <MiniMap points={project.points} place={project.place} />
+          </div>
         </section>
 
         {project.story && photos}
@@ -251,8 +238,8 @@ export default async function ProjectPage({ params }: Props) {
           </figure>
         )}
 
-        {/* Equipo (solo si hay más personas que las de la fila de datos) */}
-        {project.people.length > leads.length && (
+        {/* Equipo: todas las personas del proyecto, con su rol */}
+        {project.people.length > 0 && (
           <section>
             <h2 className={label}>Equipo</h2>
             <ul className="mt-3 grid gap-x-8 gap-y-3 sm:grid-cols-2">

@@ -62,6 +62,8 @@ export type EntryDraft = {
   reason: string;
   speakerName: string;
   speakerRole: string;
+  /** Quién organizó el evento; no es una de las instituciones aliadas. */
+  organizer: string;
 
   // ── Participaciones y alianzas ──
   relatedEntryIds: string[];

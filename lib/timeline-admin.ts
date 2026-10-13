@@ -116,6 +116,7 @@ export const getAdminEntry = async (id: string): Promise<EntryDraft | null> => {
     reason: entry.reason ?? "",
     speakerName: entry.speakerName ?? "",
     speakerRole: entry.speakerRole ?? "",
+    organizer: entry.organizer ?? "",
     relatedEntryIds: entry.relatedEntryIds,
   };
 };

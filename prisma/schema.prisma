@@ -462,7 +462,8 @@ model TimelineEntry {
   images TimelineImage[]
 
   /// Proyecto: instituciones involucradas. Alianza: la institución aliada.
-  /// Participación: quien organizó, si se conoce.
+  /// Participación: las instituciones aliadas con las que fue el aula (quien
+  /// organizó el evento va aparte, en `organizer`).
   institutionIds String[]              @db.ObjectId
   institutions   TimelineInstitution[] @relation(fields: [institutionIds], references: [id])
 
@@ -482,6 +483,9 @@ model TimelineEntry {
   reason            String?
   speakerName       String?
   speakerRole       String?
+  /// Quién organizó el evento. Es texto libre y no una institución del
+  /// registro: muchas veces no es aliada del aula.
+  organizer         String?
 
   // ── Participaciones y alianzas ──
   /// Proyectos o participaciones con los que se relaciona este registro.

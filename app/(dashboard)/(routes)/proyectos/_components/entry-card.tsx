@@ -152,8 +152,26 @@ export const EntryCard = ({ entry, active, onClose }: EntryCardProps) => {
           </p>
         )}
 
-        {(entry.reason || entry.speaker) && (
+        {(entry.reason || entry.speaker || entry.organizer || entry.partners) && (
           <dl className="mt-1 space-y-3 border-t border-slate-100 pt-3">
+            {entry.organizer && (
+              <div>
+                <dt className={label}>Organiza</dt>
+                <dd className="mt-1 text-sm text-slate-700">{entry.organizer}</dd>
+              </div>
+            )}
+            {entry.partners && (
+              <div>
+                <dt className={label}>Fuimos con</dt>
+                <dd className="mt-1 text-sm text-slate-700">
+                  <ul className="space-y-1">
+                    {entry.partners.map((partner) => (
+                      <li key={partner}>{partner}</li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            )}
             {entry.reason && (
               <div>
                 <dt className={label}>Por qué participamos</dt>

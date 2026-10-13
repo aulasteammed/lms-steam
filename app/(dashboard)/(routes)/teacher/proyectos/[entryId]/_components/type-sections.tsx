@@ -321,6 +321,33 @@ export const DateModalitySection = ({ draft, onChange }: SectionProps) => (
   />
 );
 
+/** Quien organiza el evento casi nunca es una institución aliada: por eso es texto libre. */
+export const OrganizerSection = ({ draft, onChange }: SectionProps) => (
+  <EditCard
+    label="Quién organizó"
+    editLabel={draft.organizer ? "Editar" : "Añadir"}
+    value={draft.organizer}
+    isEmpty={!draft.organizer}
+    emptyText="Sin organizador"
+    optional
+    view={(organizer) => organizer}
+    edit={(organizer, setOrganizer) => (
+      <>
+        <Input
+          placeholder="p.ej. 'Ministerio de Ciencia, Tecnología e Innovación'"
+          value={organizer}
+          onChange={(event) => setOrganizer(event.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">
+          La entidad que hizo el evento. Las instituciones con las que fue el aula van
+          en &quot;Instituciones aliadas&quot;.
+        </p>
+      </>
+    )}
+    onSave={(organizer) => onChange({ organizer: organizer.trim() })}
+  />
+);
+
 export const ReasonSection = ({ draft, onChange }: SectionProps) => (
   <EditCard
     label="Por qué se participó"

@@ -48,6 +48,8 @@ export type Project = {
   description: string;
   /** Los lugares del proyecto, cada uno como [longitud, latitud]. */
   points: [number, number][];
+  /** Nombres de esos lugares, en el mismo orden. */
+  placeNames: string[];
   images: ProjectImage[];
   href: string;
   externalLink?: { href: string; label: string };

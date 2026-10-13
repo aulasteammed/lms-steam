@@ -230,6 +230,7 @@ Reglas:
 - Para publicar se exige título, descripción corta, periodo (o fecha y modalidad), ubicación con punto y una imagen. Lo demás es opcional.
 - El punto del mapa se saca de un enlace largo de Google Maps o de las coordenadas pegadas. Una participación virtual no pide punto.
 - **Una alianza es una institución** (decisión de Julieth, 2026-10-13): su título es el nombre de la institución aliada, la misma que se elige en los proyectos. No hay una tarjeta aparte de institución. Al crearla se elige una ya registrada o se escribe una nueva; corregir el nombre lo cambia también en los proyectos, y solo puede haber una alianza por institución.
+- **En una participación, quien organiza y con quién se fue son dos cosas** (decisión de Julieth, 2026-10-13): "Quién organizó" es texto libre (`organizer`) y no entra al registro de instituciones; "Instituciones aliadas" son las del registro con las que fue el aula.
 - **Documentos de un proyecto, en dos tarjetas** (decisión de Julieth): "Publicaciones y entregables" (periódico, revista, cartilla, libro, entregable, otro) e "Informes". Un entregable vale lo mismo que un periódico: se muestra con portada y puede ir en el encabezado. Solo los informes van aparte. El sitio público sigue la misma regla (`isReportKind` en `lib/projects.ts`).
 
 Cómo funciona:

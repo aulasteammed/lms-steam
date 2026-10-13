@@ -42,6 +42,7 @@ import {
 import {
   AcknowledgementsSection,
   DateModalitySection,
+  OrganizerSection,
   PeopleSection,
   QuoteSection,
   ReasonSection,
@@ -213,6 +214,7 @@ export const EntryEditor = ({
                   <IconBadge icon={MessageSquareText} />
                   <h2 className="text-xl">Detalles de la participación</h2>
                 </div>
+                <OrganizerSection {...section} />
                 <ReasonSection {...section} />
                 <SpeakerSection {...section} />
               </div>
@@ -224,7 +226,11 @@ export const EntryEditor = ({
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={MapPin} />
                 <h2 className="text-xl">
-                  {draft.type === "alliance" ? "Lugar" : "Lugar e instituciones"}
+                  {draft.type === "alliance"
+                    ? "Lugar"
+                    : draft.type === "participation"
+                      ? "Lugar e instituciones aliadas"
+                      : "Lugar e instituciones"}
                 </h2>
               </div>
               <LocationSection {...section} />

@@ -48,6 +48,10 @@ export type MapEntry = {
   /** Por qué se participó. */
   reason?: string;
   speaker?: { name: string; role?: string };
+  /** Quién organizó el evento. */
+  organizer?: string;
+  /** Instituciones aliadas con las que fue el aula. */
+  partners?: string[];
 
   // ── Participaciones y alianzas ──
   /** Proyectos o participaciones con los que se relaciona el registro. */
