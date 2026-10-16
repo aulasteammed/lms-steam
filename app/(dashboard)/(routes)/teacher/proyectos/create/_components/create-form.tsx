@@ -51,7 +51,7 @@ const TYPE_COPY: Record<
     },
     alliance: {
         hint: "Un vínculo con una institución u organización.",
-        label: "Institución aliada",
+        label: "Institución u organización aliada",
         placeholder: "Ejemplo: 'Parque Explora'",
         description:
             "Elige una institución ya registrada o escribe el nombre completo de una nueva.",

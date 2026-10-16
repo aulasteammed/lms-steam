@@ -303,7 +303,7 @@ export const ImagesSection = ({ draft, onChange }: SectionProps) => {
             <div className="text-xs text-muted-foreground">
               La descripción la leen los lectores
               de pantalla y los buscadores.
-              Aclaración: Si no puede previsualizar la imagen, intente cargando otra vez o cambiando el formato de esta.
+              Aclaración: Si no puede previsualizar la imagen, intente cargando otra vez o cambiando el formato (png o jpg).
             </div>
           </div>
         );
