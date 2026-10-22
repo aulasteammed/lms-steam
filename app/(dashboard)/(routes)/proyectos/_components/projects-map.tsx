@@ -410,21 +410,28 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
     fitAll(true);
   }, [fitAll, scrollToCard]);
 
-  const selectType = (next: EntryType) => {
-    // Si el año elegido no tiene registros del nuevo tipo, se vuelve a la vista completa.
-    const hasYear = entries.some(
-      (e) => e.type === next && timelineYear(e, currentYear) === year
-    );
-    if (!hasYear) setYear(null);
-    setType(next);
-    setStoryVisible(true);
-  };
+  // Las funciones que reciben las cards, el selector y la línea de tiempo van
+  // con useCallback: si cambiaran en cada render, su `memo` no serviría.
+  const selectType = useCallback(
+    (next: EntryType) => {
+      // Si el año elegido no tiene registros del nuevo tipo, se vuelve a la vista completa.
+      const hasYear = entries.some(
+        (e) => e.type === next && timelineYear(e, currentYear) === year
+      );
+      if (!hasYear) setYear(null);
+      setType(next);
+      setStoryVisible(true);
+    },
+    [entries, currentYear, year]
+  );
 
   /** Elegir el año que ya estaba elegido lo suelta. */
-  const selectYear = (next: number) => {
+  const selectYear = useCallback((next: number) => {
     setYear((current) => (current === next ? null : next));
     setStoryVisible(true);
-  };
+  }, []);
+
+  const hideStory = useCallback(() => setStoryVisible(false), []);
 
   /**
    * Pone en el mapa un marcador por cada punto o grupo que la fuente tiene en
@@ -460,13 +467,14 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
       if (seen.has(key)) continue;
       seen.add(key);
 
-      const entry = props.cluster ? undefined : list.find((e) => e.id === props.id);
-      const place = entry?.places[props.place ?? 0];
-      const coordinates =
-        place?.coordinates ?? (feature.geometry.coordinates as [number, number]);
+      const coordinates = feature.geometry.coordinates as [number, number];
 
       let item = markers.get(key);
       if (!item) {
+        // La búsqueda del registro solo se hace al crear el marcador: esta
+        // función corre en cada cuadro mientras el mapa se mueve.
+        const entry = props.cluster ? undefined : list.find((e) => e.id === props.id);
+        const place = entry?.places[props.place ?? 0];
         const el = document.createElement("button");
         el.type = "button";
         const typeClass = `project-marker is-${typeRef.current}`;
@@ -535,8 +543,9 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
           continue;
         }
 
+        // La posición del registro es exacta; la de la tesela viene redondeada.
         const marker = new maplibregl.Marker({ element: el, anchor: "center" })
-          .setLngLat(coordinates)
+          .setLngLat(place?.coordinates ?? coordinates)
           .addTo(map);
         item = { marker, el };
         markers.set(key, item);
@@ -719,11 +728,11 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
   // Esc oculta las cards.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setStoryVisible(false);
+      if (e.key === "Escape") hideStory();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [hideStory]);
 
   const plural = TYPE_LABELS[type].plural.toLowerCase();
   const typeIntro = type === "project" ? intro : TYPE_INTRO[type];
@@ -841,11 +850,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
               data-index={i}
               className="relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-10 md:py-10"
             >
-              <EntryCard
-                entry={entry}
-                active={i === active}
-                onClose={() => setStoryVisible(false)}
-              />
+              <EntryCard entry={entry} active={i === active} onClose={hideStory} />
             </section>
           ))}
         </div>

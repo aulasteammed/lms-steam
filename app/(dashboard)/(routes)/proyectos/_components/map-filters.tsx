@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { ENTRY_TYPES, TYPE_LABELS, type EntryType } from "@/lib/timeline";
 import { TYPE_STYLES } from "./entry-type";
 
@@ -10,37 +10,46 @@ type TypeSelectorProps = {
   onSelect: (type: EntryType) => void;
 };
 
-/** Selector de tipo: el mapa muestra un solo tipo de registro a la vez. */
-export const TypeSelector = ({ selected, counts, onSelect }: TypeSelectorProps) => (
-  <div
-    role="group"
-    aria-label="Tipo de registro"
-    className="flex max-w-full gap-1 rounded-full border border-slate-200 bg-white/95 p-1 shadow-md backdrop-blur"
-  >
-    {ENTRY_TYPES.map((type) => {
-      const style = TYPE_STYLES[type];
-      const Icon = style.icon;
-      const isSelected = type === selected;
-      return (
-        <button
-          key={type}
-          type="button"
-          aria-pressed={isSelected}
-          onClick={() => onSelect(type)}
-          className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 sm:text-sm ${
-            isSelected ? style.soft : "text-slate-600 hover:bg-slate-100"
-          }`}
-        >
-          <Icon className="hidden h-4 w-4 sm:block" />
-          {TYPE_LABELS[type].plural}
-          <span className={`tabular-nums ${isSelected ? "opacity-70" : "text-slate-400"}`}>
-            {counts[type]}
-          </span>
-        </button>
-      );
-    })}
-  </div>
-);
+/**
+ * Selector de tipo: el mapa muestra un solo tipo de registro a la vez.
+ * Con `memo` no se vuelve a dibujar al recorrer las cards.
+ */
+export const TypeSelector = memo(function TypeSelector({
+  selected,
+  counts,
+  onSelect,
+}: TypeSelectorProps) {
+  return (
+    <div
+      role="group"
+      aria-label="Tipo de registro"
+      className="flex max-w-full gap-1 rounded-full border border-slate-200 bg-white/95 p-1 shadow-md backdrop-blur"
+    >
+      {ENTRY_TYPES.map((type) => {
+        const style = TYPE_STYLES[type];
+        const Icon = style.icon;
+        const isSelected = type === selected;
+        return (
+          <button
+            key={type}
+            type="button"
+            aria-pressed={isSelected}
+            onClick={() => onSelect(type)}
+            className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 sm:text-sm ${
+              isSelected ? style.soft : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <Icon className="hidden h-4 w-4 sm:block" />
+            {TYPE_LABELS[type].plural}
+            <span className={`tabular-nums ${isSelected ? "opacity-70" : "text-slate-400"}`}>
+              {counts[type]}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+});
 
 type TimelineBarProps = {
   /** Todos los años de la línea de tiempo, de menor a mayor. */
@@ -60,14 +69,15 @@ type TimelineBarProps = {
  * una franja en la que el mapa se desvanece hacia blanco, para que se lean sin
  * tapar el mapa. Los años sin registros del tipo seleccionado se ven apagados
  * y no se pueden elegir, así la línea no cambia de largo al cambiar de tipo.
+ * Con `memo` no se vuelve a dibujar al recorrer las cards.
  */
-export const TimelineBar = ({
+export const TimelineBar = memo(function TimelineBar({
   years,
   counts,
   selected,
   onSelect,
   className = "",
-}: TimelineBarProps) => {
+}: TimelineBarProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
 
@@ -125,4 +135,4 @@ export const TimelineBar = ({
       </div>
     </nav>
   );
-};
+});

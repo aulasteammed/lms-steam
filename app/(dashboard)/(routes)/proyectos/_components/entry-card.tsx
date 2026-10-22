@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -35,8 +35,11 @@ const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-
  * - Alianza: periodo y lo que se hizo en conjunto.
  * Las participaciones y las alianzas no tienen página propia, así que la card
  * muestra todo lo que hay de ellas.
+ *
+ * Va con `memo`: al recorrer la columna solo cambia `active` en dos cards
+ * (la que sale y la que entra); las demás no se vuelven a dibujar.
  */
-export const EntryCard = ({ entry, active, onClose }: EntryCardProps) => {
+export const EntryCard = memo(function EntryCard({ entry, active, onClose }: EntryCardProps) {
   const [slide, setSlide] = useState(0);
   const images = entry.images;
   const hasManyImages = images.length > 1;
@@ -238,4 +241,4 @@ export const EntryCard = ({ entry, active, onClose }: EntryCardProps) => {
       </div>
     </article>
   );
-};
+});

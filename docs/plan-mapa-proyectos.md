@@ -1,7 +1,7 @@
 # Plan: mapa y línea de tiempo de proyectos, participaciones y alianzas
 
 Documento de trabajo. Reúne lo que se sabe, lo que se decidió y lo que falta por hacer.
-Última actualización: 2026-10-13. Rama de trabajo: `Proyectos`.
+Última actualización: 2026-10-21. Rama de trabajo: `Proyectos`.
 
 ## 1. Objetivo
 
@@ -197,6 +197,13 @@ En orden de impacto:
 4. **Cambio de tipo sin recargar:** se cargan los tres tipos y el selector filtra en memoria.
 5. **Tarjetas solo de lo visible:** las del año y tipo seleccionados.
 6. **`useMemo` y `React.memo`:** para la fluidez de la interacción; no aceleran la carga.
+   Aplicado el 2026-10-21:
+   - Las tarjetas (`EntryCard`), el selector de tipo y la línea de tiempo van con `memo`.
+     Al recorrer la columna solo se vuelven a dibujar las dos tarjetas que cambian de activa.
+   - Las funciones que reciben (`selectType`, `selectYear`, `hideStory`) van con `useCallback`.
+   - Los conteos, años y puntos del mapa ya se calculaban con `useMemo`.
+   - Mientras el mapa se mueve, la búsqueda del registro de cada punto solo se hace al crear su marcador, no en cada cuadro.
+   - La tarjeta de portada (`IntroCard`) no lleva `memo`: es una sola y liviana.
 
 Los puntos del mapa pasan de marcadores HTML a una capa GeoJSON con agrupación. Se pierde
 el número de orden de cada marcador.
