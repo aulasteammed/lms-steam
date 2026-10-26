@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPinOff,
-  X,
 } from "lucide-react";
 import {
   MODALITY_LABELS,
@@ -17,11 +16,11 @@ import {
   type MapEntry,
 } from "@/lib/timeline";
 import { TYPE_STYLES } from "./entry-type";
+import { PhotoViewer } from "./photo-viewer";
 
 type EntryCardProps = {
   entry: MapEntry;
   active: boolean;
-  onClose: () => void;
 };
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
@@ -39,8 +38,10 @@ const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editor
  * Va con `memo`: al recorrer la columna solo cambia `active` en dos cards
  * (la que sale y la que entra); las demás no se vuelven a dibujar.
  */
-export const EntryCard = memo(function EntryCard({ entry, active, onClose }: EntryCardProps) {
+export const EntryCard = memo(function EntryCard({ entry, active }: EntryCardProps) {
   const [slide, setSlide] = useState(0);
+  /** Foto abierta en grande; `null` = ninguna. */
+  const [viewing, setViewing] = useState<number | null>(null);
   const images = entry.images;
   const hasManyImages = images.length > 1;
   const style = TYPE_STYLES[entry.type];
@@ -81,21 +82,23 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
           />
         ))}
 
+        {/* En la card la foto va recortada: tocarla la abre completa. Los demás
+            botones de la foto quedan por encima de este. */}
+        {images.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setViewing(slide)}
+            aria-label="Ver la foto en grande"
+            className="absolute inset-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-editorial-accent"
+          />
+        )}
+
         {entry.publication && (
           <span className="absolute left-2.5 top-2.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-editorial-identity px-2.5 py-1 text-xs font-medium text-white shadow-sm">
             <BookOpen className="h-3.5 w-3.5" />
             Con {entry.publication.kind.toLowerCase()}
           </span>
         )}
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-white/90 text-editorial-body shadow-sm flex items-center justify-center hover:bg-white transition"
-          aria-label="Ocultar tarjetas"
-        >
-          <X className="h-4 w-4" />
-        </button>
 
         {hasManyImages && (
           <>
@@ -131,6 +134,17 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
           </>
         )}
       </div>
+
+      <PhotoViewer
+        images={images}
+        index={viewing}
+        onIndexChange={(index) => {
+          setViewing(index);
+          // Al cerrar, la card queda en la última foto que se vio en grande.
+          if (index !== null) setSlide(index);
+        }}
+        title={entry.title}
+      />
 
       {/* Contenido */}
       <div className="flex flex-col gap-2.5 px-2 pt-4 pb-2 md:px-3">

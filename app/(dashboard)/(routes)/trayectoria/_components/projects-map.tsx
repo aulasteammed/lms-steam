@@ -850,7 +850,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
               data-index={i}
               className="relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-10 md:py-10"
             >
-              <EntryCard entry={entry} active={i === active} onClose={hideStory} />
+              <EntryCard entry={entry} active={i === active} />
             </section>
           ))}
         </div>
