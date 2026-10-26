@@ -822,7 +822,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
             ) : year === null ? (
               <IntroCard
                 type={type}
-                eyebrow={`${countLabel(ofType.length)} · ${years[0] ?? ""} – ${years[years.length - 1] ?? ""}`}
+                eyebrow={`${countLabel(ofType.length)} · ${years[0] ?? ""}\u00a0–\u00a0${years[years.length - 1] ?? ""}`}
                 title={typeIntro.title}
                 text={typeIntro.text}
                 items={yearItems}

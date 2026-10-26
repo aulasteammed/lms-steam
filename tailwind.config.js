@@ -22,7 +22,7 @@ module.exports = withUt({
 			colors: {
 				// Paleta editorial del blog, que también usa Trayectoria. `identity` es el
 				// azul del identificador del Aula; `cta` es el naranja del blog oscurecido
-				// para que el texto blanco cumpla WCAG AA (5.3:1).
+				// lo mínimo para que el texto blanco cumpla WCAG AA (4.55:1).
 				editorial: {
 					ink: '#12110f',
 					body: '#3a3a3a',
@@ -34,8 +34,8 @@ module.exports = withUt({
 					paper: '#fafaf8',
 					accent: '#e8622a',
 					'accent-soft': '#fbeee6',
-					cta: '#b8481a',
-					'cta-hover': '#9c3d16',
+					cta: '#c94f1c',
+					'cta-hover': '#b8481a',
 					identity: '#1b1472',
 					'identity-hover': '#120d55',
 					'identity-soft': '#ecebf6',

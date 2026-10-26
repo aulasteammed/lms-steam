@@ -33,9 +33,9 @@ const cached = <Args extends unknown[], Result>(
 
 const projectHref = (slug: string) => `/trayectoria/${slug}`;
 
-/** "2024", "2024 – 2026" o "2024 – actual". */
+/** "2024", "2024 – 2026" o "2024 – actual", sin cortarse en dos líneas (` `). */
 const period = (startYear: number, endYear: number | null) =>
-  endYear === startYear ? String(startYear) : `${startYear} – ${endYear ?? "actual"}`;
+  endYear === startYear ? String(startYear) : `${startYear}\u00a0–\u00a0${endYear ?? "actual"}`;
 
 const dateText = (date: Date | null) => date?.toISOString().slice(0, 10);
 

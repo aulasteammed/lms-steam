@@ -4,8 +4,8 @@
  * participaciones en el azul del menú del sitio y alianzas en el azul del identificador.
  */
 .project-marker {
-  --marker: #b8481a; /* editorial-cta */
-  --marker-strong: #9c3d16; /* editorial-cta-hover */
+  --marker: #c94f1c; /* editorial-cta */
+  --marker-strong: #b8481a; /* editorial-cta-hover */
   --marker-ring: rgba(232, 98, 42, 0.3);
   position: relative;
   display: block;

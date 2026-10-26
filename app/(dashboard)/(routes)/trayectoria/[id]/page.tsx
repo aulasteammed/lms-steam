@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { CalendarDays, ExternalLink, Handshake, Quote } from "lucide-react";
+import { ExternalLink, Quote } from "lucide-react";
 
 import { readerHref, type Project, type ProjectDocument } from "@/lib/projects";
 import { getProject } from "@/lib/timeline-data";
 import { PageBar } from "../_components/back-link";
 import { DocumentActions } from "../_components/document-actions";
+import { TYPE_STYLES } from "../_components/entry-type";
 import { PublicationCover } from "../_components/publication-cover";
 import { ShareButton } from "../_components/share-button";
 import { MiniMap } from "./_components/mini-map";
 import { PhotoGallery } from "./_components/photo-gallery";
 
 type Props = { params: Promise<{ id: string }> };
+
+// Los mismos íconos del tipo que en el mapa y el panel (`entry-type.ts`).
+const ParticipationIcon = TYPE_STYLES.participation.icon;
+const AllianceIcon = TYPE_STYLES.alliance.icon;
 
 /**
  * Ninguna página se arma al compilar: cada una se genera la primera vez que
@@ -291,7 +296,7 @@ export default async function ProjectPage({ params }: Props) {
                       key={i}
                       className="flex items-start gap-3 rounded-xl border border-editorial-line p-4"
                     >
-                      <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-sky-700" />
+                      <ParticipationIcon className={`mt-0.5 h-5 w-5 shrink-0 ${TYPE_STYLES.participation.text}`} />
                       <div>
                         <p className="text-sm font-medium text-editorial-ink">{item.title}</p>
                         {item.detail && (
@@ -312,7 +317,7 @@ export default async function ProjectPage({ params }: Props) {
                       key={i}
                       className="flex items-start gap-3 rounded-xl border border-editorial-line p-4"
                     >
-                      <Handshake className="mt-0.5 h-5 w-5 shrink-0 text-editorial-identity" />
+                      <AllianceIcon className={`mt-0.5 h-5 w-5 shrink-0 ${TYPE_STYLES.alliance.text}`} />
                       <div>
                         <p className="text-sm font-medium text-editorial-ink">{item.title}</p>
                         {item.detail && (

@@ -117,7 +117,7 @@ export const draftPeriodLabel = (
   }
   if (!draft.startYear) return "Sin periodo";
   if (draft.endYear === draft.startYear) return String(draft.startYear);
-  return `${draft.startYear} – ${draft.endYear ?? "actual"}`;
+  return `${draft.startYear}\u00a0–\u00a0${draft.endYear ?? "actual"}`;
 };
 
 /** Lo mínimo para publicar. El resto de los campos es opcional. */

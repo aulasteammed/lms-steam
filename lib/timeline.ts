@@ -80,12 +80,15 @@ export const MODALITY_LABELS: Record<Modality, string> = {
 export const timelineYear = (entry: MapEntry, currentYear: number) =>
   entry.endYear ?? currentYear;
 
-/** "2024", "2024 – 2026" o "2024 – actual". */
+/**
+ * "2024", "2024 – 2026" o "2024 – actual". Los espacios del guion no se parten
+ * (` `), para que el rango nunca quede cortado en dos líneas.
+ */
 export const periodLabel = (entry: MapEntry) => {
   if (entry.type === "participation" || entry.endYear === entry.startYear) {
     return String(entry.startYear);
   }
-  return `${entry.startYear} – ${entry.endYear ?? "actual"}`;
+  return `${entry.startYear}\u00a0–\u00a0${entry.endYear ?? "actual"}`;
 };
 
 const MONTHS = [

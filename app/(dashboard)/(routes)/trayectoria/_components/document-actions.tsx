@@ -14,8 +14,8 @@ const button =
 
 /**
  * Las dos acciones de un documento, siempre juntas y en el mismo orden:
- * leerlo en el visor y descargar su PDF. Se usa igual en la página del
- * proyecto y en la estantería.
+ * leerlo en el visor y descargar su PDF. Se usa en la página del proyecto; la
+ * estantería solo lleva "Leer" (la descarga está dentro del lector).
  */
 export const DocumentActions = ({
   document,

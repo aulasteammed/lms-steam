@@ -79,7 +79,7 @@ export const MiniMap = ({ points, place, showLink = true }: MiniMapProps) => {
         {tiles.map((tile, index) => (
           <span
             key={index}
-            className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-editorial-cta shadow-[0_0_0_6px_rgba(184,72,26,0.28)]"
+            className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-editorial-cta shadow-[0_0_0_6px_rgba(201,79,28,0.28)]"
             style={{ left: `${((tile.x - x0) / 2) * 100}%`, top: `${((tile.y - y0) / 2) * 100}%` }}
           />
         ))}

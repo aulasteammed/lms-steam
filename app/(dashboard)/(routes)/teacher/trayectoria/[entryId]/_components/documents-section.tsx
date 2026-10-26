@@ -21,6 +21,17 @@ import {
 
 const MAX_PDF_BYTES = 32 * 1024 * 1024;
 
+/**
+ * Título sugerido a partir del nombre del archivo, que se ve en la página
+ * pública: "Taller_Aprendizaje_Supervisado.pdf" → "Taller Aprendizaje
+ * Supervisado". Los guiones solo se cambian si el nombre no tiene espacios
+ * ("informe-final-2025"); las mayúsculas se dejan, por las siglas.
+ */
+const titleFromFileName = (name: string) => {
+  const base = name.replace(/\.pdf$/i, "").replace(/_+/g, " ");
+  return (base.includes(" ") ? base : base.replace(/-+/g, " ")).replace(/\s+/g, " ").trim();
+};
+
 const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
@@ -85,7 +96,7 @@ export const DocumentsSection = ({
     if (picked.type !== "application/pdf") return toast.error("El documento debe ser un PDF");
     if (picked.size > MAX_PDF_BYTES) return toast.error("El PDF pesa más de 32 MB");
     setFile(picked);
-    setTitle((current) => current || picked.name.replace(/\.pdf$/i, ""));
+    setTitle((current) => current || titleFromFileName(picked.name));
   };
 
   const onUpload = async () => {
