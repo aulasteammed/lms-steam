@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
 import { TYPE_LABELS, type EntryType } from '@/lib/timeline';
-import { TYPE_STYLES } from '@/app/(dashboard)/(routes)/proyectos/_components/entry-type';
+import { TYPE_STYLES } from '@/app/(dashboard)/(routes)/trayectoria/_components/entry-type';
 
 export type EntryRow = {
     id: string;
@@ -120,7 +120,7 @@ export const columns: ColumnDef<EntryRow>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <Link href={`/teacher/proyectos/${id}`}>
+                        <Link href={`/teacher/trayectoria/${id}`}>
                             <DropdownMenuItem>
                                 <Pencil className="h-4 w-4 mr-2" />
                                 Editar

@@ -47,8 +47,8 @@ const guestRoutes = [
   },
   {
     icon: MapPinned,
-    label: "Proyectos",
-    href: "/proyectos",
+    label: "Trayectoria",
+    href: "/trayectoria",
   },
   {
     icon: BookOpen,
@@ -80,8 +80,8 @@ const authenticatedRoutes = [
   },
   {
     icon: MapPinned,
-    label: "Proyectos",
-    href: "/proyectos",
+    label: "Trayectoria",
+    href: "/trayectoria",
   },
   {
     icon: BookOpen,
@@ -113,8 +113,8 @@ const teacherRoutes = [
   },
   {
     icon: MapPinned,
-    label: "Proyectos",
-    href: "/teacher/proyectos",
+    label: "Trayectoria",
+    href: "/teacher/trayectoria",
   },
   {
     icon: Award,

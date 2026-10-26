@@ -23,7 +23,7 @@ export const TypeSelector = memo(function TypeSelector({
     <div
       role="group"
       aria-label="Tipo de registro"
-      className="flex max-w-full gap-1 rounded-full border border-slate-200 bg-white/95 p-1 shadow-md backdrop-blur"
+      className="flex max-w-full gap-1 rounded-full border border-editorial-line bg-white/95 p-1 shadow-md backdrop-blur"
     >
       {ENTRY_TYPES.map((type) => {
         const style = TYPE_STYLES[type];
@@ -35,13 +35,13 @@ export const TypeSelector = memo(function TypeSelector({
             type="button"
             aria-pressed={isSelected}
             onClick={() => onSelect(type)}
-            className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1 sm:text-sm ${
-              isSelected ? style.soft : "text-slate-600 hover:bg-slate-100"
+            className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-1 sm:text-sm ${
+              isSelected ? style.soft : "text-editorial-soft hover:bg-editorial-chip"
             }`}
           >
             <Icon className="hidden h-4 w-4 sm:block" />
             {TYPE_LABELS[type].plural}
-            <span className={`tabular-nums ${isSelected ? "opacity-70" : "text-slate-400"}`}>
+            <span className={`tabular-nums ${isSelected ? "opacity-70" : "text-editorial-muted"}`}>
               {counts[type]}
             </span>
           </button>
@@ -114,10 +114,10 @@ export const TimelineBar = memo(function TimelineBar({
               aria-pressed={isSelected}
               disabled={!counts[year]}
               onClick={() => onSelect(year)}
-              className={`group flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-1 text-sm tabular-nums transition [text-shadow:0_0_6px_rgb(255_255_255)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 disabled:text-slate-400 ${
+              className={`group flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-1 text-sm tabular-nums transition [text-shadow:0_0_6px_rgb(255_255_255)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent disabled:text-editorial-muted ${
                 isSelected
-                  ? "font-bold text-slate-900"
-                  : "font-medium text-slate-600 enabled:hover:text-slate-900"
+                  ? "font-bold text-editorial-ink"
+                  : "font-medium text-editorial-soft enabled:hover:text-editorial-ink"
               }`}
             >
               {year}
@@ -125,8 +125,8 @@ export const TimelineBar = memo(function TimelineBar({
                 aria-hidden
                 className={`h-1 rounded-full transition-all ${
                   isSelected
-                    ? "w-5 bg-slate-900"
-                    : "w-1 bg-transparent group-enabled:group-hover:bg-slate-400"
+                    ? "w-5 bg-editorial-identity"
+                    : "w-1 bg-transparent group-enabled:group-hover:bg-editorial-muted"
                 }`}
               />
             </button>

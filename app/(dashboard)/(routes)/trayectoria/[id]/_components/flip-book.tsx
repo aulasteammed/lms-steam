@@ -417,28 +417,28 @@ export const FlipBook = ({
   }, [expanded, zoom, exitExpanded, endZoom]);
 
   const iconButton =
-    "flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white";
+    "flex h-10 w-10 items-center justify-center rounded-xl border border-editorial-line bg-white text-editorial-body shadow-sm transition hover:bg-editorial-paper disabled:opacity-40 disabled:hover:bg-white";
 
   return (
     <div
       ref={readerRef}
       className={
         expanded
-          ? "fixed inset-0 z-[100] flex flex-col bg-stone-100"
-          : "flex flex-col gap-4 rounded-2xl border border-slate-200 bg-stone-100 p-3 md:p-6"
+          ? "fixed inset-0 z-[100] flex flex-col bg-editorial-chip"
+          : "flex flex-col gap-4 rounded-2xl border border-editorial-line bg-editorial-chip p-3 md:p-6"
       }
     >
       {immersive && exitHref && (
-        <div className="flex min-h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 py-2">
+        <div className="flex min-h-14 items-center gap-3 border-b border-editorial-line bg-white px-4 py-2">
           <BackLink href={exitHref}>{exitLabel}</BackLink>
-          <span className="h-4 w-px shrink-0 bg-slate-300" />
-          <h1 className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
+          <span className="h-4 w-px shrink-0 bg-editorial-rule" />
+          <h1 className="min-w-0 flex-1 truncate text-sm font-semibold text-editorial-ink">
             {publication.title}
           </h1>
           <a
             href={publication.pdf}
             download
-            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Descargar</span>
@@ -479,7 +479,7 @@ export const FlipBook = ({
           >
             {!ready && (
               <div
-                className="mx-auto flex w-full items-center justify-center rounded-lg bg-white/60 text-sm text-slate-500"
+                className="mx-auto flex w-full items-center justify-center rounded-lg bg-white/60 text-sm text-editorial-soft"
                 style={{ aspectRatio: spreadRatio }}
               >
                 Cargando documento…
@@ -566,7 +566,7 @@ export const FlipBook = ({
           <ChevronLeft className="h-5 w-5" />
         </button>
         <span
-          className="min-w-[11rem] text-center text-sm font-medium tabular-nums text-slate-700"
+          className="min-w-[11rem] text-center text-sm font-medium tabular-nums text-editorial-body"
           aria-live="polite"
         >
           {label}
@@ -581,7 +581,7 @@ export const FlipBook = ({
           <ChevronRight className="h-5 w-5" />
         </button>
 
-        <span className="mx-1 hidden h-6 w-px bg-slate-300 sm:block" />
+        <span className="mx-1 hidden h-6 w-px bg-editorial-rule sm:block" />
 
         {expanded && (
           <div className="flex items-center gap-1">
@@ -595,7 +595,7 @@ export const FlipBook = ({
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="w-12 text-center text-sm tabular-nums text-slate-600">
+            <span className="w-12 text-center text-sm tabular-nums text-editorial-soft">
               {Math.round((zoom ? scale : 1) * 100)}%
             </span>
             <button
@@ -615,7 +615,7 @@ export const FlipBook = ({
           <button
             type="button"
             onClick={toggleNativeFs}
-            className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-orange-50 hover:text-orange-700"
+            className="flex h-10 items-center gap-2 rounded-xl border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body shadow-sm transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
             title={nativeFs ? "Salir de pantalla completa (Esc)" : "Pantalla completa"}
           >
             {nativeFs ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -627,7 +627,7 @@ export const FlipBook = ({
           <button
             type="button"
             onClick={() => (expanded ? exitExpanded() : enterExpanded())}
-            className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-orange-50 hover:text-orange-700"
+            className="flex h-10 items-center gap-2 rounded-xl border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body shadow-sm transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
             title={expanded ? "Salir (Esc)" : "Pantalla completa (con zoom)"}
           >
             {expanded ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}

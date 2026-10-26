@@ -3,6 +3,11 @@
 Documento de trabajo. Reúne lo que se sabe, lo que se decidió y lo que falta por hacer.
 Última actualización: 2026-10-21. Rama de trabajo: `Proyectos`.
 
+> **2026-10-25: la sección se llama ahora "Trayectoria".** Las direcciones pasaron de
+> `/proyectos` a `/trayectoria` y de `/teacher/proyectos` a `/teacher/trayectoria`, y las
+> carpetas de `app/(dashboard)/(routes)/` cambiaron igual. Las direcciones viejas redirigen
+> a las nuevas (`next.config.mjs`). Este documento conserva las rutas de cuando se escribió.
+
 ## 1. Objetivo
 
 La sección `/proyectos` nació como un mapa de proyectos comunitarios. Ahora debe mostrar

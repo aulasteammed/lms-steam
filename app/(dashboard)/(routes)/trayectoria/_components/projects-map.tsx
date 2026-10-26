@@ -760,7 +760,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
   const allYears = { label: "Todos los años", onClick: showAll };
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-stone-100">
+    <div className="absolute inset-0 overflow-hidden bg-editorial-chip">
       {/* MapLibre fuerza position:relative en su contenedor, por eso va envuelto. */}
       <div className="absolute inset-0">
         <div ref={containerRef} className="h-full w-full" />
@@ -770,7 +770,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
       <div className="absolute inset-x-3 top-3 z-10 flex flex-col items-end gap-2 md:inset-x-4 md:top-4">
         <TypeSelector selected={type} counts={typeCounts} onSelect={selectType} />
         {loading && (
-          <div className="pointer-events-none flex items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-600 shadow-sm">
+          <div className="pointer-events-none flex items-center gap-2 rounded-full border border-editorial-line bg-white/95 px-3 py-1.5 text-xs text-editorial-soft shadow-sm">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
             Cargando mapa…
           </div>
@@ -863,8 +863,8 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
         }`}
       >
         <Link
-          href="/proyectos/publicaciones"
-          className="flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-md transition hover:bg-orange-50 hover:text-orange-700"
+          href="/trayectoria/publicaciones"
+          className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
         >
           <Library className="h-4 w-4" />
           Publicaciones
@@ -872,16 +872,16 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
         <button
           type="button"
           onClick={showAll}
-          className="flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-md transition hover:bg-orange-50 hover:text-orange-700"
+          className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
         >
           <Globe className="h-4 w-4" />
           Ver todos
         </button>
-        <div className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md divide-y divide-slate-200">
+        <div className="flex flex-col overflow-hidden rounded-xl border border-editorial-line bg-white shadow-md divide-y divide-editorial-line">
           <button
             type="button"
             onClick={() => mapRef.current?.zoomIn()}
-            className="flex h-10 w-10 items-center justify-center text-slate-700 transition hover:bg-slate-50"
+            className="flex h-10 w-10 items-center justify-center text-editorial-body transition hover:bg-editorial-paper"
             aria-label="Acercar"
           >
             <Plus className="h-4 w-4" />
@@ -889,7 +889,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
           <button
             type="button"
             onClick={() => mapRef.current?.zoomOut()}
-            className="flex h-10 w-10 items-center justify-center text-slate-700 transition hover:bg-slate-50"
+            className="flex h-10 w-10 items-center justify-center text-editorial-body transition hover:bg-editorial-paper"
             aria-label="Alejar"
           >
             <Minus className="h-4 w-4" />

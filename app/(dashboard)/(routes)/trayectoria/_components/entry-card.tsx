@@ -24,7 +24,7 @@ type EntryCardProps = {
   onClose: () => void;
 };
 
-const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500";
+const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
 
 /**
  * Card de un registro dentro del recorrido. La parte de arriba es igual para
@@ -56,7 +56,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
 
   return (
     <article
-      className={`story-card pointer-events-auto w-full max-h-full overflow-y-auto overscroll-contain md:max-h-none md:overflow-visible rounded-2xl border border-slate-200/80 bg-white p-3 shadow-xl transition-all duration-500 ${
+      className={`story-card pointer-events-auto w-full max-h-full overflow-y-auto overscroll-contain md:max-h-none md:overflow-visible rounded-2xl border border-editorial-line bg-white p-3 shadow-xl transition-all duration-500 ${
         active ? "opacity-100" : "md:opacity-50 md:scale-[0.97]"
       }`}
       aria-label={entry.title}
@@ -64,7 +64,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
     >
       {/* Carrusel */}
       <div
-        className={`relative shrink-0 overflow-hidden rounded-xl bg-stone-100 ${
+        className={`relative shrink-0 overflow-hidden rounded-xl bg-editorial-chip ${
           entry.type === "project" ? "h-36 md:h-[min(15rem,32vh)]" : "h-28 md:h-[min(11rem,24vh)]"
         }`}
       >
@@ -82,7 +82,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
         ))}
 
         {entry.publication && (
-          <span className="absolute left-2.5 top-2.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#1b1472] px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+          <span className="absolute left-2.5 top-2.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-editorial-identity px-2.5 py-1 text-xs font-medium text-white shadow-sm">
             <BookOpen className="h-3.5 w-3.5" />
             Con {entry.publication.kind.toLowerCase()}
           </span>
@@ -91,7 +91,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-white/90 text-slate-700 shadow-sm flex items-center justify-center hover:bg-white transition"
+          className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-white/90 text-editorial-body shadow-sm flex items-center justify-center hover:bg-white transition"
           aria-label="Ocultar tarjetas"
         >
           <X className="h-4 w-4" />
@@ -102,7 +102,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
             <button
               type="button"
               onClick={prevSlide}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 text-slate-700 shadow-sm flex items-center justify-center hover:bg-white transition"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 text-editorial-body shadow-sm flex items-center justify-center hover:bg-white transition"
               aria-label="Foto anterior"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -110,7 +110,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
             <button
               type="button"
               onClick={nextSlide}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 text-slate-700 shadow-sm flex items-center justify-center hover:bg-white transition"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 text-editorial-body shadow-sm flex items-center justify-center hover:bg-white transition"
               aria-label="Foto siguiente"
             >
               <ChevronRight className="h-5 w-5" />
@@ -134,39 +134,39 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
 
       {/* Contenido */}
       <div className="flex flex-col gap-2.5 px-2 pt-4 pb-2 md:px-3">
-        <p className="flex items-center gap-2 text-sm text-slate-500">
+        <p className="flex items-center gap-2 text-sm text-editorial-soft">
           <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${style.dot}`} />
           <span>
             {entry.place} · {when}
             {entry.modality && ` · ${MODALITY_LABELS[entry.modality]}`}
           </span>
         </p>
-        <h2 className="text-xl md:text-2xl font-semibold leading-snug text-slate-900">
+        <h2 className="text-xl md:text-2xl font-semibold leading-snug text-editorial-ink">
           {entry.title}
         </h2>
-        <p className="text-sm md:text-[15px] leading-relaxed text-slate-600">
+        <p className="text-sm md:text-[15px] leading-relaxed text-editorial-soft">
           {entry.description}
         </p>
 
         {entry.places.length === 0 && (
-          <p className="flex items-center gap-1.5 text-xs text-slate-500">
+          <p className="flex items-center gap-1.5 text-xs text-editorial-soft">
             <MapPinOff className="h-3.5 w-3.5" />
             Sin punto en el mapa
           </p>
         )}
 
         {(entry.reason || entry.speaker || entry.organizer || entry.partners) && (
-          <dl className="mt-1 space-y-3 border-t border-slate-100 pt-3">
+          <dl className="mt-1 space-y-3 border-t border-editorial-line pt-3">
             {entry.organizer && (
               <div>
                 <dt className={label}>Organiza</dt>
-                <dd className="mt-1 text-sm text-slate-700">{entry.organizer}</dd>
+                <dd className="mt-1 text-sm text-editorial-body">{entry.organizer}</dd>
               </div>
             )}
             {entry.partners && (
               <div>
                 <dt className={label}>Fuimos con</dt>
-                <dd className="mt-1 text-sm text-slate-700">
+                <dd className="mt-1 text-sm text-editorial-body">
                   <ul className="space-y-1">
                     {entry.partners.map((partner) => (
                       <li key={partner}>{partner}</li>
@@ -178,16 +178,16 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
             {entry.reason && (
               <div>
                 <dt className={label}>Por qué participamos</dt>
-                <dd className="mt-1 text-sm leading-relaxed text-slate-700">{entry.reason}</dd>
+                <dd className="mt-1 text-sm leading-relaxed text-editorial-body">{entry.reason}</dd>
               </div>
             )}
             {entry.speaker && (
               <div>
                 <dt className={label}>Ponente</dt>
-                <dd className="mt-1 text-sm text-slate-700">
+                <dd className="mt-1 text-sm text-editorial-body">
                   {entry.speaker.name}
                   {entry.speaker.role && (
-                    <span className="text-slate-500"> · {entry.speaker.role}</span>
+                    <span className="text-editorial-soft"> · {entry.speaker.role}</span>
                   )}
                 </dd>
               </div>
@@ -196,7 +196,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
         )}
 
         {entry.related.length > 0 && (
-          <div className="mt-1 border-t border-slate-100 pt-3">
+          <div className="mt-1 border-t border-editorial-line pt-3">
             <p className={label}>
               {entry.type === "alliance" ? "En conjunto" : "Se presentó"}
             </p>
@@ -206,13 +206,13 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
                   {item.href ? (
                     <Link
                       href={item.href}
-                      className="inline-flex items-center gap-1.5 font-medium text-slate-800 underline decoration-slate-300 underline-offset-4 transition hover:text-orange-700 hover:decoration-orange-400"
+                      className="inline-flex items-center gap-1.5 font-medium text-editorial-ink underline decoration-editorial-rule underline-offset-4 transition hover:text-editorial-cta hover:decoration-editorial-accent"
                     >
                       {item.title}
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   ) : (
-                    <span className="text-slate-700">{item.title}</span>
+                    <span className="text-editorial-body">{item.title}</span>
                   )}
                 </li>
               ))}
@@ -223,7 +223,7 @@ export const EntryCard = memo(function EntryCard({ entry, active, onClose }: Ent
         {entry.href && (
           <Link
             href={entry.href}
-            className="mt-1 inline-flex w-fit items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+            className="mt-1 inline-flex w-fit items-center gap-2 rounded-lg bg-editorial-cta px-4 py-2 text-sm font-medium text-white transition hover:bg-editorial-cta-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
           >
             {entry.publication ? (
               <>

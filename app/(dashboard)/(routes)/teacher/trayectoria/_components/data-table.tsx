@@ -105,7 +105,7 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
                     }
                     className="max-w-sm"
                 />
-                <Link href="/teacher/proyectos/create" >
+                <Link href="/teacher/trayectoria/create" >
                     <Button>
                         <PlusCircle className="h-4 w-4 mr-2" />
                         Nuevo registro

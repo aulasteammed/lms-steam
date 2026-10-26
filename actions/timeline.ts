@@ -23,18 +23,18 @@ import {
   requiredFields,
   type DraftDocument,
   type EntryPatch,
-} from "@/app/(dashboard)/(routes)/teacher/proyectos/_components/draft";
+} from "@/app/(dashboard)/(routes)/teacher/trayectoria/_components/draft";
 
 type Result<T = undefined> = { ok: true; data: T } | { ok: false; error: string };
 
-const LIST_PATH = "/teacher/proyectos";
-/** Nombres que ya son rutas de `/proyectos` y no pueden ser la dirección de un registro. */
+const LIST_PATH = "/teacher/trayectoria";
+/** Nombres que ya son rutas de `/trayectoria` y no pueden ser la dirección de un registro. */
 const RESERVED_SLUGS = ["publicaciones"];
 
 const utapi = new UTApi();
 
 /**
- * Hace que el mapa y las páginas de `/proyectos` vuelvan a leer la base de
+ * Hace que el mapa y las páginas de `/trayectoria` vuelvan a leer la base de
  * datos. Los borradores no salen en el sitio, así que guardarlos no la toca.
  */
 const refreshSite = (status: "draft" | "published") => {
@@ -176,7 +176,7 @@ const patchSchema = z
       )
       .max(MAX_LOCATIONS),
     images: z
-      .array(z.object({ url: uploadUrl, alt: text(300).min(1), credit: text(120).optional() }))
+      .array(z.object({ url: uploadUrl, alt: text(300), credit: text(120).optional() }))
       .max(2),
     institutions: z.array(text(200).min(1)).max(30),
     people: z.array(z.object({ name: text(120).min(1), role: text(120).min(1) })).max(40),

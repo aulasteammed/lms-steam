@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "Periódicos, revistas, cartillas e informes de los proyectos del Aula STEAM Sonny Jiménez, para leer y descargar.",
 };
 
-const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500";
+const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
 
 const Shelf = ({ items }: { items: ShelfItem[] }) => (
   <ul className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -23,7 +23,7 @@ const Shelf = ({ items }: { items: ShelfItem[] }) => (
       return (
         <li key={`${project.id}-${document.id}`} className="flex flex-col">
           {/* Repisa: alto fijo para que todas las de una fila queden a la misma altura */}
-          <div className="flex h-80 items-end justify-center rounded-t-2xl border-b-[6px] border-stone-300 bg-stone-100 px-8 pt-8">
+          <div className="flex h-80 items-end justify-center rounded-t-2xl border-b-[6px] border-editorial-rule bg-editorial-chip px-8 pt-8">
             <PublicationCover
               publication={document}
               href={href}
@@ -35,17 +35,17 @@ const Shelf = ({ items }: { items: ShelfItem[] }) => (
             <p className={label}>
               {document.kind} · {document.pageCount} páginas
             </p>
-            <h3 className="mt-1.5 text-lg font-semibold leading-snug text-slate-900">
+            <h3 className="mt-1.5 text-lg font-semibold leading-snug text-editorial-ink">
               {document.title}
             </h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-editorial-soft">
               {project.title} · {project.place} · {project.year}
             </p>
 
             <DocumentActions document={document} readHref={href} className="mt-4" />
             <Link
               href={project.href}
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-orange-700"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-editorial-soft hover:text-editorial-cta"
             >
               Ver el proyecto
               <ArrowRight className="h-4 w-4" />
@@ -69,27 +69,27 @@ export default async function PublicationsPage() {
 
   return (
     <div className="pb-16">
-      <PageBar backHref="/proyectos" backLabel="Volver al mapa" />
+      <PageBar backHref="/trayectoria" backLabel="Volver al mapa" />
 
       <div className="mx-auto max-w-5xl px-4 pt-10 md:px-8 md:pt-14">
         <header className="max-w-2xl">
           <p className={label}>
             {total} {total === 1 ? "documento" : "documentos"}
           </p>
-          <h1 className="mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-slate-900 md:text-5xl">
+          <h1 className="mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-editorial-ink md:text-5xl">
             Publicaciones
           </h1>
-          <p className="mt-4 text-lg leading-relaxed text-slate-600">
+          <p className="mt-4 text-lg leading-relaxed text-editorial-soft">
             Periódicos, revistas e informes de los proyectos. Se pueden leer completos
             aquí mismo o descargar en PDF.
           </p>
         </header>
 
-        {total === 0 && <p className="mt-10 text-slate-500">Aún no hay publicaciones.</p>}
+        {total === 0 && <p className="mt-10 text-editorial-soft">Aún no hay publicaciones.</p>}
 
         {publications.length > 0 && (
           <section className="mt-10">
-            <h2 className="mb-6 border-b border-slate-200 pb-3 text-xl font-bold tracking-tight text-slate-900">
+            <h2 className="mb-6 border-b border-editorial-line pb-3 text-xl font-bold tracking-tight text-editorial-ink">
               Publicaciones y entregables
             </h2>
             <Shelf items={publications} />
@@ -98,7 +98,7 @@ export default async function PublicationsPage() {
 
         {reports.length > 0 && (
           <section className="mt-14">
-            <h2 className="mb-6 border-b border-slate-200 pb-3 text-xl font-bold tracking-tight text-slate-900">
+            <h2 className="mb-6 border-b border-editorial-line pb-3 text-xl font-bold tracking-tight text-editorial-ink">
               Informes
             </h2>
             <Shelf items={reports} />

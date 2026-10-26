@@ -14,7 +14,7 @@ type BackLinkProps = {
 export const BackLink = ({ href, children }: BackLinkProps) => (
   <Link
     href={href}
-    className="inline-flex shrink-0 items-center gap-2 rounded-lg text-sm font-medium text-slate-500 transition hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+    className="inline-flex shrink-0 items-center gap-2 rounded-lg text-sm font-medium text-editorial-soft transition hover:text-editorial-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
   >
     <ArrowLeft className="h-4 w-4" />
     {children}
@@ -30,7 +30,7 @@ type PageBarProps = {
 
 /** Barra superior fija de las páginas de la sección, con el enlace de volver. */
 export const PageBar = ({ backHref, backLabel, children }: PageBarProps) => (
-  <div className="sticky top-[80px] z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+  <div className="sticky top-[80px] z-30 border-b border-editorial-line bg-white/90 backdrop-blur">
     <div className="mx-auto flex min-h-14 max-w-5xl items-center justify-between gap-3 px-4 py-2 md:px-8">
       <BackLink href={backHref}>{backLabel}</BackLink>
       {children && <div className="flex items-center gap-2">{children}</div>}

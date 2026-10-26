@@ -1,5 +1,5 @@
 /**
- * Lecturas del panel de profesor (`/teacher/proyectos`) sobre los registros
+ * Lecturas del panel de profesor (`/teacher/trayectoria`) sobre los registros
  * del mapa y la línea de tiempo. Solo para el servidor.
  *
  * Cada consulta pide únicamente los campos que su pantalla muestra.
@@ -11,7 +11,7 @@ import type { EntryType } from "@/lib/timeline";
 import type {
   DocumentKind,
   EntryDraft,
-} from "@/app/(dashboard)/(routes)/teacher/proyectos/_components/draft";
+} from "@/app/(dashboard)/(routes)/teacher/trayectoria/_components/draft";
 
 /**
  * `startYear` es obligatorio en la base de datos, pero un borrador recién

@@ -18,7 +18,7 @@ import { ConfirmModal } from "@/components/modals/confirm-modal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TYPE_LABELS, type EntryType } from "@/lib/timeline";
-import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/proyectos/_components/entry-type";
+import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/trayectoria/_components/entry-type";
 import { deleteEntry, setEntryPublished, updateEntry } from "@/actions/timeline";
 
 import {
@@ -135,7 +135,7 @@ export const EntryEditor = ({
       return toast.error(result?.error ?? "Algo salió mal");
     }
     toast.success("Registro eliminado");
-    router.push("/teacher/proyectos");
+    router.push("/teacher/trayectoria");
   };
 
   const section = { draft, onChange };

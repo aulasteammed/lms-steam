@@ -24,7 +24,7 @@ export const PublicationCover = ({
   <Link
     href={href}
     aria-label={`Leer: ${publication.title}`}
-    className={`group relative block overflow-hidden rounded-r-md rounded-l-sm bg-white shadow-[0_1px_2px_rgba(15,23,42,0.2),0_18px_40px_-12px_rgba(15,23,42,0.45)] ring-1 ring-slate-900/10 transition duration-300 hover:-translate-y-1 hover:shadow-[0_1px_2px_rgba(15,23,42,0.2),0_28px_50px_-14px_rgba(15,23,42,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-4 ${className}`}
+    className={`group relative block overflow-hidden rounded-r-md rounded-l-sm bg-white shadow-[0_1px_2px_rgba(18,17,15,0.2),0_18px_40px_-12px_rgba(18,17,15,0.45)] ring-1 ring-editorial-ink/10 transition duration-300 hover:-translate-y-1 hover:shadow-[0_1px_2px_rgba(18,17,15,0.2),0_28px_50px_-14px_rgba(18,17,15,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-4 ${className}`}
   >
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img

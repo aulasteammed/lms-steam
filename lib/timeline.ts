@@ -1,5 +1,5 @@
 /**
- * Registros del mapa y la línea de tiempo de /proyectos: proyectos,
+ * Registros del mapa y la línea de tiempo de /trayectoria: proyectos,
  * participaciones y alianzas.
  *
  * `MapEntry` es la lista liviana que recibe el mapa. Tiene la forma del modelo

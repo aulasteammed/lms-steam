@@ -30,7 +30,7 @@ export const PhotoGallery = ({ images }: { images: ProjectImage[] }) => {
               type="button"
               onClick={() => setOpen(index)}
               aria-label={`Ampliar foto: ${image.alt}`}
-              className="block w-full cursor-zoom-in overflow-hidden rounded-xl border border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+              className="block w-full cursor-zoom-in overflow-hidden rounded-xl border border-editorial-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -41,9 +41,9 @@ export const PhotoGallery = ({ images }: { images: ProjectImage[] }) => {
                 className="h-40 w-full object-cover transition duration-300 md:h-52 hover:scale-[1.03]"
               />
             </button>
-            <figcaption className="mt-1.5 text-xs leading-snug text-slate-600">
+            <figcaption className="mt-1.5 text-xs leading-snug text-editorial-soft">
               {image.alt}
-              {image.credit && <span className="text-slate-400"> · {image.credit}</span>}
+              {image.credit && <span className="text-editorial-muted"> · {image.credit}</span>}
             </figcaption>
           </figure>
         ))}

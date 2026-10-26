@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ENTRY_TYPES, TYPE_LABELS, type EntryType } from "@/lib/timeline";
-import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/proyectos/_components/entry-type";
+import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/trayectoria/_components/entry-type";
 import { createEntry } from "@/actions/timeline";
 
 const formSchema = z.object({
@@ -83,7 +83,7 @@ export const CreateForm = ({ knownInstitutions }: CreateFormProps) => {
             toast.error(result?.error ?? "Algo salió mal");
             return;
         }
-        router.push(`/teacher/proyectos/${result.data.id}`);
+        router.push(`/teacher/trayectoria/${result.data.id}`);
         toast.success("Registro creado con éxito");
     };
 
@@ -187,7 +187,7 @@ export const CreateForm = ({ knownInstitutions }: CreateFormProps) => {
                         />
 
                         <div className="flex items-center gap-x-4 mt-4">
-                            <Link href="/teacher/proyectos">
+                            <Link href="/teacher/trayectoria">
                                 <Button
                                     type="button"
                                     variant="ghost"

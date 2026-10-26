@@ -38,7 +38,7 @@ export default async function ReaderPage({ params, searchParams }: Props) {
   return (
     <FlipBook
       publication={document}
-      exitHref={fromShelf ? "/proyectos/publicaciones" : project.href}
+      exitHref={fromShelf ? "/trayectoria/publicaciones" : project.href}
       exitLabel={fromShelf ? "Volver a publicaciones" : "Volver al proyecto"}
     />
   );

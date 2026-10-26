@@ -1,11 +1,12 @@
 /*
- * Puntos del mapa de /proyectos. Cada tipo de registro tiene su color:
- * proyectos en naranja, participaciones en el azul del menú del sitio y alianzas en morado.
+ * Puntos del mapa de /trayectoria. Cada tipo de registro tiene su color, tomado
+ * de la paleta editorial (tailwind.config.js): proyectos en el naranja del blog,
+ * participaciones en el azul del menú del sitio y alianzas en el azul del identificador.
  */
 .project-marker {
-  --marker: #ea580c; /* orange-600 */
-  --marker-strong: #c2410c; /* orange-700 */
-  --marker-ring: rgba(249, 115, 22, 0.28);
+  --marker: #b8481a; /* editorial-cta */
+  --marker-strong: #9c3d16; /* editorial-cta-hover */
+  --marker-ring: rgba(232, 98, 42, 0.3);
   position: relative;
   display: block;
   width: 26px;
@@ -17,15 +18,15 @@
 }
 
 .project-marker.is-participation {
-  --marker: #0284c7; /* sky-600 */
-  --marker-strong: #0369a1; /* sky-700 */
-  --marker-ring: rgba(2, 132, 199, 0.28);
+  --marker: #0369a1; /* sky-700 */
+  --marker-strong: #075985; /* sky-800 */
+  --marker-ring: rgba(3, 105, 161, 0.28);
 }
 
 .project-marker.is-alliance {
-  --marker: #a855f7; /* purple-500 */
-  --marker-strong: #9333ea; /* purple-600 */
-  --marker-ring: rgba(168, 85, 247, 0.28);
+  --marker: #1b1472; /* editorial-identity */
+  --marker-strong: #120d55; /* editorial-identity-hover */
+  --marker-ring: rgba(27, 20, 114, 0.25);
 }
 
 /* Grupo de puntos cercanos: más grande y con la cantidad adentro */
@@ -45,12 +46,12 @@
   color: #fff;
   font: 600 15px/1 ui-sans-serif, system-ui, sans-serif;
   border: 2px solid #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2), 0 4px 10px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 1px 2px rgba(18, 17, 15, 0.2), 0 4px 10px rgba(18, 17, 15, 0.25);
   transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .project-marker.is-cluster .project-marker__dot {
-  box-shadow: 0 0 0 5px var(--marker-ring), 0 4px 10px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 0 0 5px var(--marker-ring), 0 4px 10px rgba(18, 17, 15, 0.25);
 }
 
 .project-marker:hover .project-marker__dot {
@@ -76,13 +77,13 @@
 
 .project-marker.is-related .project-marker__dot {
   background: var(--marker-strong);
-  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(18, 17, 15, 0.3);
 }
 
 .project-marker.is-active .project-marker__dot {
   background: var(--marker-strong);
   transform: scale(1.2);
-  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(18, 17, 15, 0.3);
 }
 
 /* Proyectos con periódico o revista: punto azul en la esquina del marcador */
@@ -106,12 +107,12 @@
   transform: translate(-6px, -50%);
   white-space: nowrap;
   background: #fff;
-  color: #0f172a; /* slate-900 */
+  color: #12110f; /* editorial-ink */
   font: 600 14px/1.2 ui-sans-serif, system-ui, sans-serif;
   padding: 8px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(226, 232, 240, 0.9); /* slate-200 */
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(226, 221, 216, 0.9); /* editorial-line */
+  box-shadow: 0 4px 14px rgba(18, 17, 15, 0.15);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;

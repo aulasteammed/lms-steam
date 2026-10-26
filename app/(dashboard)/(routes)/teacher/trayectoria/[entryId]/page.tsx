@@ -23,7 +23,7 @@ export default async function EntryIdPage(props: {
   ]);
 
   if (!draft) {
-    return redirect("/teacher/proyectos");
+    return redirect("/teacher/trayectoria");
   }
 
   return (

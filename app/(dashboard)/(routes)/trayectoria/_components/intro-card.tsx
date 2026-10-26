@@ -46,18 +46,18 @@ export const IntroCard = ({
   const style = TYPE_STYLES[type];
 
   return (
-    <article className="pointer-events-auto w-full max-h-full overflow-y-auto overscroll-contain rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl md:max-h-none md:overflow-visible md:p-8">
+    <article className="pointer-events-auto w-full max-h-full overflow-y-auto overscroll-contain rounded-2xl border border-editorial-line bg-white p-6 shadow-xl md:max-h-none md:overflow-visible md:p-8">
       <p className={`text-xs font-semibold uppercase tracking-wider ${style.text}`}>
         {eyebrow}
       </p>
-      <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900 md:text-4xl">
+      <h1 className="mt-2 text-3xl font-semibold leading-tight text-editorial-ink md:text-4xl">
         {title}
       </h1>
-      <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-[15px]">
+      <p className="mt-3 text-sm leading-relaxed text-editorial-soft md:text-[15px]">
         {text}
       </p>
 
-      <ol className="mt-5 divide-y divide-slate-100 border-y border-slate-100">
+      <ol className="mt-5 divide-y divide-editorial-line border-y border-editorial-line">
         {items.map((item) => (
           <li key={item.key}>
             <button
@@ -67,11 +67,11 @@ export const IntroCard = ({
             >
               <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${style.dot}`} />
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium text-slate-800 transition group-hover:text-orange-700">
+                <span className="block truncate text-sm font-medium text-editorial-ink transition group-hover:text-editorial-cta">
                   {item.title}
                 </span>
                 {item.subtitle && (
-                  <span className="block truncate text-xs text-slate-500">
+                  <span className="block truncate text-xs text-editorial-soft">
                     {item.subtitle}
                   </span>
                 )}
@@ -96,7 +96,7 @@ export const IntroCard = ({
           <button
             type="button"
             onClick={back.onClick}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 rounded-lg border border-editorial-line bg-white px-4 py-2 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
           >
             <Globe className="h-4 w-4" />
             {back.label}

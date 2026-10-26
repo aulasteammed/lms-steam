@@ -61,8 +61,8 @@ export const MiniMap = ({ points, place, showLink = true }: MiniMapProps) => {
   ];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-      <div className="relative aspect-square bg-stone-100">
+    <div className="overflow-hidden rounded-2xl border border-editorial-line bg-white">
+      <div className="relative aspect-square bg-editorial-chip">
         <div className="grid h-full w-full grid-cols-2 saturate-[0.65]">
           {grid.map(([tx, ty]) => (
             // eslint-disable-next-line @next/next/no-img-element
@@ -79,23 +79,23 @@ export const MiniMap = ({ points, place, showLink = true }: MiniMapProps) => {
         {tiles.map((tile, index) => (
           <span
             key={index}
-            className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-orange-600 shadow-[0_0_0_6px_rgba(249,115,22,0.28)]"
+            className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-editorial-cta shadow-[0_0_0_6px_rgba(184,72,26,0.28)]"
             style={{ left: `${((tile.x - x0) / 2) * 100}%`, top: `${((tile.y - y0) / 2) * 100}%` }}
           />
         ))}
-        <span className="absolute bottom-1 right-1.5 rounded bg-white/80 px-1 text-[10px] text-slate-500">
+        <span className="absolute bottom-1 right-1.5 rounded bg-white/80 px-1 text-[10px] text-editorial-soft">
           © OpenStreetMap
         </span>
       </div>
       <div className="space-y-2 p-4">
-        <p className="flex items-start gap-2 text-sm text-slate-700">
-          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
+        <p className="flex items-start gap-2 text-sm text-editorial-body">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-editorial-cta" />
           {place}
         </p>
         {showLink && (
           <Link
-            href="/proyectos"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-700 hover:underline"
+            href="/trayectoria"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-editorial-cta hover:underline"
           >
             Ver en el mapa completo
             <ArrowRight className="h-4 w-4" />

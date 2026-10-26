@@ -1,7 +1,7 @@
 /**
  * Formas de un proyecto y de sus documentos tal como los pintan las páginas
- * de `/proyectos`. Los datos salen de la base de datos (`lib/timeline-data.ts`)
- * y se editan en el panel de profesor (`/teacher/proyectos`).
+ * de `/trayectoria`. Los datos salen de la base de datos (`lib/timeline-data.ts`)
+ * y se editan en el panel de profesor (`/teacher/trayectoria`).
  *
  * Este archivo solo tiene tipos y funciones puras: lo usan el servidor y el
  * navegador.
@@ -39,7 +39,7 @@ export type ProjectDocument = {
 export const coverUrl = (doc: ProjectDocument) => doc.pages[0].url;
 
 export type Project = {
-  /** La dirección del proyecto: /proyectos/<id>. */
+  /** La dirección del proyecto: /trayectoria/<id>. */
   id: string;
   title: string;
   place: string;

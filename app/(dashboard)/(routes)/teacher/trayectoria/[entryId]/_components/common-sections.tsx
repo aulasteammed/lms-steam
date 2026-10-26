@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils";
 import { TYPE_LABELS, type EntryType } from "@/lib/timeline";
 import { uploadImages } from "@/lib/timeline-upload";
 import { discardUploads } from "@/actions/timeline";
-import { MiniMap } from "@/app/(dashboard)/(routes)/proyectos/[id]/_components/mini-map";
-import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/proyectos/_components/entry-type";
+import { MiniMap } from "@/app/(dashboard)/(routes)/trayectoria/[id]/_components/mini-map";
+import { TYPE_STYLES } from "@/app/(dashboard)/(routes)/trayectoria/_components/entry-type";
 
 import { EditCard } from "../../_components/edit-card";
 import {
@@ -254,7 +254,11 @@ export const ImagesSection = ({ draft, onChange }: SectionProps) => {
                 <div className="min-w-0 flex-1 space-y-2">
                   <Input
                     aria-label="Descripción de la imagen"
-                    placeholder="Qué se ve en la imagen (una frase)"
+                    placeholder={
+                      draft.type === "project"
+                        ? "Qué se ve en la imagen (una frase)"
+                        : "Qué se ve en la imagen (opcional)"
+                    }
                     value={image.alt}
                     onChange={(event) => update(index, { alt: event.target.value })}
                   />
@@ -301,15 +305,16 @@ export const ImagesSection = ({ draft, onChange }: SectionProps) => {
             )}
             {fileError && <p className="text-sm font-medium text-destructive">{fileError}</p>}
             <div className="text-xs text-muted-foreground">
-              La descripción la leen los lectores
-              de pantalla y los buscadores.
-              Aclaración: Si no puede previsualizar la imagen, intente cargando otra vez o cambiando el formato (png o jpg).
+              Si no puede previsualizar la imagen, intente cargando otra vez o cambiando el formato (png o jpg).
             </div>
           </div>
         );
       }}
+      // Solo en los proyectos la descripción de la imagen es obligatoria.
       validate={(images) =>
-        images.some((image) => !image.alt.trim()) ? "Cada imagen necesita su descripción" : null
+        draft.type === "project" && images.some((image) => !image.alt.trim())
+          ? "Cada imagen necesita su descripción"
+          : null
       }
       onSave={async (images) => {
         const pending = images.filter((image) => image.file);

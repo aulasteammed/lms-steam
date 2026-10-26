@@ -1,5 +1,5 @@
 /**
- * Subida de archivos del panel de `/teacher/proyectos`, desde el navegador.
+ * Subida de archivos del panel de `/teacher/trayectoria`, desde el navegador.
  *
  * Las fotos se reducen y se pasan a WebP antes de subirlas, y de cada PDF se
  * dibujan sus páginas como imágenes para el visor. Así el archivo original de

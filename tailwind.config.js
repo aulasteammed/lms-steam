@@ -20,6 +20,26 @@ module.exports = withUt({
 		},
 		extend: {
 			colors: {
+				// Paleta editorial del blog, que también usa Trayectoria. `identity` es el
+				// azul del identificador del Aula; `cta` es el naranja del blog oscurecido
+				// para que el texto blanco cumpla WCAG AA (5.3:1).
+				editorial: {
+					ink: '#12110f',
+					body: '#3a3a3a',
+					soft: '#5d5955',
+					muted: '#8a8682',
+					rule: '#cfc9c2',
+					line: '#e2ddd8',
+					chip: '#f0ede8',
+					paper: '#fafaf8',
+					accent: '#e8622a',
+					'accent-soft': '#fbeee6',
+					cta: '#b8481a',
+					'cta-hover': '#9c3d16',
+					identity: '#1b1472',
+					'identity-hover': '#120d55',
+					'identity-soft': '#ecebf6',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

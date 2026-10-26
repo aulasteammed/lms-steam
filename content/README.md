@@ -1,7 +1,7 @@
-# Proyectos, participaciones y alianzas (mapa de `/proyectos`)
+# Proyectos, participaciones y alianzas (mapa de `/trayectoria`)
 
 Los registros del mapa y la línea de tiempo **ya no se editan en archivos**.
-Se crean y se editan en el panel de profesor, en **`/teacher/proyectos`**, y se
+Se crean y se editan en el panel de profesor, en **`/teacher/trayectoria`**, y se
 guardan en la base de datos. Las fotos y los documentos se suben desde el mismo
 panel.
 

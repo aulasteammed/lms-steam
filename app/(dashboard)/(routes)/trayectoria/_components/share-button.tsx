@@ -35,7 +35,7 @@ export const ShareButton = ({ title, path }: ShareButtonProps) => {
     <button
       type="button"
       onClick={share}
-      className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+      className="inline-flex h-9 items-center gap-2 rounded-lg border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper"
     >
       <Share2 className="h-4 w-4" />
       Compartir

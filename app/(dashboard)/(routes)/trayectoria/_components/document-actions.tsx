@@ -10,7 +10,7 @@ type DocumentActionsProps = {
 };
 
 const button =
-  "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2";
+  "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2";
 
 /**
  * Las dos acciones de un documento, siempre juntas y en el mismo orden:
@@ -26,7 +26,7 @@ export const DocumentActions = ({
     <Link
       href={readHref}
       aria-label={`Leer: ${document.title}`}
-      className={`${button} bg-orange-600 text-white hover:bg-orange-700`}
+      className={`${button} bg-editorial-cta text-white hover:bg-editorial-cta-hover`}
     >
       <BookOpen className="h-4 w-4" />
       Leer
@@ -35,7 +35,7 @@ export const DocumentActions = ({
       href={document.pdf}
       download
       aria-label={`Descargar en PDF: ${document.title}`}
-      className={`${button} border border-slate-200 bg-white text-slate-700 hover:bg-slate-50`}
+      className={`${button} border border-editorial-line bg-white text-editorial-body hover:bg-editorial-paper`}
     >
       <Download className="h-4 w-4" />
       Descargar

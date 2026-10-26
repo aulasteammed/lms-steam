@@ -28,9 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: found.project.title, description: found.project.description };
 }
 
-const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500";
+const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
 const secondaryButton =
-  "inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
+  "inline-flex items-center gap-2 rounded-lg border border-editorial-line bg-white px-4 py-2 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper";
 
 const DocumentList = ({
   title,
@@ -47,7 +47,7 @@ const DocumentList = ({
       {documents.map((doc) => (
         <li
           key={doc.id}
-          className="flex gap-4 rounded-2xl border border-slate-200 bg-stone-50 p-4"
+          className="flex gap-4 rounded-2xl border border-editorial-line bg-editorial-paper p-4"
         >
           <PublicationCover
             publication={doc}
@@ -58,9 +58,9 @@ const DocumentList = ({
             <p className={label}>
               {doc.kind} · {doc.pageCount} páginas
             </p>
-            <h3 className="mt-1 font-semibold leading-snug text-slate-900">{doc.title}</h3>
+            <h3 className="mt-1 font-semibold leading-snug text-editorial-ink">{doc.title}</h3>
             {doc.description && (
-              <p className="mt-1 text-sm leading-relaxed text-slate-600">{doc.description}</p>
+              <p className="mt-1 text-sm leading-relaxed text-editorial-soft">{doc.description}</p>
             )}
             <DocumentActions document={doc} readHref={readerHref(project, doc)} className="mt-3" />
           </div>
@@ -117,7 +117,7 @@ export default async function ProjectPage({ params }: Props) {
 
   return (
     <article className="pb-16">
-      <PageBar backHref="/proyectos" backLabel="Volver al mapa">
+      <PageBar backHref="/trayectoria" backLabel="Volver al mapa">
         <ShareButton title={project.title} />
       </PageBar>
 
@@ -130,16 +130,16 @@ export default async function ProjectPage({ params }: Props) {
         >
           <div>
             <p className={label}>Proyecto · {project.year}</p>
-            <h1 className="mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-slate-900 md:text-5xl">
+            <h1 className="mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-editorial-ink md:text-5xl">
               {project.title}
             </h1>
-            <p className="mt-5 text-lg leading-relaxed text-slate-600">
+            <p className="mt-5 text-lg leading-relaxed text-editorial-soft">
               {project.description}
             </p>
           </div>
 
           {pub && (
-            <div className="rounded-3xl bg-orange-50/70 px-8 py-8 md:px-10">
+            <div className="rounded-3xl bg-editorial-accent-soft px-8 py-8 md:px-10">
               <PublicationCover
                 publication={pub}
                 href={readerHref(project, pub)}
@@ -150,9 +150,9 @@ export default async function ProjectPage({ params }: Props) {
                 <p className={label}>
                   {pub.kind} · {pub.pageCount} páginas
                 </p>
-                <p className="mt-1.5 font-semibold text-slate-900">{pub.title}</p>
+                <p className="mt-1.5 font-semibold text-editorial-ink">{pub.title}</p>
                 {pub.description && (
-                  <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-1.5 text-sm leading-relaxed text-editorial-soft">
                     {pub.description}
                   </p>
                 )}
@@ -168,12 +168,12 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Fila de datos */}
         <dl
-          className={`grid grid-cols-2 gap-x-6 gap-y-5 border-y border-slate-200 py-6 ${FACT_COLUMNS[facts.length]}`}
+          className={`grid grid-cols-2 gap-x-6 gap-y-5 border-y border-editorial-line py-6 ${FACT_COLUMNS[facts.length]}`}
         >
           {facts.map((fact) => (
             <div key={fact.term} className="min-w-0">
               <dt className={label}>{fact.term}</dt>
-              <dd className="mt-1.5 text-sm leading-snug text-slate-900">
+              <dd className="mt-1.5 text-sm leading-snug text-editorial-ink">
                 {fact.values.length === 1 ? (
                   fact.values[0]
                 ) : (
@@ -192,7 +192,7 @@ export default async function ProjectPage({ params }: Props) {
         <section>
           {/* El subtítulo va arriba, solo: el mapa arranca a la altura del primer párrafo */}
           {project.story && (
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-slate-900">
+            <h2 className="mb-4 text-2xl font-bold tracking-tight text-editorial-ink">
               {project.story.title}
             </h2>
           )}
@@ -200,7 +200,7 @@ export default async function ProjectPage({ params }: Props) {
             {project.story ? (
               // El interlineado deja un aire sobre la primera línea; se compensa
               // para que el texto y el borde del mapa queden a la misma altura.
-              <div className="space-y-4 text-base leading-relaxed text-slate-700 md:-mt-1.5">
+              <div className="space-y-4 text-base leading-relaxed text-editorial-body md:-mt-1.5">
                 {project.story.paragraphs.map((paragraph, i) => (
                   <p key={i}>{paragraph}</p>
                 ))}
@@ -216,22 +216,22 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Cita */}
         {project.quote && (
-          <figure className="relative mx-auto max-w-3xl rounded-3xl bg-orange-50/70 px-8 pb-8 pt-12 md:px-12 md:pb-10 md:pt-14">
+          <figure className="relative mx-auto max-w-3xl rounded-3xl bg-editorial-accent-soft px-8 pb-8 pt-12 md:px-12 md:pb-10 md:pt-14">
             <span
               aria-hidden
-              className="absolute -top-5 left-8 flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-white shadow-md md:left-12"
+              className="absolute -top-5 left-8 flex h-11 w-11 items-center justify-center rounded-full bg-editorial-cta text-white shadow-md md:left-12"
             >
               <Quote className="h-5 w-5 fill-current" />
             </span>
-            <blockquote className="text-xl font-medium italic leading-relaxed text-slate-800 md:text-2xl">
+            <blockquote className="text-xl font-medium italic leading-relaxed text-editorial-ink md:text-2xl">
               “{project.quote.text}”
             </blockquote>
             <figcaption className="mt-5 flex items-center gap-3 text-sm">
-              <span aria-hidden className="h-px w-8 bg-orange-600" />
+              <span aria-hidden className="h-px w-8 bg-editorial-cta" />
               <span>
-                <span className="font-semibold text-slate-900">{project.quote.author}</span>
+                <span className="font-semibold text-editorial-ink">{project.quote.author}</span>
                 {project.quote.role && (
-                  <span className="text-slate-500"> · {project.quote.role}</span>
+                  <span className="text-editorial-soft"> · {project.quote.role}</span>
                 )}
               </span>
             </figcaption>
@@ -244,9 +244,9 @@ export default async function ProjectPage({ params }: Props) {
             <h2 className={label}>Equipo</h2>
             <ul className="mt-3 grid gap-x-8 gap-y-3 sm:grid-cols-2">
               {project.people.map((person, i) => (
-                <li key={i} className="border-t border-slate-200 pt-3">
-                  <p className="text-sm font-medium text-slate-900">{person.name}</p>
-                  <p className="text-sm text-slate-500">{person.role}</p>
+                <li key={i} className="border-t border-editorial-line pt-3">
+                  <p className="text-sm font-medium text-editorial-ink">{person.name}</p>
+                  <p className="text-sm text-editorial-soft">{person.role}</p>
                 </li>
               ))}
             </ul>
@@ -289,13 +289,13 @@ export default async function ProjectPage({ params }: Props) {
                   {participations.map((item, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 rounded-xl border border-slate-200 p-4"
+                      className="flex items-start gap-3 rounded-xl border border-editorial-line p-4"
                     >
-                      <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+                      <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-sky-700" />
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{item.title}</p>
+                        <p className="text-sm font-medium text-editorial-ink">{item.title}</p>
                         {item.detail && (
-                          <p className="text-sm text-slate-500">{item.detail}</p>
+                          <p className="text-sm text-editorial-soft">{item.detail}</p>
                         )}
                       </div>
                     </li>
@@ -310,13 +310,13 @@ export default async function ProjectPage({ params }: Props) {
                   {alliances.map((item, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 rounded-xl border border-slate-200 p-4"
+                      className="flex items-start gap-3 rounded-xl border border-editorial-line p-4"
                     >
-                      <Handshake className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+                      <Handshake className="mt-0.5 h-5 w-5 shrink-0 text-editorial-identity" />
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{item.title}</p>
+                        <p className="text-sm font-medium text-editorial-ink">{item.title}</p>
                         {item.detail && (
-                          <p className="text-sm text-slate-500">{item.detail}</p>
+                          <p className="text-sm text-editorial-soft">{item.detail}</p>
                         )}
                       </div>
                     </li>
@@ -328,9 +328,9 @@ export default async function ProjectPage({ params }: Props) {
         )}
 
         {project.acknowledgements && (
-          <section className="border-t border-slate-200 pt-6">
+          <section className="border-t border-editorial-line pt-6">
             <h2 className={label}>Agradecimientos</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-editorial-soft">
               {project.acknowledgements}
             </p>
           </section>

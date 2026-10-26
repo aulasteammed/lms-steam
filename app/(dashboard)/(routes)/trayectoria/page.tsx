@@ -3,7 +3,7 @@ import intro from "@/content/proyectos-portada.json";
 import { ProjectsMap } from "./_components/projects-map";
 
 export const metadata = {
-  title: intro.titulo,
+  title: "Trayectoria",
 };
 
 /**

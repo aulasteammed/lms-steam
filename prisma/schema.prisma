@@ -436,7 +436,7 @@ model TimelineEntry {
   type   TimelineEntryType
   status TimelineEntryStatus @default(draft)
 
-  /// Forma la dirección de la página: /proyectos/<slug>. Lleva el año de
+  /// Forma la dirección de la página: /trayectoria/<slug>. Lleva el año de
   /// finalización (entre-aguas-2026) y no cambia al editar el título.
   slug             String   @unique
   /// Direcciones anteriores, que redirigen a la actual. Se llena cuando un
@@ -533,7 +533,7 @@ model TimelineDocument {
   entryId String        @db.ObjectId
   entry   TimelineEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
 
-  /// Forma la dirección del visor: /proyectos/<slug-proyecto>/lector/<slug>.
+  /// Forma la dirección del visor: /trayectoria/<slug-proyecto>/lector/<slug>.
   slug        String
   title       String
   kind        TimelineDocumentKind
@@ -556,7 +556,7 @@ model TimelineDocument {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Visor: un documento por la dirección /proyectos/<proyecto>/lector/<slug>.
+  // Visor: un documento por la dirección /trayectoria/<proyecto>/lector/<slug>.
   @@unique([entryId, slug])
   // Página del proyecto: sus documentos, ya ordenados.
   @@index([entryId, position])

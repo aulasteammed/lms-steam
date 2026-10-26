@@ -1,5 +1,5 @@
 /**
- * Lecturas del sitio público (`/proyectos`) sobre los registros publicados del
+ * Lecturas del sitio público (`/trayectoria`) sobre los registros publicados del
  * mapa y la línea de tiempo. Solo para el servidor.
  *
  * Todas van en caché con la etiqueta `TIMELINE_TAG`: la base de datos solo se
@@ -31,7 +31,7 @@ const cached = <Args extends unknown[], Result>(
   key: string
 ) => unstable_cache(read, [key], { tags: [TIMELINE_TAG] });
 
-const projectHref = (slug: string) => `/proyectos/${slug}`;
+const projectHref = (slug: string) => `/trayectoria/${slug}`;
 
 /** "2024", "2024 – 2026" o "2024 – actual". */
 const period = (startYear: number, endYear: number | null) =>
