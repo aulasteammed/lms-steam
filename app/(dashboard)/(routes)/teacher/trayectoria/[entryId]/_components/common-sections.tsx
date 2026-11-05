@@ -70,8 +70,9 @@ export const TitleSection = ({ draft, onChange, knownInstitutions }: TitleSectio
             </datalist>
             <p className="text-xs text-muted-foreground">
               Es la misma institución que se elige en los proyectos. Si corriges el
-              nombre aquí, cambia también en los proyectos donde aparece. Si escribes
-              el de otra institución ya registrada, la alianza pasa a ser con esa.
+              nombre aquí, cambia también en los proyectos y en las demás alianzas con
+              ella. Si escribes el de otra institución ya registrada, la alianza pasa a
+              ser con esa.
             </p>
           </>
         )}

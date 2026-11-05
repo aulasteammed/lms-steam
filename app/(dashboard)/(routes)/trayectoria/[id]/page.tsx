@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { ExternalLink, Quote } from "lucide-react";
 
 import { readerHref, type Project, type ProjectDocument } from "@/lib/projects";
+import { shareMetadata } from "@/lib/share-metadata";
 import { getProject } from "@/lib/timeline-data";
 import { PageBar } from "../_components/back-link";
 import { DocumentActions } from "../_components/document-actions";
@@ -30,7 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const found = await getProject(id);
   if (!found || "redirectTo" in found) return {};
-  return { title: found.project.title, description: found.project.description };
+  const { project } = found;
+  return shareMetadata({
+    title: project.title,
+    description: project.description,
+    path: project.href,
+    images: [...project.images.map((image) => image.src), project.publication?.pages[0]?.url],
+  });
 }
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";

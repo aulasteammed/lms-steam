@@ -2,23 +2,13 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
+import { shortSlug } from "@/lib/slug";
 import {
     deleteUploadThingFilesByUrls,
     extractArticleUploadThingUrls,
 } from "@/lib/uploadthing-server";
 
 // ── Helpers ───────────────────────────────────────────────────
-
-function toSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-")
-        .slice(0, 60);
-}
 
 async function uniqueSlug(base: string, excludeId: string): Promise<string> {
     let slug   = base || "sin-titulo";
@@ -126,11 +116,11 @@ export async function PUT(
     body.authorPhoto = normalizeOptionalText(body.authorPhoto);
     body.authorSocialUrl = normalizeOptionalText(body.authorSocialUrl);
 
-    // Regenerar slug solo si está en borrador y el título cambió
+    // Regenerar slug solo si nunca se ha publicado y el título cambió
     let newSlug: string | undefined;
 
-    if (current.status === "draft" && typeof body.title === "string") {
-        const base      = toSlug(body.title) || "sin-titulo";
+    if (current.status === "draft" && !current.publishedAt && typeof body.title === "string") {
+        const base      = shortSlug(body.title) || "sin-titulo";
         const candidate = await uniqueSlug(base, current.id);
         if (candidate !== slug) newSlug = candidate;
     }

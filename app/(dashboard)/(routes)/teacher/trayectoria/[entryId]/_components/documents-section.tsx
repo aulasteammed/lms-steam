@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Download, File, PlusCircle, Trash } from "lucide-react";
+import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
+import { Download, File, Grip, Pencil, PlusCircle, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
@@ -9,15 +10,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loading } from "@/components/loading";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
-import { addDocument, deleteDocument, discardUploads } from "@/actions/timeline";
+import {
+  addDocument,
+  deleteDocument,
+  discardUploads,
+  reorderDocuments,
+  updateDocument,
+} from "@/actions/timeline";
 import { uploadDocument } from "@/lib/timeline-upload";
 
 import {
   DOCUMENT_KIND_LABELS,
   FEATURED_KINDS,
+  isReport,
   type DocumentKind,
   type DraftDocument,
 } from "../../_components/draft";
+
+const ALL_KINDS: DocumentKind[] = [...FEATURED_KINDS, "report"];
 
 const MAX_PDF_BYTES = 32 * 1024 * 1024;
 
@@ -60,6 +70,8 @@ interface DocumentsSectionProps {
   documents: DraftDocument[];
   onAdded: (document: DraftDocument) => void;
   onRemoved: (documentId: string) => void;
+  onChanged: (document: DraftDocument) => void;
+  onReordered: (documentIds: string[]) => void;
 }
 
 /**
@@ -72,6 +84,8 @@ export const DocumentsSection = ({
   documents,
   onAdded,
   onRemoved,
+  onChanged,
+  onReordered,
 }: DocumentsSectionProps) => {
   const copy = VARIANTS[variant];
   const [isAdding, setIsAdding] = useState(false);
@@ -81,6 +95,10 @@ export const DocumentsSection = ({
   /** Texto del avance mientras se sube; `null` si no hay subida en marcha. */
   const [progress, setProgress] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ id: string; title: string; kind: DocumentKind } | null>(
+    null
+  );
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const isUploading = progress !== null;
 
@@ -136,6 +154,45 @@ export const DocumentsSection = ({
     toast.success("Documento eliminado");
   };
 
+  const onSaveEdit = async () => {
+    if (!editing || !editing.title.trim() || isSavingEdit) return;
+    const document = documents.find((item) => item.id === editing.id);
+    if (!document) return setEditing(null);
+
+    const title = editing.title.trim();
+    if (title === document.title && editing.kind === document.kind) return setEditing(null);
+
+    setIsSavingEdit(true);
+    const result = await updateDocument(document.id, { title, kind: editing.kind }).catch(
+      () => null
+    );
+    setIsSavingEdit(false);
+    if (!result?.ok) return toast.error(result?.error ?? "No se pudo guardar el documento");
+
+    onChanged({ ...document, title, kind: editing.kind });
+    setEditing(null);
+    toast.success(
+      isReport(document.kind) !== isReport(editing.kind)
+        ? `Documento movido a "${isReport(editing.kind) ? VARIANTS.report.label : VARIANTS.featured.label}"`
+        : "Documento actualizado"
+    );
+  };
+
+  const onDragEnd = async (result: DropResult) => {
+    if (!result.destination || result.destination.index === result.source.index) return;
+
+    const before = documents.map((document) => document.id);
+    const ids = [...before];
+    const [moved] = ids.splice(result.source.index, 1);
+    ids.splice(result.destination.index, 0, moved);
+    onReordered(ids);
+
+    const saved = await reorderDocuments(entryId, ids).catch(() => null);
+    if (saved?.ok) return toast.success("Orden actualizado");
+    onReordered(before);
+    toast.error(saved?.error ?? "No se pudo cambiar el orden");
+  };
+
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
@@ -164,58 +221,175 @@ export const DocumentsSection = ({
       )}
 
       {documents.length > 0 && (
-        <ul className="mt-2 space-y-2">
-          {documents.map((document, index) => (
-            <li
-              key={document.id}
-              className="flex items-center gap-3 rounded-md border bg-white p-2 text-sm"
-            >
-              {variant === "featured" && document.coverUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={document.coverUrl}
-                  alt=""
-                  loading="lazy"
-                  className="h-20 w-14 shrink-0 rounded border object-cover"
-                />
-              ) : (
-                <File className="ml-1 h-4 w-4 shrink-0 text-sky-700" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{document.title}</p>
-                <p className="text-xs text-slate-500">
-                  {DOCUMENT_KIND_LABELS[document.kind]} · {document.pageCount}{" "}
-                  {document.pageCount === 1 ? "página" : "páginas"}
-                </p>
-                {variant === "featured" && index === 0 && (
-                  <p className="mt-1 text-xs font-medium text-sky-700">
-                    Va en el encabezado de la página
-                  </p>
-                )}
-              </div>
-              <a
-                href={document.pdfUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Abrir el PDF de ${document.title}`}
-                className="shrink-0 rounded p-2 text-slate-500 hover:text-slate-900"
-              >
-                <Download className="h-4 w-4" />
-              </a>
-              <ConfirmModal onConfirm={() => onDelete(document.id)}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  aria-label={`Eliminar ${document.title}`}
-                  disabled={removingId === document.id}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </ConfirmModal>
-            </li>
-          ))}
-        </ul>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId={`documents-${variant}`}>
+            {(droppable) => (
+              <ul ref={droppable.innerRef} {...droppable.droppableProps} className="mt-2">
+                {documents.map((document, index) => (
+                  <Draggable
+                    key={document.id}
+                    draggableId={document.id}
+                    index={index}
+                    isDragDisabled={documents.length < 2 || editing !== null}
+                  >
+                    {(draggable) => (
+                      <li
+                        ref={draggable.innerRef}
+                        {...draggable.draggableProps}
+                        className="mb-2 flex items-center gap-3 rounded-md border bg-white p-2 text-sm"
+                      >
+                        {documents.length > 1 && (
+                          <div
+                            {...draggable.dragHandleProps}
+                            aria-label={`Mover ${document.title}`}
+                            className="-my-2 -ml-2 self-stretch flex items-center rounded-l-md border-r px-1.5 text-slate-500 transition hover:bg-slate-200"
+                          >
+                            <Grip className="h-4 w-4" />
+                          </div>
+                        )}
+                        {editing?.id === document.id ? (
+                          <form
+                            className="min-w-0 flex-1 space-y-2"
+                            onSubmit={(event) => {
+                              event.preventDefault();
+                              void onSaveEdit();
+                            }}
+                          >
+                            <div className="flex gap-2">
+                              <Input
+                                aria-label="Título del documento"
+                                disabled={isSavingEdit}
+                                value={editing.title}
+                                onChange={(event) =>
+                                  setEditing({ ...editing, title: event.target.value })
+                                }
+                              />
+                              <select
+                                aria-label="Tipo de documento"
+                                className={`${selectClass} w-36 shrink-0`}
+                                disabled={isSavingEdit}
+                                value={editing.kind}
+                                onChange={(event) =>
+                                  setEditing({
+                                    ...editing,
+                                    kind: event.target.value as DocumentKind,
+                                  })
+                                }
+                              >
+                                {ALL_KINDS.map((option) => (
+                                  <option key={option} value={option}>
+                                    {DOCUMENT_KIND_LABELS[option]}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            {isReport(editing.kind) !== isReport(document.kind) && (
+                              <p className="text-xs text-muted-foreground">
+                                Pasará a la tarjeta &quot;
+                                {isReport(editing.kind)
+                                  ? VARIANTS.report.label
+                                  : VARIANTS.featured.label}
+                                &quot;.
+                              </p>
+                            )}
+                            <div className="flex items-center gap-x-2">
+                              <Button
+                                type="submit"
+                                size="sm"
+                                disabled={!editing.title.trim() || isSavingEdit}
+                              >
+                                {isSavingEdit && <Loading />}
+                                Guardar
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={isSavingEdit}
+                                onClick={() => setEditing(null)}
+                              >
+                                Cancelar
+                              </Button>
+                            </div>
+                          </form>
+                        ) : (
+                          <>
+                            {variant === "featured" && document.coverUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={document.coverUrl}
+                                alt=""
+                                loading="lazy"
+                                className="h-20 w-14 shrink-0 rounded border object-cover"
+                              />
+                            ) : (
+                              <File className="ml-1 h-4 w-4 shrink-0 text-sky-700" />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-medium">{document.title}</p>
+                              <p className="text-xs text-slate-500">
+                                {DOCUMENT_KIND_LABELS[document.kind]} · {document.pageCount}{" "}
+                                {document.pageCount === 1 ? "página" : "páginas"}
+                              </p>
+                              {variant === "featured" && index === 0 && (
+                                <p className="mt-1 text-xs font-medium text-sky-700">
+                                  Va en el encabezado de la página
+                                </p>
+                              )}
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              aria-label={`Corregir ${document.title}`}
+                              disabled={editing !== null}
+                              onClick={() =>
+                                setEditing({
+                                  id: document.id,
+                                  title: document.title,
+                                  kind: document.kind,
+                                })
+                              }
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <a
+                              href={document.pdfUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Abrir el PDF de ${document.title}`}
+                              className="shrink-0 rounded p-2 text-slate-500 hover:text-slate-900"
+                            >
+                              <Download className="h-4 w-4" />
+                            </a>
+                            <ConfirmModal onConfirm={() => onDelete(document.id)}>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                aria-label={`Eliminar ${document.title}`}
+                                disabled={removingId === document.id}
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </ConfirmModal>
+                          </>
+                        )}
+                      </li>
+                    )}
+                  </Draggable>
+                ))}
+                {droppable.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
+      )}
+
+      {documents.length > 1 && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Arrastra un documento desde <Grip className="inline h-3 w-3" /> para cambiar su orden.
+        </p>
       )}
 
       {isAdding && (
@@ -287,8 +461,7 @@ export const DocumentsSection = ({
             </>
           )}
           <div className="text-xs text-muted-foreground">
-            {copy.hint} Sube solo el PDF: el sistema arma las páginas para leerlo
-            en el sitio.
+            {copy.hint} Sube solo el PDF: el sistema arma las páginas para leerlo en el sitio.
           </div>
         </div>
       )}

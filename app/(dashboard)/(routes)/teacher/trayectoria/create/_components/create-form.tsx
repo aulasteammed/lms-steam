@@ -54,7 +54,7 @@ const TYPE_COPY: Record<
         label: "Institución u organización aliada",
         placeholder: "Ejemplo: 'Parque Explora'",
         description:
-            "Elige una institución ya registrada o escribe el nombre completo de una nueva.",
+            "Elige una institución ya registrada o escribe el nombre completo de una nueva. Si se volvió a trabajar con ella en otro periodo, crea una alianza nueva con la misma institución.",
     },
 };
 

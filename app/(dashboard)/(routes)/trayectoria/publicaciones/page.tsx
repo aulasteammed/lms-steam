@@ -3,14 +3,16 @@ import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 
 import { coverUrl, readerHref } from "@/lib/projects";
+import { shareMetadata } from "@/lib/share-metadata";
 import { getAllDocuments, type ShelfItem } from "@/lib/timeline-data";
 import { PageBar } from "../_components/back-link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = shareMetadata({
   title: "Publicaciones",
   description:
     "Periódicos, revistas, cartillas e informes de los proyectos del Aula STEAM Sonny Jiménez, para leer y descargar.",
-};
+  path: "/trayectoria/publicaciones",
+});
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
 

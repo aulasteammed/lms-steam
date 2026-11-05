@@ -103,6 +103,8 @@ export const getAdminEntry = async (id: string): Promise<EntryDraft | null> => {
       ? { text: entry.quote.text, author: entry.quote.author, role: entry.quote.role ?? undefined }
       : null,
     acknowledgements: entry.acknowledgements ?? "",
+    externalLinkUrl: entry.externalLinkUrl ?? "",
+    externalLinkText: entry.externalLinkText ?? "",
     documents: entry.documents.map((document) => ({
       id: document.id,
       title: document.title,

@@ -14,6 +14,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
+import { shortSlug } from "@/lib/slug";
 import { NO_YEAR, getAdminEntry, slugify } from "@/lib/timeline-admin";
 import { TIMELINE_TAG } from "@/lib/timeline-data";
 import {
@@ -42,7 +43,7 @@ const refreshSite = (status: "draft" | "published") => {
 };
 
 const fail = (error: string): Result<never> => ({ ok: false, error });
-const done = <T,>(data: T): Result<T> => ({ ok: true, data });
+const done = <T>(data: T): Result<T> => ({ ok: true, data });
 
 const isAllowed = async () => {
   const { userId } = await auth();
@@ -56,7 +57,9 @@ const text = (max: number) => z.string().trim().max(max);
 
 /** Borra archivos de UploadThing después de responder, para no demorar el guardado. */
 const deleteFilesLater = (urls: string[]) => {
-  const keys = urls.filter((url) => uploadUrl.safeParse(url).success).map((url) => url.split("/f/")[1]);
+  const keys = urls
+    .filter((url) => uploadUrl.safeParse(url).success)
+    .map((url) => url.split("/f/")[1]);
   if (keys.length === 0) return;
   after(async () => {
     try {
@@ -86,38 +89,44 @@ const uniqueSlug = async (base: string, ownId?: string) => {
 /**
  * Una alianza es con una institución, y su título es el nombre de esa
  * institución: la misma que se elige en "Instituciones involucradas" de un
- * proyecto. Devuelve la institución que le corresponde al título:
+ * proyecto. Una institución puede tener varias alianzas, una por cada vez que
+ * se trabajó con ella (2021, y de nuevo en 2024). Devuelve la institución que
+ * le corresponde al título:
  * - si ya existe una con ese nombre, la alianza pasa a ser con ella;
  * - si no, se le cambia el nombre a la que tenía (y así cambia en todos los
- *   proyectos donde aparece) o se crea una nueva.
+ *   proyectos y en las demás alianzas con ella) o se crea una nueva.
  */
 const allianceInstitution = async (
   title: string,
   entryId?: string,
   linkedId?: string
-): Promise<{ id: string } | { error: string }> => {
+): Promise<{ id: string }> => {
   const slug = slugify(title);
-  const existing = await db.timelineInstitution.findUnique({ where: { slug }, select: { id: true } });
-
-  if (existing && existing.id !== linkedId) {
-    const taken = await db.timelineEntry.findFirst({
-      where: {
-        type: "alliance",
-        institutionIds: { has: existing.id },
-        ...(entryId ? { NOT: { id: entryId } } : {}),
-      },
-      select: { id: true },
-    });
-    if (taken) return { error: "Ya hay una alianza con esa institución" };
-    return existing;
-  }
+  const existing = await db.timelineInstitution.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+  if (existing && existing.id !== linkedId) return existing;
 
   if (linkedId) {
-    return db.timelineInstitution.update({
+    const institution = await db.timelineInstitution.update({
       where: { id: linkedId },
       data: { name: title, slug },
       select: { id: true },
     });
+    const { count } = await db.timelineEntry.updateMany({
+      where: {
+        type: "alliance",
+        institutionIds: { has: linkedId },
+        ...(entryId ? { NOT: { id: entryId } } : {}),
+      },
+      data: { title },
+    });
+    if (count > 0) {
+      revalidateTag(TIMELINE_TAG);
+      revalidatePath(LIST_PATH);
+    }
+    return institution;
   }
   return db.timelineInstitution.create({ data: { name: title, slug }, select: { id: true } });
 };
@@ -127,7 +136,9 @@ const createSchema = z.object({
   title: text(200).min(1),
 });
 
-export async function createEntry(input: z.infer<typeof createSchema>): Promise<Result<{ id: string }>> {
+export async function createEntry(
+  input: z.infer<typeof createSchema>
+): Promise<Result<{ id: string }>> {
   if (!(await isAllowed())) return fail("No autorizado");
   const parsed = createSchema.safeParse(input);
   if (!parsed.success) return fail("Elige el tipo y escribe el nombre");
@@ -135,13 +146,12 @@ export async function createEntry(input: z.infer<typeof createSchema>): Promise<
   try {
     const institution =
       parsed.data.type === "alliance" ? await allianceInstitution(parsed.data.title) : null;
-    if (institution && "error" in institution) return fail(institution.error);
 
     const entry = await db.timelineEntry.create({
       data: {
         type: parsed.data.type,
         title: parsed.data.title,
-        slug: await uniqueSlug(slugify(parsed.data.title)),
+        slug: await uniqueSlug(shortSlug(parsed.data.title) || "registro"),
         shortDescription: "",
         startYear: NO_YEAR,
         locationText: "",
@@ -187,6 +197,15 @@ const patchSchema = z
       .object({ text: text(600).min(1), author: text(120).min(1), role: text(120).optional() })
       .nullable(),
     acknowledgements: text(2000),
+    externalLinkUrl: z.union([
+      z.literal(""),
+      z
+        .string()
+        .trim()
+        .max(500)
+        .regex(/^https?:\/\/\S+$/i),
+    ]),
+    externalLinkText: text(60),
     participationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     modality: z.enum(["in_person", "virtual", "hybrid"]).nullable(),
     reason: text(1000),
@@ -202,7 +221,8 @@ const patchSchema = z
 export async function updateEntry(id: string, patch: EntryPatch): Promise<Result> {
   if (!(await isAllowed())) return fail("No autorizado");
   const parsed = patchSchema.safeParse(patch);
-  if (!objectId.safeParse(id).success || !parsed.success) return fail("Hay un dato que no es válido");
+  if (!objectId.safeParse(id).success || !parsed.success)
+    return fail("Hay un dato que no es válido");
   const input = parsed.data;
 
   try {
@@ -228,7 +248,15 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
     const data: Prisma.TimelineEntryUpdateInput = {
       ...plain,
       // Los textos opcionales vacíos se guardan como "sin dato".
-      ...(plain.acknowledgements !== undefined && { acknowledgements: plain.acknowledgements || null }),
+      ...(plain.acknowledgements !== undefined && {
+        acknowledgements: plain.acknowledgements || null,
+      }),
+      ...(plain.externalLinkUrl !== undefined && {
+        externalLinkUrl: plain.externalLinkUrl || null,
+      }),
+      ...(plain.externalLinkText !== undefined && {
+        externalLinkText: plain.externalLinkText || null,
+      }),
       ...(plain.reason !== undefined && { reason: plain.reason || null }),
       ...(plain.speakerName !== undefined && { speakerName: plain.speakerName || null }),
       ...(plain.speakerRole !== undefined && { speakerRole: plain.speakerRole || null }),
@@ -248,7 +276,6 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
       // La institución de una alianza sale de su título, no de una lista aparte.
       if (input.title !== undefined) {
         const institution = await allianceInstitution(input.title, id, current.institutionIds[0]);
-        if ("error" in institution) return fail(institution.error);
         data.institutions = { set: [{ id: institution.id }] };
       }
     } else if (institutions !== undefined) {
@@ -275,7 +302,10 @@ export async function updateEntry(id: string, patch: EntryPatch): Promise<Result
     const endYear = input.endYear !== undefined ? input.endYear : current.endYear;
     if (!current.publishedAt) {
       if (input.title !== undefined || input.endYear !== undefined) {
-        data.slug = await uniqueSlug(slugify(title) + (endYear ? `-${endYear}` : ""), id);
+        data.slug = await uniqueSlug(
+          (shortSlug(title) || "registro") + (endYear ? `-${endYear}` : ""),
+          id
+        );
       }
     } else if (current.endYear === null && endYear !== null) {
       data.slug = await uniqueSlug(`${current.slug}-${endYear}`, id);
@@ -319,7 +349,10 @@ export async function setEntryPublished(id: string, published: boolean): Promise
       }
     }
 
-    const current = await db.timelineEntry.findUnique({ where: { id }, select: { publishedAt: true } });
+    const current = await db.timelineEntry.findUnique({
+      where: { id },
+      select: { publishedAt: true },
+    });
     await db.timelineEntry.update({
       where: { id },
       data: {
@@ -390,9 +423,19 @@ export async function deleteEntry(id: string): Promise<Result> {
   }
 }
 
+const documentKind = z.enum([
+  "newspaper",
+  "magazine",
+  "booklet",
+  "book",
+  "deliverable",
+  "report",
+  "other",
+]);
+
 const documentSchema = z.object({
   title: text(200).min(1),
-  kind: z.enum(["newspaper", "magazine", "booklet", "book", "deliverable", "report", "other"]),
+  kind: documentKind,
   pdfUrl: uploadUrl,
   pdfSizeBytes: z.number().int().positive(),
   /** Las páginas ya convertidas a imagen, en orden. */
@@ -426,7 +469,7 @@ export async function addDocument(
     if (entry.type !== "project") return fail("Solo los proyectos tienen documentos");
 
     const taken = new Set(entry.documents.map((document) => document.slug));
-    const base = slugify(fields.title);
+    const base = shortSlug(fields.title, 30) || "documento";
     let slug = base;
     for (let n = 2; taken.has(slug); n++) slug = `${base}-${n}`;
 
@@ -454,6 +497,97 @@ export async function addDocument(
   } catch (error) {
     console.error("[TIMELINE_DOCUMENT_ADD]", error);
     return fail("No se pudo guardar el documento");
+  }
+}
+
+const documentPatchSchema = z.object({ title: text(200).min(1), kind: documentKind });
+
+/** La dirección del visor solo sigue al título mientras el proyecto no se ha publicado. */
+export async function updateDocument(
+  documentId: string,
+  input: z.infer<typeof documentPatchSchema>
+): Promise<Result> {
+  if (!(await isAllowed())) return fail("No autorizado");
+  const parsed = documentPatchSchema.safeParse(input);
+  if (!objectId.safeParse(documentId).success || !parsed.success) {
+    return fail("El documento no es válido");
+  }
+  const { title, kind } = parsed.data;
+
+  try {
+    const document = await db.timelineDocument.findUnique({
+      where: { id: documentId },
+      select: {
+        title: true,
+        kind: true,
+        entry: {
+          select: {
+            status: true,
+            publishedAt: true,
+            documents: { select: { id: true, slug: true, position: true } },
+          },
+        },
+      },
+    });
+    if (!document) return fail("El documento ya no existe");
+    const { entry } = document;
+
+    const data: Prisma.TimelineDocumentUpdateInput = { title, kind };
+    if (!entry.publishedAt && title !== document.title) {
+      const taken = new Set(
+        entry.documents.filter((other) => other.id !== documentId).map((other) => other.slug)
+      );
+      const base = shortSlug(title, 30) || "documento";
+      let slug = base;
+      for (let n = 2; taken.has(slug); n++) slug = `${base}-${n}`;
+      data.slug = slug;
+    }
+    if ((document.kind === "report") !== (kind === "report")) {
+      data.position = Math.max(...entry.documents.map((other) => other.position)) + 1;
+    }
+
+    await db.timelineDocument.update({ where: { id: documentId }, data, select: { id: true } });
+    refreshSite(entry.status);
+    return done(undefined);
+  } catch (error) {
+    console.error("[TIMELINE_DOCUMENT_UPDATE]", error);
+    return fail("No se pudo guardar el documento");
+  }
+}
+
+/** Reparte entre los documentos los puestos que ya ocupaban, así la otra tarjeta no cambia. */
+export async function reorderDocuments(entryId: string, documentIds: string[]): Promise<Result> {
+  if (!(await isAllowed())) return fail("No autorizado");
+  const ids = z.array(objectId).min(1).max(100).safeParse(documentIds);
+  if (!objectId.safeParse(entryId).success || !ids.success) return fail("El orden no es válido");
+
+  try {
+    const entry = await db.timelineEntry.findUnique({
+      where: { id: entryId },
+      select: { status: true, documents: { select: { id: true, position: true } } },
+    });
+    if (!entry) return fail("El registro ya no existe");
+
+    const moved = entry.documents.filter((document) => ids.data.includes(document.id));
+    if (moved.length !== new Set(ids.data).size || moved.length !== ids.data.length) {
+      return fail("El documento ya no existe");
+    }
+    const slots = moved.map((document) => document.position).sort((a, b) => a - b);
+
+    await db.$transaction(
+      ids.data.map((id, index) =>
+        db.timelineDocument.update({
+          where: { id },
+          data: { position: slots[index] },
+          select: { id: true },
+        })
+      )
+    );
+    refreshSite(entry.status);
+    return done(undefined);
+  } catch (error) {
+    console.error("[TIMELINE_DOCUMENT_REORDER]", error);
+    return fail("No se pudo cambiar el orden");
   }
 }
 

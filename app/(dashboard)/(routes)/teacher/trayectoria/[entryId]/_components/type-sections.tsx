@@ -238,6 +238,75 @@ export const AcknowledgementsSection = ({ draft, onChange }: SectionProps) => (
   />
 );
 
+type LinkValue = { url: string; text: string };
+
+const normalizeUrl = (value: string) => {
+  const clean = value.trim();
+  if (!clean) return "";
+  const withScheme = /^https?:\/\//i.test(clean) ? clean : `https://${clean}`;
+  try {
+    const url = new URL(withScheme);
+    return /\s/.test(clean) || !url.hostname.includes(".") ? null : withScheme;
+  } catch {
+    return null;
+  }
+};
+
+export const ExternalLinkSection = ({ draft, onChange }: SectionProps) => (
+  <EditCard<LinkValue>
+    label="Enlace externo"
+    editLabel={draft.externalLinkUrl ? "Editar enlace" : "Añadir enlace"}
+    value={{ url: draft.externalLinkUrl, text: draft.externalLinkText }}
+    isEmpty={!draft.externalLinkUrl}
+    emptyText="Sin enlace"
+    optional
+    view={(link) => (
+      <>
+        {link.text || "Visitar sitio"}
+        <span className="block truncate text-slate-500">{link.url}</span>
+      </>
+    )}
+    edit={(link, setLink) => (
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="external-link-url">Dirección</Label>
+          <Input
+            id="external-link-url"
+            placeholder="https://"
+            value={link.url}
+            onChange={(event) => setLink({ ...link, url: event.target.value })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="external-link-text">Texto del botón</Label>
+          <Input
+            id="external-link-text"
+            maxLength={60}
+            placeholder="Visitar sitio"
+            value={link.text}
+            onChange={(event) => setLink({ ...link, text: event.target.value })}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Un sitio del proyecto fuera del aula, p.ej. su página o un video. Sale como
+          botón al final de la página del proyecto. Deja la dirección vacía para quitarlo.
+        </p>
+      </div>
+    )}
+    validate={(link) =>
+      normalizeUrl(link.url) === null
+        ? "Esa dirección no es válida"
+        : !link.url.trim() && link.text.trim()
+          ? "Falta la dirección"
+          : null
+    }
+    onSave={(link) => {
+      const url = normalizeUrl(link.url) ?? "";
+      return onChange({ externalLinkUrl: url, externalLinkText: url ? link.text.trim() : "" });
+    }}
+  />
+);
+
 // ── Solo participaciones ──
 
 const MODALITIES: Modality[] = ["in_person", "virtual", "hybrid"];

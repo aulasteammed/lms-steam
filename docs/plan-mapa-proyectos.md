@@ -241,7 +241,7 @@ Reglas:
 - El tipo no se puede cambiar después de crear el registro.
 - Para publicar se exige título, descripción corta, periodo (o fecha y modalidad), ubicación con punto y una imagen. Lo demás es opcional.
 - El punto del mapa se saca de un enlace largo de Google Maps o de las coordenadas pegadas. Una participación virtual no pide punto.
-- **Una alianza es una institución** (decisión de Julieth, 2026-10-13): su título es el nombre de la institución aliada, la misma que se elige en los proyectos. No hay una tarjeta aparte de institución. Al crearla se elige una ya registrada o se escribe una nueva; corregir el nombre lo cambia también en los proyectos, y solo puede haber una alianza por institución.
+- **Una alianza es una institución** (decisión de Julieth, 2026-10-13): su título es el nombre de la institución aliada, la misma que se elige en los proyectos. No hay una tarjeta aparte de institución. Al crearla se elige una ya registrada o se escribe una nueva; corregir el nombre lo cambia también en los proyectos. **Una institución puede tener varias alianzas** (decisión de Julieth, 2026-11-04): si se trabajó con ella en 2021 y de nuevo en 2024, son dos registros, cada uno con su periodo, y salen en sus dos años de la línea de tiempo. Corregir el nombre en una cambia el título de las demás.
 - **En una participación, quien organiza y con quién se fue son dos cosas** (decisión de Julieth, 2026-10-13): "Quién organizó" es texto libre (`organizer`) y no entra al registro de instituciones; "Instituciones aliadas" son las del registro con las que fue el aula.
 - **Documentos de un proyecto, en dos tarjetas** (decisión de Julieth): "Publicaciones y entregables" (periódico, revista, cartilla, libro, entregable, otro) e "Informes". Un entregable vale lo mismo que un periódico: se muestra con portada y puede ir en el encabezado. Solo los informes van aparte. El sitio público sigue la misma regla (`isReportKind` en `lib/projects.ts`).
 
@@ -255,9 +255,10 @@ Cómo funciona:
 - La dirección (`slug`) sigue al título mientras el registro no se haya publicado. Después solo cambia al cerrarse un registro en curso, y la dirección anterior queda en `previousSlugs`.
 - Un borrador recién creado aún no tiene periodo, pero `startYear` es obligatorio en el esquema: se guarda 0 y el panel lo lee como "sin dato".
 
-Pendiente del panel:
+Hecho el 2026-11-04:
 
-- No se puede cambiar el título, el tipo ni el orden de un documento ya subido: hay que borrarlo y subirlo otra vez.
+- **Documentos ya subidos:** el lápiz corrige el título y el tipo sin volver a subir el PDF. Al pasar de publicación a informe (o al revés) el documento cambia de tarjeta y queda de último. La dirección del visor sigue al título solo mientras el proyecto no se ha publicado. El orden se cambia arrastrando, como los capítulos de un curso (`reorderDocuments` reparte entre los documentos de la tarjeta los mismos puestos que ya tenían).
+- **Enlace externo del proyecto:** tarjeta "Enlace externo" en "Contenido de la página" (dirección y texto del botón; sin texto dice "Visitar sitio"). Si se pega sin `https://`, se agrega.
 
 ### 8.2 El sitio público lee la base de datos (2026-10-13)
 
@@ -295,5 +296,5 @@ Pendiente:
 - **Google no puede leer las páginas.** Producción usa claves de desarrollo de Clerk, y Googlebot recibe una redirección 307 en todas las páginas. `robots.txt` y `sitemap.xml` sí responden.
   - Solución definitiva: dominio propio (idealmente un subdominio de la UNAL) y Clerk en producción. Clerk no admite `*.vercel.app` en producción.
   - Solución temporal ofrecida y no aplicada: que el middleware no aplique el handshake a los buscadores.
-- Imagen para compartir en redes (1200 × 630).
+- ~~Imagen para compartir en redes (1200 × 630).~~ Hecho el 2026-11-04 (`lib/share-metadata.ts`): artículos del blog, proyectos, visor, mapa, estantería y blog llevan vista previa para redes. Las fotos de UploadThing pasan por `/api/share-image`, que las recorta a 1200 × 630 en JPEG; lo que no tiene foto usa `public/og-aula-steam.png` (logo del aula).
 - La rama `Proyectos` tiene el merge de `3.0` sin subir a GitHub.

@@ -53,6 +53,8 @@ export type EntryDraft = {
   story: { title: string; paragraphs: string[] } | null;
   quote: { text: string; author: string; role?: string } | null;
   acknowledgements: string;
+  externalLinkUrl: string;
+  externalLinkText: string;
   documents: DraftDocument[];
 
   // ── Solo participaciones ──

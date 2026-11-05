@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/event',
   '/api/uploadthing',
   '/api/blog/articles/:path*/views',
+  '/api/share-image',
   '/certificate/verify/:path*',
 ]);
 

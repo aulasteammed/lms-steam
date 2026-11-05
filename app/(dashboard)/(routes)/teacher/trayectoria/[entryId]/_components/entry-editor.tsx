@@ -42,6 +42,7 @@ import {
 import {
   AcknowledgementsSection,
   DateModalitySection,
+  ExternalLinkSection,
   OrganizerSection,
   PeopleSection,
   QuoteSection,
@@ -109,6 +110,35 @@ export const EntryEditor = ({
         ...current,
         documents: current.documents.filter((document) => document.id !== documentId),
       })),
+    []
+  );
+  const onDocumentChanged = useCallback(
+    (changed: DraftDocument) =>
+      setDraft((current) => {
+        const before = current.documents.find((document) => document.id === changed.id);
+        const others = current.documents.filter((document) => document.id !== changed.id);
+        const movesCard = before && isReport(before.kind) !== isReport(changed.kind);
+        return {
+          ...current,
+          documents: movesCard
+            ? [...others, changed]
+            : current.documents.map((document) => (document.id === changed.id ? changed : document)),
+        };
+      }),
+    []
+  );
+  const onDocumentsReordered = useCallback(
+    (ids: string[]) =>
+      setDraft((current) => {
+        const byId = new Map(current.documents.map((document) => [document.id, document]));
+        return {
+          ...current,
+          documents: [
+            ...current.documents.filter((document) => !ids.includes(document.id)),
+            ...ids.flatMap((id) => byId.get(id) ?? []),
+          ],
+        };
+      }),
     []
   );
 
@@ -205,6 +235,7 @@ export const EntryEditor = ({
                 <StorySection {...section} />
                 <QuoteSection {...section} />
                 <AcknowledgementsSection {...section} />
+                <ExternalLinkSection {...section} />
               </div>
             )}
 
@@ -253,6 +284,8 @@ export const EntryEditor = ({
                     documents={draft.documents.filter((document) => !isReport(document.kind))}
                     onAdded={onDocumentAdded}
                     onRemoved={onDocumentRemoved}
+                    onChanged={onDocumentChanged}
+                    onReordered={onDocumentsReordered}
                   />
                   <DocumentsSection
                     entryId={draft.id}
@@ -260,6 +293,8 @@ export const EntryEditor = ({
                     documents={draft.documents.filter((document) => isReport(document.kind))}
                     onAdded={onDocumentAdded}
                     onRemoved={onDocumentRemoved}
+                    onChanged={onDocumentChanged}
+                    onReordered={onDocumentsReordered}
                   />
                 </div>
                 <div>

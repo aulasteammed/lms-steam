@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
-import { getDocument } from "@/lib/projects";
+import { getDocument, readerHref } from "@/lib/projects";
+import { shareMetadata } from "@/lib/share-metadata";
 import { getProject } from "@/lib/timeline-data";
 import { FlipBook } from "../../_components/flip-book";
 
@@ -15,7 +16,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const found = await getProject(id);
   const document = found && "project" in found && getDocument(found.project, doc);
   if (!document) return {};
-  return { title: document.title, description: document.description };
+  return shareMetadata({
+    title: document.title,
+    description:
+      document.description ??
+      `${document.kind} del proyecto ${found.project.title}, para leer en línea o descargar.`,
+    path: readerHref(found.project, document),
+    images: [document.pages[0]?.url],
+  });
 }
 
 /**
