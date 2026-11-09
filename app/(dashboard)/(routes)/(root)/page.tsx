@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { CheckCircle, Clock, LogIn, CircleUserRound } from 'lucide-react';
+import { ArrowUpRight, CheckCircle, ClipboardCheck, Clock, LogIn, CircleUserRound } from 'lucide-react';
 import { getDashboardCourses } from '@/actions/get-dashboard-courses';
 import { getHomeData } from '@/actions/get-home-data';
 import Link from 'next/link';
@@ -42,7 +42,46 @@ const Banner = () => (
 );
 
 
-const InteractiveCard = ({ title, description, href, color = "blue" }: CardProps) => {
+/**
+ * Protocolos del aula, visibles para todos en el inicio. Para añadir otro
+ * (p.ej. el de impresiones 3D) basta con sumar una línea aquí.
+ */
+const PROTOCOLS = [
+    {
+        label: "Leer protocolo de uso del aula",
+        href: "https://drive.google.com/file/d/18kGWk8PDbAggv8_WgjHXAn3QSeaQv7Iw/view",
+    },
+];
+
+const ProtocolNotice = () => (
+    <section className="w-full px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3">
+            <ClipboardCheck className="hidden sm:block h-5 w-5 shrink-0 text-blue-600" aria-hidden />
+            <p className="flex-1 text-sm text-gray-700">
+                <span className="font-semibold text-gray-900">¿Vas a usar el aula?</span>{" "}
+                Conoce los acuerdos para el cuidado del espacio, el préstamo de equipos y el manejo de materiales.
+            </p>
+            <div className="flex flex-wrap gap-x-5 gap-y-1">
+                {PROTOCOLS.map((protocol) => (
+                    <a
+                        key={protocol.href}
+                        href={protocol.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                    >
+                        {protocol.label}
+                        <ArrowUpRight className="h-4 w-4" aria-hidden />
+                        <span className="sr-only">(se abre en una pestaña nueva)</span>
+                    </a>
+                ))}
+            </div>
+        </div>
+    </section>
+);
+
+
+const InteractiveCard =({ title, description, href, color = "blue" }: CardProps) => {
 
     const colorStyles = {
         blue: "hover:border-blue-400",
@@ -166,6 +205,7 @@ export default async function Dashboard() {
         <div className="min-h-screen flex flex-col justify-center items-center bg-white">
             <CarouselHome />
             <Banner />
+            <ProtocolNotice />
 
             {userId ? (
                 <AuthenticatedDashboard
