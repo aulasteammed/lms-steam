@@ -8,7 +8,6 @@
 import type { EntryType, Modality } from "@/lib/timeline";
 
 export type DraftImage = { url: string; alt: string; credit?: string };
-export type DraftPerson = { name: string; role: string };
 /** Un lugar del registro: su nombre y su punto en el mapa. */
 export type DraftLocation = { name: string; latitude: number; longitude: number };
 
@@ -49,7 +48,6 @@ export type EntryDraft = {
   institutions: string[];
 
   // ── Solo proyectos ──
-  people: DraftPerson[];
   story: { title: string; paragraphs: string[] } | null;
   quote: { text: string; author: string; role?: string } | null;
   acknowledgements: string;

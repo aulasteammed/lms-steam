@@ -35,7 +35,8 @@ export const TypeSelector = memo(function TypeSelector({
             type="button"
             aria-pressed={isSelected}
             onClick={() => onSelect(type)}
-            className={`flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-1 sm:text-sm ${
+            // El botón se ve de 36 px; `before` lo lleva a 44 px de alto para el dedo.
+            className={`relative flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-1 sm:text-sm ${
               isSelected ? style.soft : "text-editorial-soft hover:bg-editorial-chip"
             }`}
           >
@@ -114,7 +115,7 @@ export const TimelineBar = memo(function TimelineBar({
               aria-pressed={isSelected}
               disabled={!counts[year]}
               onClick={() => onSelect(year)}
-              className={`group flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-1 text-sm tabular-nums transition [text-shadow:0_0_6px_rgb(255_255_255)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent disabled:text-editorial-muted ${
+              className={`group flex shrink-0 flex-col items-center gap-1 rounded-lg px-3 py-2 text-sm md:py-1 tabular-nums transition [text-shadow:0_0_6px_rgb(255_255_255)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent disabled:text-editorial-muted ${
                 isSelected
                   ? "font-bold text-editorial-ink"
                   : "font-medium text-editorial-soft enabled:hover:text-editorial-ink"

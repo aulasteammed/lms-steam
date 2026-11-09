@@ -20,7 +20,8 @@ export default async function ProjectsPage() {
   const entries = await getMapEntries();
 
   return (
-    <div className="relative h-full min-h-[480px]">
+    // Sin alto mínimo: con el celular acostado la página haría scroll y el mapa se comería el gesto.
+    <div className="relative h-full">
       <ProjectsMap
         entries={entries}
         intro={{ title: intro.titulo, text: intro.texto }}

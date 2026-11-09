@@ -402,16 +402,6 @@ type TimelineLocation {
   longitude Float
 }
 
-
-type TimelinePerson {
-  name         String
-  role         String
-  contribution String?
-  /// Una o dos frases: quién es la persona.
-  bio          String?
-}
-
-
 type TimelineStory {
   title      String
   paragraphs String[]
@@ -468,7 +458,6 @@ model TimelineEntry {
   institutions   TimelineInstitution[] @relation(fields: [institutionIds], references: [id])
 
   // ── Solo proyectos ──
-  people           TimelinePerson[]
   story            TimelineStory?
   quote            TimelineQuote?
   acknowledgements String?

@@ -1,9 +1,5 @@
 "use client";
 
-import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
-import { Grip, PlusCircle, X } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,139 +7,9 @@ import { cn } from "@/lib/utils";
 import { MODALITY_LABELS, formatDate, type Modality } from "@/lib/timeline";
 
 import { EditCard } from "../../_components/edit-card";
-import type { DraftPerson } from "../../_components/draft";
 import type { SectionProps } from "./common-sections";
 
 // ── Solo proyectos ──
-
-/** Cada fila lleva una clave propia para poder arrastrarla; no se guarda. */
-type KeyedPerson = DraftPerson & { key: string };
-
-let nextPersonKey = 0;
-const newPersonKey = () => `person-new-${nextPersonKey++}`;
-
-export const PeopleSection = ({ draft, onChange }: SectionProps) => (
-  <EditCard<KeyedPerson[]>
-    label="Personas involucradas"
-    editLabel={draft.people.length ? "Editar personas" : "Añadir una persona"}
-    value={draft.people.map((person, index) => ({ ...person, key: `person-${index}` }))}
-    isEmpty={draft.people.length === 0}
-    emptyText="Sin personas"
-    optional
-    view={(people) => (
-      <ul className="space-y-1">
-        {people.map((person) => (
-          <li key={person.key}>
-            {person.name}
-            <span className="text-slate-500"> · {person.role}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-    edit={(people, setPeople) => {
-      const update = (index: number, patch: Partial<DraftPerson>) =>
-        setPeople(people.map((person, i) => (i === index ? { ...person, ...patch } : person)));
-
-      const onDragEnd = (result: DropResult) => {
-        if (!result.destination || result.destination.index === result.source.index) return;
-        const next = [...people];
-        const [moved] = next.splice(result.source.index, 1);
-        next.splice(result.destination.index, 0, moved);
-        setPeople(next);
-      };
-
-      return (
-        <div className="space-y-3">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="people">
-              {(droppable) => (
-                <ul ref={droppable.innerRef} {...droppable.droppableProps}>
-                  {people.map((person, index) => (
-                    <Draggable
-                      key={person.key}
-                      draggableId={person.key}
-                      index={index}
-                      isDragDisabled={people.length < 2}
-                    >
-                      {(draggable) => (
-                        <li
-                          ref={draggable.innerRef}
-                          {...draggable.draggableProps}
-                          className="mb-2 flex items-center gap-2"
-                        >
-                          {people.length > 1 && (
-                            <div
-                              {...draggable.dragHandleProps}
-                              aria-label={`Mover ${person.name || "persona"}`}
-                              className="flex h-10 shrink-0 items-center rounded-md border bg-white px-1.5 text-slate-500 transition hover:bg-slate-200"
-                            >
-                              <Grip className="h-4 w-4" />
-                            </div>
-                          )}
-                          <Input
-                            aria-label="Nombre"
-                            placeholder="Nombre"
-                            value={person.name}
-                            onChange={(event) => update(index, { name: event.target.value })}
-                          />
-                          <Input
-                            aria-label="Rol"
-                            placeholder="Rol en el proyecto"
-                            value={person.role}
-                            onChange={(event) => update(index, { role: event.target.value })}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            aria-label="Quitar persona"
-                            onClick={() => setPeople(people.filter((_, i) => i !== index))}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </li>
-                      )}
-                    </Draggable>
-                  ))}
-                  {droppable.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setPeople([...people, { name: "", role: "", key: newPersonKey() }])}
-          >
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Añadir persona
-          </Button>
-          <div className="text-xs text-muted-foreground">
-            Solo nombre y rol, y solo de quienes autorizaron aparecer.
-            {people.length > 1 && (
-              <>
-                {" "}
-                Arrastra una persona desde <Grip className="inline h-3 w-3" /> para cambiar su
-                orden: así se verá en la página.
-              </>
-            )}
-          </div>
-        </div>
-      );
-    }}
-    validate={(people) =>
-      people.some((person) => !person.name.trim() || !person.role.trim())
-        ? "Cada persona necesita nombre y rol"
-        : null
-    }
-    onSave={(people) =>
-      onChange({
-        people: people.map((person) => ({ name: person.name.trim(), role: person.role.trim() })),
-      })
-    }
-  />
-);
 
 type StoryValue = { title: string; text: string };
 

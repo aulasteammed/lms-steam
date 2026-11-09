@@ -58,7 +58,6 @@ export type Project = {
   /** Publicación destacada: el primer periódico, revista, entregable o similar. */
   publication?: ProjectDocument;
   institutions: string[];
-  people: { name: string; role: string }[];
   story?: { title: string; paragraphs: string[] };
   quote?: { text: string; author: string; role?: string };
   acknowledgements?: string;

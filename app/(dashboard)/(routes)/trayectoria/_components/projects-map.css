@@ -29,6 +29,14 @@
   --marker-ring: rgba(27, 20, 114, 0.25);
 }
 
+/* Área táctil de 44 px alrededor del punto de 26 px: se ve igual, pero se acierta con el dedo */
+.project-marker::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 9999px;
+}
+
 /* Grupo de puntos cercanos: más grande y con la cantidad adentro */
 .project-marker.is-cluster {
   width: 42px;
@@ -54,8 +62,15 @@
   box-shadow: 0 0 0 5px var(--marker-ring), 0 4px 10px rgba(18, 17, 15, 0.25);
 }
 
-.project-marker:hover .project-marker__dot {
-  transform: scale(1.1);
+/* Solo con mouse: en pantallas táctiles el hover se queda pegado tras tocar */
+@media (hover: hover) and (pointer: fine) {
+  .project-marker:hover .project-marker__dot {
+    transform: scale(1.1);
+  }
+  .project-marker:hover .project-marker__label {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
 }
 
 .project-marker:focus-visible {
@@ -105,7 +120,10 @@
   left: calc(100% + 12px);
   top: 50%;
   transform: translate(-6px, -50%);
-  white-space: nowrap;
+  /* Los nombres largos se parten en dos líneas en vez de salirse del mapa */
+  width: max-content;
+  max-width: min(240px, 60vw);
+  white-space: normal;
   background: #fff;
   color: #12110f; /* editorial-ink */
   font: 600 14px/1.2 ui-sans-serif, system-ui, sans-serif;
@@ -118,7 +136,8 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.project-marker:hover .project-marker__label,
+/* El nombre también aparece al llegar con el teclado */
+.project-marker:focus-visible .project-marker__label,
 .project-marker.is-active .project-marker__label {
   opacity: 1;
   transform: translate(0, -50%);

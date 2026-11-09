@@ -438,9 +438,11 @@ export const FlipBook = ({
           <a
             href={publication.pdf}
             download
-            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper"
+            // En celular solo se ve el ícono: el nombre va para el lector de pantalla.
+            aria-label={`Descargar en PDF: ${publication.title}`}
+            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4" aria-hidden />
             <span className="hidden sm:inline">Descargar</span>
           </a>
         </div>
@@ -617,6 +619,7 @@ export const FlipBook = ({
             onClick={toggleNativeFs}
             className="flex h-10 items-center gap-2 rounded-xl border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body shadow-sm transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
             title={nativeFs ? "Salir de pantalla completa (Esc)" : "Pantalla completa"}
+            aria-label={nativeFs ? "Salir de pantalla completa" : "Pantalla completa"}
           >
             {nativeFs ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
             <span className="hidden sm:inline">
@@ -629,6 +632,7 @@ export const FlipBook = ({
             onClick={() => (expanded ? exitExpanded() : enterExpanded())}
             className="flex h-10 items-center gap-2 rounded-xl border border-editorial-line bg-white px-3 text-sm font-medium text-editorial-body shadow-sm transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
             title={expanded ? "Salir (Esc)" : "Pantalla completa (con zoom)"}
+            aria-label={expanded ? "Salir de pantalla completa" : "Pantalla completa"}
           >
             {expanded ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
             <span className="hidden sm:inline">

@@ -10,7 +10,6 @@ import {
   MapPin,
   MessageSquareText,
   Trash,
-  Users,
 } from "lucide-react";
 
 import { IconBadge } from "@/components/icon-badge";
@@ -44,7 +43,6 @@ import {
   DateModalitySection,
   ExternalLinkSection,
   OrganizerSection,
-  PeopleSection,
   QuoteSection,
   ReasonSection,
   SpeakerSection,
@@ -296,13 +294,6 @@ export const EntryEditor = ({
                     onChanged={onDocumentChanged}
                     onReordered={onDocumentsReordered}
                   />
-                </div>
-                <div>
-                  <div className="flex items-center gap-x-2">
-                    <IconBadge icon={Users} />
-                    <h2 className="text-xl">Equipo</h2>
-                  </div>
-                  <PeopleSection {...section} />
                 </div>
               </>
             ) : (

@@ -124,12 +124,15 @@ export default async function ProjectPage({ params }: Props) {
       : []),
   ];
 
+  /** El mapa abre directo en la card de este proyecto, en su año. */
+  const mapHref = `/trayectoria?registro=${encodeURIComponent(project.id)}`;
+
   /** Las fotos van juntas en una sola sección, pequeñas; al tocarlas se abren sobre la página. */
   const photos = project.images.length > 0 && <PhotoGallery images={project.images} />;
 
   return (
     <article className="pb-16">
-      <PageBar backHref="/trayectoria" backLabel="Volver al mapa">
+      <PageBar backHref={mapHref} backLabel="Volver al mapa">
         <ShareButton title={project.title} />
       </PageBar>
 
@@ -220,7 +223,7 @@ export default async function ProjectPage({ params }: Props) {
             ) : (
               photos
             )}
-            <MiniMap points={project.points} place={project.place} />
+            <MiniMap points={project.points} place={project.place} mapHref={mapHref} />
           </div>
         </section>
 
@@ -248,21 +251,6 @@ export default async function ProjectPage({ params }: Props) {
               </span>
             </figcaption>
           </figure>
-        )}
-
-        {/* Equipo: todas las personas del proyecto, con su rol */}
-        {project.people.length > 0 && (
-          <section>
-            <h2 className={label}>Equipo</h2>
-            <ul className="mt-3 grid gap-x-8 gap-y-3 sm:grid-cols-2">
-              {project.people.map((person, i) => (
-                <li key={i} className="border-t border-editorial-line pt-3">
-                  <p className="text-sm font-medium text-editorial-ink">{person.name}</p>
-                  <p className="text-sm text-editorial-soft">{person.role}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
         )}
 
         {/* Las demás publicaciones y entregables, si hay más de una */}

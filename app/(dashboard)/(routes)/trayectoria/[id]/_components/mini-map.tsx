@@ -8,6 +8,8 @@ type MiniMapProps = {
   place: string;
   /** El panel de edición lo muestra sin el enlace al mapa completo. */
   showLink?: boolean;
+  /** A dónde lleva "Ver en el mapa completo": idealmente a la card del registro. */
+  mapHref?: string;
 };
 
 /** Zoom de un registro con un solo lugar; con varios se aleja hasta que quepan. */
@@ -31,7 +33,12 @@ const toTile = ([lon, lat]: [number, number], zoom: number) => {
  * Mapa pequeño y estático de los lugares del registro: cuatro teselas de
  * OpenStreetMap con un punto por lugar. No carga la librería del mapa.
  */
-export const MiniMap = ({ points, place, showLink = true }: MiniMapProps) => {
+export const MiniMap = ({
+  points,
+  place,
+  showLink = true,
+  mapHref = "/trayectoria",
+}: MiniMapProps) => {
   if (points.length === 0) return null;
 
   // El zoom más cercano en el que todos los puntos caben con margen.
@@ -94,8 +101,8 @@ export const MiniMap = ({ points, place, showLink = true }: MiniMapProps) => {
         </p>
         {showLink && (
           <Link
-            href="/trayectoria"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-editorial-cta hover:underline"
+            href={mapHref}
+            className="inline-flex min-h-11 items-center gap-1.5 rounded text-sm font-medium text-editorial-cta hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2 md:min-h-0"
           >
             Ver en el mapa completo
             <ArrowRight className="h-4 w-4" />

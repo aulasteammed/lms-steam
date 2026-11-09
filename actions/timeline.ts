@@ -189,7 +189,6 @@ const patchSchema = z
       .array(z.object({ url: uploadUrl, alt: text(300), credit: text(120).optional() }))
       .max(2),
     institutions: z.array(text(200).min(1)).max(30),
-    people: z.array(z.object({ name: text(120).min(1), role: text(120).min(1) })).max(40),
     story: z
       .object({ title: text(200).min(1), paragraphs: z.array(text(5000).min(1)).min(1).max(40) })
       .nullable(),

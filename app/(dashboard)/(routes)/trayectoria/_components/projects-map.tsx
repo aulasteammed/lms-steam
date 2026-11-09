@@ -10,11 +10,12 @@ import type {
   LayerSpecification,
 } from "maplibre-gl";
 import Link from "next/link";
-import { Globe, Library, Loader2, Minus, Plus } from "lucide-react";
+import { Globe, Library, Loader2, Minus, Plus, Route } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./projects-map.css";
 
 import {
+  ENTRY_TYPES,
   TYPE_LABELS,
   periodLabel,
   timelineYear,
@@ -22,7 +23,7 @@ import {
   type MapEntry,
 } from "@/lib/timeline";
 import { EntryCard } from "./entry-card";
-import { IntroCard, type IntroItem } from "./intro-card";
+import { IntroCard, YearEndCard, type IntroItem } from "./intro-card";
 import { TimelineBar, TypeSelector } from "./map-filters";
 
 /** Mapa base vectorial gratuito (sin API key). */
@@ -72,6 +73,21 @@ const TYPE_INTRO: Record<Exclude<EntryType, "project">, { title: string; text: s
     title: "Alianzas",
     text: "Instituciones y organizaciones con las que el aula ha trabajado. Recorre el mapa para ver dónde están y qué se hizo en conjunto.",
   },
+};
+
+/** Valor de `?tipo=` en la dirección para cada tipo de registro. */
+const TYPE_PARAM: Record<EntryType, string> = {
+  project: "proyectos",
+  participation: "participaciones",
+  alliance: "alianzas",
+};
+
+/** Textos de los controles propios de MapLibre, que vienen en inglés. */
+const MAP_LOCALE = {
+  "Map.Title": "Mapa de la trayectoria",
+  "Marker.Title": "Punto del mapa",
+  "AttributionControl.ToggleAttribution": "Mostrar u ocultar los créditos del mapa",
+  "AttributionControl.MapFeedback": "Reportar un error del mapa",
 };
 
 type ProjectsMapProps = {
@@ -200,7 +216,11 @@ const distinctIds = (leaves: { properties?: Record<string, unknown> | null }[]) 
  * - Los puntos cercanos se agrupan y el grupo muestra cuántos registros
  *   distintos tiene. Un grupo se abre al tocarlo; si sus registros están en
  *   el mismo lugar, se listan en la columna.
- * - Al arrastrar o hacer zoom en el mapa, las cards se ocultan para explorar.
+ * - Al arrastrar o hacer zoom en el mapa, las cards se ocultan para explorar
+ *   y queda el botón "Mostrar recorrido" para volver a la card en que iba.
+ * - Tipo, año y registro abierto quedan en la dirección (?tipo=&anio=&registro=):
+ *   volver desde un proyecto o compartir el enlace abre el mapa en el mismo punto.
+ * - Al final de cada año, una card lleva al año anterior.
  */
 export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) => {
   // Abre la conexión con los servidores del mapa lo antes posible.
@@ -345,7 +365,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
       offset: getOffset(),
       speed: 1.4,
       maxDuration: 2000,
-      essential: true,
+      // Sin `essential`: con "reducir movimiento" el mapa salta sin volar.
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -432,6 +452,14 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
   }, []);
 
   const hideStory = useCallback(() => setStoryVisible(false), []);
+
+  /** Vuelve a mostrar las cards donde iban y lleva el mapa a la card activa. */
+  const showStory = useCallback(() => {
+    setStoryVisible(true);
+    const index = activeRef.current;
+    if (index >= 0 && cardsRef.current[index]) flyToEntry(index);
+    else fitAll(true);
+  }, [fitAll, flyToEntry]);
 
   /**
    * Pone en el mapa un marcador por cada punto o grupo que la fuente tiene en
@@ -653,6 +681,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
         pitchWithRotate: false,
         touchPitch: false,
         attributionControl: { compact: true },
+        locale: MAP_LOCALE,
       });
       map.touchZoomRotate.disableRotation();
       map.keyboard.disableRotation();
@@ -725,14 +754,70 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
     syncMarkers();
   }, [active, storyVisible, syncMarkers]);
 
-  // Esc oculta las cards.
+  // Esc oculta las cards, salvo que esté abierta una foto en grande: ese Esc es para cerrarla.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") hideStory();
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      if (document.querySelector('[role="dialog"]')) return;
+      hideStory();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [hideStory]);
+
+  // Columna oculta: fuera del orden del teclado y del lector de pantalla.
+  // Va por la propiedad del DOM porque React 18 no conoce el atributo `inert`.
+  const showStoryRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const column = columnRef.current;
+    if (!column) return;
+    const hadFocus = column.contains(document.activeElement);
+    column.inert = !storyVisible;
+    // Si el foco estaba en una card que se ocultó, pasa al botón que la recupera.
+    if (!storyVisible && hadFocus) showStoryRef.current?.focus();
+  }, [storyVisible]);
+
+  // Estado inicial desde la dirección: ?registro= abre esa card; si no, ?tipo= y ?anio=.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("registro");
+    const entry = slug ? entries.find((e) => e.slug === slug) : undefined;
+    if (entry) {
+      setType(entry.type);
+      // Se abre cuando el mapa termine de cargar (ver el efecto de tipo y año).
+      pendingRef.current = entry.id;
+      setYear(timelineYear(entry, currentYear));
+      return;
+    }
+    const nextType = ENTRY_TYPES.find((t) => TYPE_PARAM[t] === params.get("tipo"));
+    const startType = nextType ?? "project";
+    if (nextType) setType(nextType);
+    const nextYear = Number(params.get("anio"));
+    if (
+      entries.some((e) => e.type === startType && timelineYear(e, currentYear) === nextYear)
+    ) {
+      setYear(nextYear);
+    }
+    // Solo al entrar: después la dirección sigue al estado, no al revés.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // La dirección sigue al estado sin sumar pasos al historial: el botón Atrás
+  // del navegador y "Volver al mapa" regresan a la misma card.
+  const activeSlug = cards[active]?.slug;
+  useEffect(() => {
+    // Mientras se abre una card pedida (desde la dirección o un punto), no se toca.
+    if (pendingRef.current) return;
+    const params = new URLSearchParams();
+    if (type !== "project") params.set("tipo", TYPE_PARAM[type]);
+    if (year !== null) params.set("anio", String(year));
+    if (activeSlug) params.set("registro", activeSlug);
+    const query = params.toString();
+    const next = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    if (next !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(null, "", next);
+    }
+  }, [type, year, activeSlug]);
 
   const plural = TYPE_LABELS[type].plural.toLowerCase();
   const typeIntro = type === "project" ? intro : TYPE_INTRO[type];
@@ -757,21 +842,41 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
       subtitle: countLabel(yearCounts[y]),
       onSelect: () => selectYear(y),
     }));
-  const allYears = { label: "Todos los años", onClick: showAll };
+  const allYears = { label: "Todos los años", onClick: showAll, kind: "all" as const };
+  /** Año anterior con registros del tipo: a él lleva la card de fin de año. */
+  const previousYear =
+    year === null ? undefined : yearItems.map((item) => Number(item.key)).find((y) => y < year);
 
+  /** Lo que anuncia el lector de pantalla al cambiar de tipo, de año o de grupo. */
+  const announcement = groupEntries
+    ? `${countLabel(groupEntries.length)} en el mismo lugar`
+    : year === null
+      ? `${countLabel(ofType.length)} en el mapa`
+      : `${countLabel(cards.length)} en ${year}`;
+  /** Dónde va el recorrido, para el botón que lo vuelve a mostrar. */
+  const position =
+    year === null ? null : active >= 0 ? `${active + 1} de ${cards.length}` : String(year);
+
+  /** Cada card ocupa la columna: en celular una por pantalla (de lado), en escritorio una por alto. */
+  const sectionClass =
+    "relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-10 md:py-10";
+
+  // Orden del DOM = orden del teclado: primero los controles y las cards,
+  // al final el mapa con sus puntos. Por eso todo lo de encima lleva z-index.
   return (
     <div className="absolute inset-0 overflow-hidden bg-editorial-chip">
-      {/* MapLibre fuerza position:relative en su contenedor, por eso va envuelto. */}
-      <div className="absolute inset-0">
-        <div ref={containerRef} className="h-full w-full" />
-      </div>
+      <p className="sr-only" aria-live="polite">
+        {announcement}
+      </p>
 
       {/* Selector de tipo e indicador de carga del mapa */}
-      <div className="absolute inset-x-3 top-3 z-10 flex flex-col items-end gap-2 md:inset-x-4 md:top-4">
-        <TypeSelector selected={type} counts={typeCounts} onSelect={selectType} />
+      <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex flex-col items-end gap-2 md:inset-x-4 md:top-4">
+        <div className="pointer-events-auto max-w-full">
+          <TypeSelector selected={type} counts={typeCounts} onSelect={selectType} />
+        </div>
         {loading && (
-          <div className="pointer-events-none flex items-center gap-2 rounded-full border border-editorial-line bg-white/95 px-3 py-1.5 text-xs text-editorial-soft shadow-sm">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <div className="flex items-center gap-2 rounded-full border border-editorial-line bg-white/95 px-3 py-1.5 text-xs text-editorial-soft shadow-sm">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
             Cargando mapa…
           </div>
         )}
@@ -780,8 +885,8 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
       {/* Línea de tiempo: franja sobre las cards en celular y en el borde inferior en escritorio.
           Va antes de la columna para que las cards queden encima de la franja. */}
       <div
-        className={`pointer-events-none absolute inset-x-0 transition-all md:bottom-0 ${
-          storyVisible ? "bottom-[60%]" : "bottom-0"
+        className={`pointer-events-none absolute inset-x-0 z-10 transition-all md:bottom-0 ${
+          storyVisible ? "bottom-[55%]" : "bottom-0"
         }`}
       >
         <TimelineBar
@@ -793,23 +898,19 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
         />
       </div>
 
-      {/* Columna de cards (vertical en escritorio, deslizable en celular) */}
+      {/* Columna de cards (vertical en escritorio, deslizable en celular). En celular
+          ocupa poco más de la mitad: arriba queda el mapa sin botones encima. */}
       <div
         ref={columnRef}
-        className={`absolute inset-x-0 bottom-0 h-[60%] transition-opacity duration-300 md:inset-y-0 md:right-auto md:h-auto md:w-[min(520px,46%)] ${
+        className={`absolute inset-x-0 bottom-0 z-10 h-[55%] transition-opacity duration-300 md:inset-y-0 md:right-auto md:h-auto md:w-[min(520px,46%)] ${
           storyVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
-        aria-hidden={!storyVisible}
       >
         <div
           ref={scrollerRef}
           className="story-scroller relative flex h-full snap-x snap-mandatory overflow-x-auto overscroll-contain md:block md:snap-y md:overflow-x-hidden md:overflow-y-auto"
         >
-          <section
-            ref={introRef}
-            data-index={-1}
-            className="relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-10 md:py-10"
-          >
+          <section ref={introRef} data-index={-1} className={sectionClass}>
             {groupEntries ? (
               <IntroCard
                 type={type}
@@ -817,16 +918,17 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
                 title={groupEntries[0]?.place ?? "En este punto"}
                 text={`Estos ${plural} comparten ubicación en el mapa. Elige uno para ver su tarjeta.`}
                 items={groupEntries.map(toItem)}
-                back={{ label: "Volver", onClick: () => setGroup(null) }}
+                back={{ label: "Volver", onClick: () => setGroup(null), kind: "back" }}
               />
             ) : year === null ? (
               <IntroCard
                 type={type}
-                eyebrow={`${countLabel(ofType.length)} · ${years[0] ?? ""}\u00a0–\u00a0${years[years.length - 1] ?? ""}`}
+                eyebrow={`${countLabel(ofType.length)} · ${years[0] ?? ""} – ${years[years.length - 1] ?? ""}`}
                 title={typeIntro.title}
                 text={typeIntro.text}
                 items={yearItems}
                 onStart={yearItems[0]?.onSelect}
+                publicationsHref="/trayectoria/publicaciones"
               />
             ) : (
               <IntroCard
@@ -837,6 +939,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
                 items={cards.map(toItem)}
                 onStart={cards[0] && (() => goToEntry(cards[0].id))}
                 back={allYears}
+                publicationsHref="/trayectoria/publicaciones"
               />
             )}
           </section>
@@ -848,53 +951,91 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
                 sectionRefs.current[i] = el;
               }}
               data-index={i}
-              className="relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-10 md:py-10"
+              className={sectionClass}
             >
               <EntryCard entry={entry} active={i === active} />
             </section>
           ))}
+
+          {/* Fin del año: el recorrido sigue con el año anterior. No se observa
+              al hacer scroll, así el mapa se queda en la última card. */}
+          {year !== null && cards.length > 0 && (
+            <section className={sectionClass}>
+              <YearEndCard
+                type={type}
+                year={year}
+                seen={countLabel(cards.length)}
+                previous={
+                  previousYear
+                    ? { year: previousYear, count: countLabel(yearCounts[previousYear]) }
+                    : null
+                }
+                onPrevious={() => previousYear && selectYear(previousYear)}
+                onAll={showAll}
+              />
+            </section>
+          )}
         </div>
       </div>
 
-      {/* Controles: publicaciones, ver todos y zoom */}
-      <div
-        className={`absolute right-3 flex flex-col items-end gap-2 transition-all md:right-4 md:bottom-28 ${
-          storyVisible ? "bottom-[calc(60%+56px)]" : "bottom-28"
-        }`}
-      >
+      {/* Cards ocultas por explorar el mapa: un botón las trae de vuelta donde iban. */}
+      {!storyVisible && entries.length > 0 && (
+        <button
+          ref={showStoryRef}
+          type="button"
+          onClick={showStory}
+          className="absolute bottom-20 left-1/2 z-10 flex h-11 -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-editorial-ink pl-4 pr-5 text-sm font-medium text-white shadow-[0_2px_4px_rgba(18,17,15,0.18),0_10px_24px_-6px_rgba(18,17,15,0.4)] transition hover:bg-editorial-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2 md:bottom-24"
+        >
+          <Route className="h-4 w-4" aria-hidden />
+          Mostrar recorrido
+          {position && <span className="font-normal text-white/70">· {position}</span>}
+        </button>
+      )}
+
+      {/* Controles: publicaciones, ver todos y zoom. Solo en escritorio: en celular
+          se acerca con los dedos, "Publicaciones" va en la card de portada y
+          "Todos los años" en la card de cada año. */}
+      <div className="absolute bottom-28 right-4 z-10 hidden flex-col items-end gap-2 md:flex">
         <Link
           href="/trayectoria/publicaciones"
-          className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
+          className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
         >
-          <Library className="h-4 w-4" />
+          <Library className="h-4 w-4" aria-hidden />
           Publicaciones
         </Link>
         <button
           type="button"
           onClick={showAll}
-          className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta"
+          className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
         >
-          <Globe className="h-4 w-4" />
+          <Globe className="h-4 w-4" aria-hidden />
           Ver todos
         </button>
         <div className="flex flex-col overflow-hidden rounded-xl border border-editorial-line bg-white shadow-md divide-y divide-editorial-line">
           <button
             type="button"
             onClick={() => mapRef.current?.zoomIn()}
-            className="flex h-10 w-10 items-center justify-center text-editorial-body transition hover:bg-editorial-paper"
+            className="flex h-10 w-10 items-center justify-center text-editorial-body transition hover:bg-editorial-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-editorial-accent"
             aria-label="Acercar"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden />
           </button>
           <button
             type="button"
             onClick={() => mapRef.current?.zoomOut()}
-            className="flex h-10 w-10 items-center justify-center text-editorial-body transition hover:bg-editorial-paper"
+            className="flex h-10 w-10 items-center justify-center text-editorial-body transition hover:bg-editorial-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-editorial-accent"
             aria-label="Alejar"
           >
-            <Minus className="h-4 w-4" />
+            <Minus className="h-4 w-4" aria-hidden />
           </button>
         </div>
+      </div>
+
+      {/* El mapa va al final del DOM: sus puntos se recorren con el teclado
+          después de los controles. MapLibre fuerza position:relative en su
+          contenedor, por eso va envuelto. */}
+      <div className="absolute inset-0 z-0">
+        <div ref={containerRef} className="h-full w-full" />
       </div>
     </div>
   );

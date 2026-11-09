@@ -97,7 +97,6 @@ export const getAdminEntry = async (id: string): Promise<EntryDraft | null> => {
       credit: image.credit ?? undefined,
     })),
     institutions: entry.institutions.map((institution) => institution.name),
-    people: entry.people.map((person) => ({ name: person.name, role: person.role })),
     story: entry.story,
     quote: entry.quote
       ? { text: entry.quote.text, author: entry.quote.author, role: entry.quote.role ?? undefined }

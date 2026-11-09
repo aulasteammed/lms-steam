@@ -18,6 +18,8 @@ export type MapPlace = {
 
 export type MapEntry = {
   id: string;
+  /** Dirección legible del registro; el mapa la usa en `?registro=`. */
+  slug: string;
   type: EntryType;
   /** Nombre del proyecto, de la participación o de la alianza. */
   title: string;

@@ -114,6 +114,7 @@ export const getMapEntries = cached(async (): Promise<MapEntry[]> => {
 
   return entries.map((entry) => ({
     id: entry.id,
+    slug: entry.slug,
     type: entry.type,
     title: entry.title,
     description: entry.shortDescription,
@@ -222,7 +223,6 @@ export const getProject = cached(
         documents,
         publication: documents.find((document) => !document.isReport),
         institutions: entry.institutions.map((institution) => institution.name),
-        people: entry.people.map((person) => ({ name: person.name, role: person.role })),
         story: entry.story ?? undefined,
         quote: entry.quote
           ? { text: entry.quote.text, author: entry.quote.author, role: entry.quote.role ?? undefined }

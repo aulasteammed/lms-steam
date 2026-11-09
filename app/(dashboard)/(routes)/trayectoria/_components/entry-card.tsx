@@ -124,7 +124,8 @@ export const EntryCard = memo(function EntryCard({ entry, active }: EntryCardPro
                   key={i}
                   type="button"
                   onClick={() => setSlide(i)}
-                  className={`h-1.5 rounded-full transition-all ${
+                  // Punto de 6 px con área táctil más grande alrededor.
+                  className={`relative h-1.5 rounded-full transition-all before:absolute before:-inset-x-1 before:-inset-y-3 before:content-[''] ${
                     i === slide ? "w-4 bg-white" : "w-1.5 bg-white/60"
                   }`}
                   aria-label={`Ver foto ${i + 1}`}
@@ -237,7 +238,7 @@ export const EntryCard = memo(function EntryCard({ entry, active }: EntryCardPro
         {entry.href && (
           <Link
             href={entry.href}
-            className="mt-1 inline-flex w-fit items-center gap-2 rounded-lg bg-editorial-cta px-4 py-2 text-sm font-medium text-white transition hover:bg-editorial-cta-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
+            className="mt-1 inline-flex min-h-11 w-fit items-center gap-2 rounded-lg bg-editorial-cta px-4 py-2 text-sm md:min-h-0 font-medium text-white transition hover:bg-editorial-cta-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"
           >
             {entry.publication ? (
               <>
