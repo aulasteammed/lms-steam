@@ -4,12 +4,14 @@ import { ExternalLink, Quote } from "lucide-react";
 
 import { readerHref, type Project, type ProjectDocument } from "@/lib/projects";
 import { shareMetadata } from "@/lib/share-metadata";
-import { getProject } from "@/lib/timeline-data";
+import { timelineYear } from "@/lib/timeline";
+import { getMapEntries, getProject } from "@/lib/timeline-data";
 import { PageBar } from "../_components/back-link";
 import { DocumentActions } from "../_components/document-actions";
 import { TYPE_STYLES } from "../_components/entry-type";
 import { PublicationCover } from "../_components/publication-cover";
 import { ShareButton } from "../_components/share-button";
+import { KeepExploring, pickOtherProjects } from "./_components/keep-exploring";
 import { MiniMap } from "./_components/mini-map";
 import { PhotoGallery } from "./_components/photo-gallery";
 
@@ -40,7 +42,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+/** Etiqueta pequeña: solo para datos (Ubicación, Periodo…) y el tipo de documento. */
 const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
+/** Título de cada sección de la página, en la serif del blog: se distingue a simple vista de un dato. */
+const sectionHeading = "font-editorial text-xl font-bold text-editorial-ink md:text-2xl";
+/** Línea bajo un título (tipo, páginas, periodo): en minúsculas, no como etiqueta sobre el título. */
+const meta = "text-sm text-editorial-soft";
 const secondaryButton =
   "inline-flex items-center gap-2 rounded-lg border border-editorial-line bg-white px-4 py-2 text-sm font-medium text-editorial-body transition hover:bg-editorial-paper";
 
@@ -54,8 +61,9 @@ const DocumentList = ({
   documents: ProjectDocument[];
 }) => (
   <section>
-    <h2 className={label}>{title}</h2>
-    <ul className="mt-3 grid gap-4 md:grid-cols-2">
+    <h2 className={sectionHeading}>{title}</h2>
+    {/* Dos columnas solo desde 1024 px: antes, el menú lateral deja muy poco ancho. */}
+    <ul className="mt-4 grid gap-4 lg:grid-cols-2">
       {documents.map((doc) => (
         <li
           key={doc.id}
@@ -67,10 +75,12 @@ const DocumentList = ({
             className="w-20 shrink-0 self-start"
           />
           <div className="min-w-0">
-            <p className={label}>
+            <h3 className="font-editorial text-lg font-bold leading-snug text-editorial-ink">
+              {doc.title}
+            </h3>
+            <p className={`mt-0.5 ${meta}`}>
               {doc.kind} · {doc.pageCount} páginas
             </p>
-            <h3 className="mt-1 font-semibold leading-snug text-editorial-ink">{doc.title}</h3>
             {doc.description && (
               <p className="mt-1 text-sm leading-relaxed text-editorial-soft">{doc.description}</p>
             )}
@@ -82,10 +92,10 @@ const DocumentList = ({
   </section>
 );
 
+/** Columnas de la fila de datos: en tableta caben dos; desde 1024 px, todas. */
 const FACT_COLUMNS: Record<number, string> = {
-  2: "md:grid-cols-2",
-  3: "md:grid-cols-3",
-  4: "md:grid-cols-4",
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
 };
 
 /**
@@ -102,6 +112,14 @@ export default async function ProjectPage({ params }: Props) {
   // Dirección anterior de un proyecto que se cerró y ganó el año.
   if ("redirectTo" in found) return permanentRedirect(found.redirectTo);
   const { project } = found;
+
+  // La lista del mapa ya está en caché: de ahí salen el año del recorrido y
+  // los otros proyectos, sin otra consulta a la base.
+  const entries = await getMapEntries();
+  const now = new Date().getFullYear();
+  const current = entries.find((entry) => entry.slug === project.id);
+  const mapYear = current ? timelineYear(current, now) : undefined;
+  const others = pickOtherProjects(entries, current, now);
 
   const pub = project.publication;
   // La destacada ya va en el encabezado: se compara por id, porque los datos
@@ -128,7 +146,12 @@ export default async function ProjectPage({ params }: Props) {
   const mapHref = `/trayectoria?registro=${encodeURIComponent(project.id)}`;
 
   /** Las fotos van juntas en una sola sección, pequeñas; al tocarlas se abren sobre la página. */
-  const photos = project.images.length > 0 && <PhotoGallery images={project.images} />;
+  const photos = project.images.length > 0 && (
+    <PhotoGallery images={project.images} title={project.title} />
+  );
+  /** Lo que va junto al mini-mapa: el relato o, sin relato, las fotos. */
+  const besideMap = project.story || photos;
+  const miniMap = <MiniMap points={project.points} place={project.place} mapHref={mapHref} />;
 
   return (
     <article className="pb-16">
@@ -136,25 +159,28 @@ export default async function ProjectPage({ params }: Props) {
         <ShareButton title={project.title} />
       </PageBar>
 
+      {/* Las columnas lado a lado empiezan en `lg` (1024 px), no en `md`: el menú
+          lateral ya ocupa 224 px desde 768 y en tableta quedaban columnas de ~130 px. */}
       <div className="mx-auto max-w-5xl space-y-12 px-4 pt-10 md:px-8 md:pt-14">
         {/* Encabezado: con publicación, la portada es la protagonista */}
         <header
           className={
-            pub ? "grid items-center gap-10 md:grid-cols-[1.35fr_1fr] md:gap-14" : "max-w-3xl"
+            pub ? "grid items-center gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-14" : "max-w-3xl"
           }
         >
           <div>
-            <p className={label}>Proyecto · {project.year}</p>
-            <h1 className="mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-editorial-ink md:text-5xl">
+            <h1 className="break-words font-editorial text-4xl font-bold leading-[1.08] text-editorial-ink text-balance md:text-5xl">
               {project.title}
             </h1>
+            {/* Como la línea de fecha de un periódico: bajo el titular, no como etiqueta encima. */}
+            <p className="mt-3 text-sm font-medium text-editorial-soft">Proyecto · {project.year}</p>
             <p className="mt-5 text-lg leading-relaxed text-editorial-soft">
               {project.description}
             </p>
           </div>
 
           {pub && (
-            <div className="rounded-3xl bg-editorial-accent-soft px-8 py-8 md:px-10">
+            <div className="rounded-3xl bg-editorial-accent-soft px-6 py-8 sm:px-8 lg:px-10">
               <PublicationCover
                 publication={pub}
                 href={readerHref(project, pub)}
@@ -162,10 +188,13 @@ export default async function ProjectPage({ params }: Props) {
                 className="mx-auto w-full max-w-[260px]"
               />
               <div className="mt-6 text-center">
-                <p className={label}>
+                {/* Es lo más valioso del proyecto: va como título, no como párrafo. */}
+                <h2 className="font-editorial text-xl font-bold leading-snug text-editorial-ink text-balance">
+                  {pub.title}
+                </h2>
+                <p className={`mt-1 ${meta}`}>
                   {pub.kind} · {pub.pageCount} páginas
                 </p>
-                <p className="mt-1.5 font-semibold text-editorial-ink">{pub.title}</p>
                 {pub.description && (
                   <p className="mt-1.5 text-sm leading-relaxed text-editorial-soft">
                     {pub.description}
@@ -182,50 +211,60 @@ export default async function ProjectPage({ params }: Props) {
         </header>
 
         {/* Fila de datos */}
-        <dl
-          className={`grid grid-cols-2 gap-x-6 gap-y-5 border-y border-editorial-line py-6 ${FACT_COLUMNS[facts.length]}`}
-        >
-          {facts.map((fact) => (
-            <div key={fact.term} className="min-w-0">
-              <dt className={label}>{fact.term}</dt>
-              <dd className="mt-1.5 text-sm leading-snug text-editorial-ink">
-                {fact.values.length === 1 ? (
-                  fact.values[0]
-                ) : (
-                  <ul className="space-y-1.5">
-                    {fact.values.map((value) => (
-                      <li key={value}>{value}</li>
-                    ))}
-                  </ul>
-                )}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <section aria-labelledby="datos-del-proyecto">
+          <h2 id="datos-del-proyecto" className="sr-only">
+            Datos del proyecto
+          </h2>
+          <dl
+            className={`grid grid-cols-2 gap-x-6 gap-y-5 border-y border-editorial-line py-6 ${FACT_COLUMNS[facts.length]}`}
+          >
+            {facts.map((fact) => (
+              <div key={fact.term} className="min-w-0">
+                <dt className={label}>{fact.term}</dt>
+                <dd className="mt-1.5 text-sm leading-snug text-editorial-ink">
+                  {fact.values.length === 1 ? (
+                    fact.values[0]
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {fact.values.map((value) => (
+                        <li key={value}>{value}</li>
+                      ))}
+                    </ul>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
         {/* Relato con mapa pequeño; sin relato, las fotos ocupan su lugar */}
-        <section>
-          {/* El subtítulo va arriba, solo: el mapa arranca a la altura del primer párrafo */}
-          {project.story && (
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-editorial-ink">
-              {project.story.title}
-            </h2>
-          )}
-          <div className="grid items-start gap-8 md:grid-cols-[1fr_300px] md:gap-12">
-            {project.story ? (
-              // El interlineado deja un aire sobre la primera línea; se compensa
-              // para que el texto y el borde del mapa queden a la misma altura.
-              <div className="space-y-4 text-base leading-relaxed text-editorial-body md:-mt-1.5">
-                {project.story.paragraphs.map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
-            ) : (
-              photos
+        {besideMap ? (
+          <section>
+            {/* El subtítulo va arriba, solo: el mapa arranca a la altura del primer párrafo */}
+            {project.story && (
+              <h2 className={`mb-4 ${sectionHeading}`}>{project.story.title}</h2>
             )}
-            <MiniMap points={project.points} place={project.place} mapHref={mapHref} />
-          </div>
-        </section>
+            <div className="grid items-start gap-8 lg:grid-cols-[1fr_300px] lg:gap-12">
+              {project.story ? (
+                // El interlineado deja un aire sobre la primera línea; se compensa
+                // para que el texto y el borde del mapa queden a la misma altura.
+                <div className="max-w-prose space-y-4 text-base leading-relaxed text-editorial-body lg:-mt-1.5">
+                  {project.story.paragraphs.map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+              ) : (
+                photos
+              )}
+              {/* En tableta y celular el mapa va debajo, sin estirarse a todo el ancho. */}
+              <div className="w-full sm:max-w-xs lg:max-w-none">{miniMap}</div>
+            </div>
+          </section>
+        ) : (
+          // Ficha mínima (sin relato ni fotos): el mapa conserva su tamaño, no
+          // se estira a la columna ancha.
+          <div className="w-full sm:max-w-xs">{miniMap}</div>
+        )}
 
         {project.story && photos}
 
@@ -238,7 +277,7 @@ export default async function ProjectPage({ params }: Props) {
             >
               <Quote className="h-5 w-5 fill-current" />
             </span>
-            <blockquote className="text-xl font-medium italic leading-relaxed text-editorial-ink md:text-2xl">
+            <blockquote className="font-editorial text-xl italic leading-relaxed text-editorial-ink md:text-2xl">
               “{project.quote.text}”
             </blockquote>
             <figcaption className="mt-5 flex items-center gap-3 text-sm">
@@ -281,11 +320,11 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Participaciones y alianzas ligadas al proyecto */}
         {project.related.length > 0 && (
-          <section className="grid gap-8 md:grid-cols-2">
+          <section className="grid gap-10 lg:grid-cols-2 lg:gap-8">
             {participations.length > 0 && (
               <div>
-                <h2 className={label}>Este proyecto se presentó en</h2>
-                <ul className="mt-3 space-y-3">
+                <h2 className={sectionHeading}>Este proyecto se presentó en</h2>
+                <ul className="mt-4 space-y-3">
                   {participations.map((item, i) => (
                     <li
                       key={i}
@@ -305,8 +344,8 @@ export default async function ProjectPage({ params }: Props) {
             )}
             {alliances.length > 0 && (
               <div>
-                <h2 className={label}>En alianza con</h2>
-                <ul className="mt-3 space-y-3">
+                <h2 className={sectionHeading}>En alianza con</h2>
+                <ul className="mt-4 space-y-3">
                   {alliances.map((item, i) => (
                     <li
                       key={i}
@@ -329,12 +368,14 @@ export default async function ProjectPage({ params }: Props) {
 
         {project.acknowledgements && (
           <section className="border-t border-editorial-line pt-6">
-            <h2 className={label}>Agradecimientos</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-editorial-soft">
+            <h2 className={sectionHeading}>Agradecimientos</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-editorial-soft">
               {project.acknowledgements}
             </p>
           </section>
         )}
+
+        <KeepExploring mapYear={mapYear} others={others} />
       </div>
     </article>
   );

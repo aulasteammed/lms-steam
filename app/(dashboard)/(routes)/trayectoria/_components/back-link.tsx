@@ -32,7 +32,9 @@ type PageBarProps = {
 export const PageBar = ({ backHref, backLabel, children }: PageBarProps) => (
   <div className="sticky top-[80px] z-30 border-b border-editorial-line bg-white/90 backdrop-blur">
     <div className="mx-auto flex min-h-14 max-w-5xl items-center justify-between gap-3 px-4 py-2 md:px-8">
-      <BackLink href={backHref}>{backLabel}</BackLink>
+      <nav aria-label="Navegación de la sección">
+        <BackLink href={backHref}>{backLabel}</BackLink>
+      </nav>
       {children && <div className="flex items-center gap-2">{children}</div>}
     </div>
   </div>

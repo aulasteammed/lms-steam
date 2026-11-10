@@ -19,6 +19,11 @@ module.exports = withUt({
 			},
 		},
 		extend: {
+			fontFamily: {
+				// Títulos de la parte editorial (blog y Trayectoria): Playfair Display.
+				// La variable la definen los layouts de esas secciones con next/font.
+				editorial: ['var(--font-serif)', 'Playfair Display', 'Georgia', 'serif'],
+			},
 			colors: {
 				// Paleta editorial del blog, que también usa Trayectoria. `identity` es el
 				// azul del identificador del Aula; `cta` es el naranja del blog oscurecido

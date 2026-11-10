@@ -14,7 +14,9 @@ export const metadata: Metadata = shareMetadata({
   path: "/trayectoria/publicaciones",
 });
 
-const label = "text-[11px] font-semibold uppercase tracking-[0.14em] text-editorial-soft";
+/** Título de sección, en la serif del blog. */
+const sectionHeading =
+  "mb-6 border-b border-editorial-line pb-3 font-editorial text-2xl font-bold text-editorial-ink";
 
 const Shelf = ({ items }: { items: ShelfItem[] }) => (
   <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -53,15 +55,15 @@ const Shelf = ({ items }: { items: ShelfItem[] }) => (
           </Link>
 
           <div className="flex flex-1 flex-col p-5">
-            <p className={label}>
-              {document.kind} · {document.pageCount} páginas
-            </p>
-            <h3 className="mt-1.5 text-lg font-semibold leading-snug text-editorial-ink">
+            <h3 className="font-editorial text-xl font-bold leading-snug text-editorial-ink text-balance">
               {document.title}
             </h3>
             {/* Sin los lugares: un proyecto puede tener varios y alargan la card.
                 Están en la página del proyecto. */}
             <p className="mt-1 text-sm text-editorial-soft">
+              {document.kind} · {document.pageCount} páginas
+            </p>
+            <p className="text-sm text-editorial-soft">
               {project.title} · {project.year}
             </p>
 
@@ -107,12 +109,12 @@ export default async function PublicationsPage() {
 
       <div className="mx-auto max-w-5xl px-4 pt-10 md:px-8 md:pt-14">
         <header className="max-w-2xl">
-          <p className={label}>
-            {total} {total === 1 ? "documento" : "documentos"}
-          </p>
-          <h1 className="mt-3 text-4xl font-bold leading-[1.05] tracking-tight text-editorial-ink md:text-5xl">
+          <h1 className="font-editorial text-4xl font-bold leading-[1.08] text-editorial-ink md:text-5xl">
             Publicaciones
           </h1>
+          <p className="mt-3 text-sm font-medium text-editorial-soft">
+            {total} {total === 1 ? "documento" : "documentos"}
+          </p>
           <p className="mt-4 text-lg leading-relaxed text-editorial-soft">
             Entregables de los proyectos. Te invitamos a leerlos y conocer lo que hace el aula STEAM Sonny Jiménez
           </p>
@@ -122,18 +124,14 @@ export default async function PublicationsPage() {
 
         {publications.length > 0 && (
           <section className="mt-10">
-            <h2 className="mb-6 border-b border-editorial-line pb-3 text-xl font-bold tracking-tight text-editorial-ink">
-              Publicaciones y entregables
-            </h2>
+            <h2 className={sectionHeading}>Publicaciones y entregables</h2>
             <Shelf items={publications} />
           </section>
         )}
 
         {reports.length > 0 && (
           <section className="mt-14">
-            <h2 className="mb-6 border-b border-editorial-line pb-3 text-xl font-bold tracking-tight text-editorial-ink">
-              Informes
-            </h2>
+            <h2 className={sectionHeading}>Informes</h2>
             <Shelf items={reports} />
           </section>
         )}

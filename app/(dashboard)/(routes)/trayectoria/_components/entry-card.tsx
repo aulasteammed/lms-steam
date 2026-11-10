@@ -156,7 +156,7 @@ export const EntryCard = memo(function EntryCard({ entry, active }: EntryCardPro
             {entry.modality && ` · ${MODALITY_LABELS[entry.modality]}`}
           </span>
         </p>
-        <h2 className="text-xl md:text-2xl font-semibold leading-snug text-editorial-ink">
+        <h2 className="font-editorial text-xl font-bold leading-snug text-editorial-ink text-balance md:text-2xl">
           {entry.title}
         </h2>
         <p className="text-sm md:text-[15px] leading-relaxed text-editorial-soft">

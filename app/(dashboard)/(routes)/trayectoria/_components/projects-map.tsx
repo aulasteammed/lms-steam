@@ -71,7 +71,7 @@ const TYPE_INTRO: Record<Exclude<EntryType, "project">, { title: string; text: s
   },
   alliance: {
     title: "Alianzas",
-    text: "Instituciones y organizaciones con las que el aula ha trabajado. Recorre el mapa para ver dónde están y qué se hizo en conjunto.",
+    text: "Instituciones u organizaciones con las que el aula ha trabajado. Recorre el mapa para ver dónde están y qué se hizo en conjunto.",
   },
 };
 
@@ -823,6 +823,35 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
   const typeIntro = type === "project" ? intro : TYPE_INTRO[type];
   const countLabel = (n: number) =>
     `${n} ${(n === 1 ? TYPE_LABELS[type].singular : TYPE_LABELS[type].plural).toLowerCase()}`;
+  /**
+   * Alcance del tipo en una frase: "Desde 2018, 12 proyectos en 9 lugares."
+   * - "Desde" es el año de inicio más antiguo, no el de la línea de tiempo.
+   * - Los lugares son puntos distintos del mapa (redondeados a ~100 m: el mismo
+   *   colegio en dos registros cuenta una vez). No se habla de municipios porque
+   *   el nombre del lugar es texto libre y no permite contarlos con certeza.
+   * - Las participaciones virtuales no tienen punto: se nombran aparte.
+   */
+  const scopeSentence = (() => {
+    if (ofType.length === 0) return undefined;
+    const since = Math.min(...ofType.map((entry) => entry.startYear));
+    const places = new Set(
+      ofType.flatMap((entry) =>
+        entry.places.map(({ coordinates: [lng, lat] }) => `${lng.toFixed(3)},${lat.toFixed(3)}`)
+      )
+    ).size;
+    const virtual = ofType.filter((entry) => entry.places.length === 0).length;
+    let where = "";
+    if (places > 0) where = ` en ${places} ${places === 1 ? "lugar" : "lugares"}`;
+    if (virtual > 0) {
+      where +=
+        places > 0
+          ? ` y ${virtual} ${virtual === 1 ? "virtual" : "virtuales"}`
+          : virtual === 1
+            ? ", virtual"
+            : ", todas virtuales";
+    }
+    return `Desde ${since}, ${countLabel(ofType.length)}${where}.`;
+  })();
   const toItem = (entry: MapEntry): IntroItem => ({
     key: entry.id,
     title: entry.title,
@@ -859,7 +888,7 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
 
   /** Cada card ocupa la columna: en celular una por pantalla (de lado), en escritorio una por alto. */
   const sectionClass =
-    "relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-10 md:py-10";
+    "relative flex h-full w-full shrink-0 snap-center items-end px-4 pb-4 md:h-auto md:min-h-full md:items-center md:px-6 md:py-6 lg:px-10 lg:py-10";
 
   // Orden del DOM = orden del teclado: primero los controles y las cards,
   // al final el mapa con sus puntos. Por eso todo lo de encima lleva z-index.
@@ -894,15 +923,17 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
           counts={yearCounts}
           selected={year}
           onSelect={selectYear}
-          className={storyVisible ? "md:pl-[min(520px,46%)]" : ""}
+          className={storyVisible ? "md:pl-[min(520px,62%)] lg:pl-[min(520px,46%)]" : ""}
         />
       </div>
 
       {/* Columna de cards (vertical en escritorio, deslizable en celular). En celular
-          ocupa poco más de la mitad: arriba queda el mapa sin botones encima. */}
+          ocupa poco más de la mitad: arriba queda el mapa sin botones encima. Entre
+          768 y 1023 px el menú lateral ya se lleva 224 px, así que la columna es más ancha
+          y arranca debajo del selector de tipo, que en ese ancho le queda encima. */}
       <div
         ref={columnRef}
-        className={`absolute inset-x-0 bottom-0 z-10 h-[55%] transition-opacity duration-300 md:inset-y-0 md:right-auto md:h-auto md:w-[min(520px,46%)] ${
+        className={`absolute inset-x-0 bottom-0 z-10 h-[55%] transition-opacity duration-300 md:inset-y-0 md:top-16 md:right-auto md:h-auto lg:top-0 md:w-[min(520px,62%)] lg:w-[min(520px,46%)] ${
           storyVisible ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
@@ -914,8 +945,8 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
             {groupEntries ? (
               <IntroCard
                 type={type}
-                eyebrow={`${countLabel(groupEntries.length)} en el mismo lugar`}
                 title={groupEntries[0]?.place ?? "En este punto"}
+                summary={`${countLabel(groupEntries.length)} en el mismo lugar.`}
                 text={`Estos ${plural} comparten ubicación en el mapa. Elige uno para ver su tarjeta.`}
                 items={groupEntries.map(toItem)}
                 back={{ label: "Volver", onClick: () => setGroup(null), kind: "back" }}
@@ -923,8 +954,8 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
             ) : year === null ? (
               <IntroCard
                 type={type}
-                eyebrow={`${countLabel(ofType.length)} · ${years[0] ?? ""} – ${years[years.length - 1] ?? ""}`}
                 title={typeIntro.title}
+                summary={scopeSentence}
                 text={typeIntro.text}
                 items={yearItems}
                 onStart={yearItems[0]?.onSelect}
@@ -933,8 +964,8 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
             ) : (
               <IntroCard
                 type={type}
-                eyebrow={`${countLabel(cards.length)} · ${year}`}
                 title={typeIntro.title}
+                summary={`${countLabel(cards.length)} en ${year}.`}
                 text={typeIntro.text}
                 items={cards.map(toItem)}
                 onStart={cards[0] && (() => goToEntry(cards[0].id))}
@@ -993,9 +1024,9 @@ export const ProjectsMap = ({ entries, intro, currentYear }: ProjectsMapProps) =
       )}
 
       {/* Controles: publicaciones, ver todos y zoom. Solo en escritorio: en celular
-          se acerca con los dedos, "Publicaciones" va en la card de portada y
-          "Todos los años" en la card de cada año. */}
-      <div className="absolute bottom-28 right-4 z-10 hidden flex-col items-end gap-2 md:flex">
+          (o acostado, con poca altura) se acerca con los dedos, "Publicaciones" va
+          en la card de portada y "Todos los años" en la card de cada año. */}
+      <div className="absolute bottom-28 right-4 z-10 hidden flex-col items-end gap-2 md:flex [@media(max-height:559px)]:!hidden">
         <Link
           href="/trayectoria/publicaciones"
           className="flex h-10 items-center gap-2 rounded-full border border-editorial-line bg-white px-4 text-sm font-medium text-editorial-body shadow-md transition hover:bg-editorial-accent-soft hover:text-editorial-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-accent focus-visible:ring-offset-2"

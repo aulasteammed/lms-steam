@@ -52,7 +52,8 @@
   border-radius: 9999px;
   background: var(--marker);
   color: #fff;
-  font: 600 15px/1 ui-sans-serif, system-ui, sans-serif;
+  /* La variable la define el layout de Trayectoria (IBM Plex Sans, como el blog). */
+  font: 600 15px/1 var(--font-sans, ui-sans-serif), system-ui, sans-serif;
   border: 2px solid #fff;
   box-shadow: 0 1px 2px rgba(18, 17, 15, 0.2), 0 4px 10px rgba(18, 17, 15, 0.25);
   transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
@@ -126,7 +127,7 @@
   white-space: normal;
   background: #fff;
   color: #12110f; /* editorial-ink */
-  font: 600 14px/1.2 ui-sans-serif, system-ui, sans-serif;
+  font: 600 14px/1.2 var(--font-sans, ui-sans-serif), system-ui, sans-serif;
   padding: 8px 12px;
   border-radius: 10px;
   border: 1px solid rgba(226, 221, 216, 0.9); /* editorial-line */

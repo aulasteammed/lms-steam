@@ -1,5 +1,4 @@
-"use client";
-
+// Sin "use client": solo la importa `projects-map.tsx`, que ya es de cliente.
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronRight, Globe, Library } from "lucide-react";
 import type { EntryType } from "@/lib/timeline";
@@ -14,9 +13,14 @@ export type IntroItem = {
 
 type IntroCardProps = {
   type: EntryType;
-  /** Línea pequeña sobre el título: cuántos registros y de qué año. */
-  eyebrow: string;
   title: string;
+  /**
+   * Frase bajo el título, como la línea de lugar y fecha de un periódico. En la
+   * vista completa es el alcance ("Desde 2018, 12 proyectos en 9 lugares."); con
+   * un año, cuántos hay ("3 proyectos en 2024."). Reemplaza la etiqueta en
+   * mayúsculas que antes iba sobre el título.
+   */
+  summary?: string;
   text: string;
   /**
    * Índice de la card: los años (vista completa), los registros del año
@@ -51,8 +55,8 @@ const secondaryButton =
  */
 export const IntroCard = ({
   type,
-  eyebrow,
   title,
+  summary,
   text,
   items,
   onStart,
@@ -63,14 +67,17 @@ export const IntroCard = ({
   const BackIcon = back?.kind === "back" ? ArrowLeft : Globe;
 
   return (
-    <article className="pointer-events-auto w-full max-h-full overflow-y-auto overscroll-contain rounded-2xl border border-editorial-line bg-white p-6 shadow-xl md:max-h-none md:overflow-visible lg:p-8">
-      <p className={`text-xs font-semibold uppercase tracking-wider ${style.text}`}>
-        {eyebrow}
-      </p>
+    <article className="pointer-events-auto w-full max-h-full overflow-y-auto overscroll-contain rounded-2xl border border-editorial-line bg-white p-5 shadow-xl md:max-h-none md:overflow-visible md:p-6 lg:p-8">
       {/* La columna es angosta en tabletas y celulares acostados: el título se parte con guiones. */}
-      <h1 className="mt-2 hyphens-auto break-words text-3xl font-semibold leading-tight text-editorial-ink text-balance lg:text-4xl">
+      <h1 className="hyphens-auto break-words font-editorial text-3xl font-bold leading-[1.1] text-editorial-ink text-balance lg:text-4xl">
         {title}
       </h1>
+      {/* Alcance en una frase, como la línea de lugar y fecha de un periódico; lleva el color del tipo. */}
+      {summary && (
+        <p className={`mt-2 text-[15px] font-medium leading-snug text-pretty md:text-base ${style.text}`}>
+          {summary}
+        </p>
+      )}
       <p className="mt-3 text-sm leading-relaxed text-editorial-soft md:text-[15px]">
         {text}
       </p>
@@ -105,7 +112,7 @@ export const IntroCard = ({
             Comenzar recorrido
             {/* En celular las cards se deslizan de lado; en escritorio, hacia abajo. */}
             <ChevronRight className="h-4 w-4 md:hidden" aria-hidden />
-            <ChevronDown className="hidden h-4 w-4 md:block md:motion-safe:animate-bounce" aria-hidden />
+            <ChevronDown className="hidden h-4 w-4 md:block" aria-hidden />
           </button>
         )}
         {back && (
@@ -115,7 +122,11 @@ export const IntroCard = ({
           </button>
         )}
         {publicationsHref && (
-          <Link href={publicationsHref} className={`${secondaryButton} md:hidden`}>
+          // Visible donde el mapa no muestra sus botones: celular, o pantalla muy baja.
+          <Link
+            href={publicationsHref}
+            className={`${secondaryButton} md:hidden [@media(max-height:559px)]:!inline-flex`}
+          >
             <Library className="h-4 w-4" aria-hidden />
             Publicaciones
           </Link>
@@ -145,7 +156,9 @@ export const YearEndCard = ({ type, year, seen, previous, onPrevious, onAll }: Y
 
   return (
     <article className="pointer-events-auto w-full rounded-2xl border border-editorial-line bg-white p-6 shadow-xl lg:p-8">
-      <h2 className="text-2xl font-semibold leading-tight text-editorial-ink">Fin de {year}</h2>
+      <h2 className="font-editorial text-2xl font-bold leading-tight text-editorial-ink">
+        Fin de {year}
+      </h2>
       <p className="mt-2 text-sm leading-relaxed text-editorial-soft md:text-[15px]">
         {previous
           ? `Ya viste ${seen} de ${year}. El recorrido sigue con ${previous.count} de ${previous.year}.`

@@ -22,7 +22,8 @@ export const DocumentActions = ({
   readHref,
   className = "",
 }: DocumentActionsProps) => (
-  <div className={`flex items-center gap-2 ${className}`}>
+  // `flex-wrap`: en pantallas angostas "Descargar" baja de renglón en vez de salirse.
+  <div className={`flex flex-wrap items-center gap-2 ${className}`}>
     <Link
       href={readHref}
       aria-label={`Leer: ${document.title}`}

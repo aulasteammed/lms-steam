@@ -42,7 +42,9 @@ export const TypeSelector = memo(function TypeSelector({
           >
             <Icon className="hidden h-4 w-4 sm:block" />
             {TYPE_LABELS[type].plural}
-            <span className={`tabular-nums ${isSelected ? "opacity-70" : "text-editorial-muted"}`}>
+            {/* El conteo se distingue por el peso, no por un gris más claro: así
+                conserva el contraste mínimo (4.5:1) sobre el fondo. */}
+            <span className={`font-normal tabular-nums ${isSelected ? "" : "text-editorial-soft"}`}>
               {counts[type]}
             </span>
           </button>
