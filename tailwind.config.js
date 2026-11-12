@@ -44,6 +44,11 @@ module.exports = withUt({
 					identity: '#1b1472',
 					'identity-hover': '#120d55',
 					'identity-soft': '#ecebf6',
+					// Naranja del identificador (letras "Sonny Jiménez"). Es claro: el texto
+					// encima va en `identity` (7:1), nunca en blanco (2.3:1).
+					'identity-orange': '#f39200',
+					'identity-orange-hover': '#de8400',
+					'identity-orange-soft': '#fff3df',
 				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

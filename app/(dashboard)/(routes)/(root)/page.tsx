@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { ArrowUpRight, CheckCircle, ClipboardCheck, Clock, LogIn, CircleUserRound } from 'lucide-react';
+import { ArrowUpRight, CheckCircle, ClipboardCheck, Clock, Layers3, LogIn, CircleUserRound } from 'lucide-react';
 import { getDashboardCourses } from '@/actions/get-dashboard-courses';
 import { getHomeData } from '@/actions/get-home-data';
 import Link from 'next/link';
@@ -29,11 +29,15 @@ const truncate = (text: string, max = 90) =>
 
 
 const Banner = () => (
-    <div className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center py-1 px-4">
-        <p className="mt-2 text-sm md:text-base">
+    // Los dos colores del identificador del Aula: azul de fondo y el correo en naranja.
+    <div className="w-full bg-editorial-identity text-white text-center py-2.5 px-4">
+        <p className="text-sm md:text-base">
             Horario de atención: 8:00 A. M. - 12:00 M. y 1:00 - 5:00 P. M. | Bloque M3 - 119 |
             <span>
-                <a className="text-orange-300" href="mailto:aula_steam_med@unal.edu.co">
+                <a
+                    className="text-editorial-identity-orange underline decoration-editorial-identity-orange/50 underline-offset-4 hover:decoration-editorial-identity-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm"
+                    href="mailto:aula_steam_med@unal.edu.co"
+                >
                     {" "}aula_steam_med@unal.edu.co
                 </a>
             </span>
@@ -43,38 +47,112 @@ const Banner = () => (
 
 
 /**
- * Protocolos del aula, visibles para todos en el inicio. Para añadir otro
- * (p.ej. el de impresiones 3D) basta con sumar una línea aquí.
+ * Servicios del aula, visibles para todos en el inicio. Son dos cosas de
+ * distinta naturaleza y por eso se muestran distinto:
+ * - El protocolo de uso es una norma: se lee antes de venir.
+ * - La impresión 3D es un trámite: tiene pasos y termina en un formulario.
  */
-const PROTOCOLS = [
-    {
-        label: "Leer protocolo de uso del aula",
-        href: "https://drive.google.com/file/d/18kGWk8PDbAggv8_WgjHXAn3QSeaQv7Iw/view",
-    },
+const LINKS = {
+    roomProtocol: "https://drive.google.com/file/d/18kGWk8PDbAggv8_WgjHXAn3QSeaQv7Iw/view",
+    printGuide: "https://drive.google.com/file/d/1jR-W-020pH57sdDuqaDmNQpiVzHHLCqt/view",
+    /** Formulario de solicitud; también está en la guía (PDF). */
+    printForm: "https://forms.gle/icnQhctzt5rzAUnC8",
+};
+
+const PRINT_STEPS = [
+    "Revisa los criterios de solicitud en la guía.",
+    "Diligencia el formulario de solicitud con la información requerida.",
+    "El equipo del aula revisa y te confirma por correo si fue aprobada la solicitud.",
 ];
 
-const ProtocolNotice = () => (
-    <section className="w-full px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3">
-            <ClipboardCheck className="hidden sm:block h-5 w-5 shrink-0 text-blue-600" aria-hidden />
-            <p className="flex-1 text-sm text-gray-700">
-                <span className="font-semibold text-gray-900">¿Vas a usar el aula?</span>{" "}
-                Conoce los acuerdos para el cuidado del espacio, el préstamo de equipos y el manejo de materiales.
-            </p>
-            <div className="flex flex-wrap gap-x-5 gap-y-1">
-                {PROTOCOLS.map((protocol) => (
+const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-editorial-identity focus-visible:ring-offset-2";
+
+/**
+ * Enlace a un documento externo: subrayado siempre, no solo al pasar el cursor.
+ * El texto va en el azul del identificador en los dos bloques; el subrayado
+ * toma el tono del bloque (`decoration`).
+ */
+const DocLink = ({
+    href,
+    decoration,
+    children,
+}: {
+    href: string;
+    decoration: string;
+    children: React.ReactNode;
+}) => (
+    <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`inline-flex min-h-11 items-center gap-1 rounded-sm text-sm font-medium text-editorial-identity underline underline-offset-4 transition hover:decoration-editorial-identity ${decoration} ${focusRing}`}
+    >
+        {children}
+        <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden />
+        <span className="sr-only">(se abre en una pestaña nueva)</span>
+    </a>
+);
+
+const AulaServices = ({ className = "" }: { className?: string }) => (
+    <section aria-label="Servicios del aula" className={`w-full px-4 sm:px-6 lg:px-8 ${className}`}>
+        <div className="max-w-5xl mx-auto grid gap-4 lg:grid-cols-[2fr_3fr]">
+            {/* Norma: se lee antes de venir. Azul del identificador, como el horario. */}
+            <div className="flex flex-col rounded-xl bg-editorial-identity-soft p-5">
+                <div className="flex items-center gap-2.5">
+                    <ClipboardCheck className="h-5 w-5 shrink-0 text-editorial-identity" aria-hidden />
+                    <h2 className="text-base font-semibold text-editorial-identity">¿Vas a usar el aula?</h2>
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                    Conoce los acuerdos para el cuidado del espacio, el préstamo de equipos y el manejo
+                    de materiales.
+                </p>
+                <div className="mt-auto pt-2">
+                    <DocLink href={LINKS.roomProtocol} decoration="decoration-editorial-identity/30">
+                        Leer protocolo de uso del aula (PDF)
+                    </DocLink>
+                </div>
+            </div>
+
+            {/* Trámite: pasos y una acción principal. Naranja del identificador. */}
+            <div className="rounded-xl bg-editorial-identity-orange-soft p-5">
+                <div className="flex items-start gap-2.5">
+                    <Layers3 className="mt-0.5 h-5 w-5 shrink-0 text-editorial-identity" aria-hidden />
+                    <h2 className="text-base font-semibold text-editorial-identity">
+                        ¿Necesitas imprimir una pieza en 3D?
+                    </h2>
+                </div>
+                <ol className="mt-3 grid gap-2 sm:grid-cols-3 sm:gap-4">
+                    {PRINT_STEPS.map((step, i) => (
+                        <li key={step} className="flex items-start gap-2.5 text-sm leading-snug text-gray-700">
+                            <span
+                                aria-hidden
+                                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-editorial-identity-orange text-xs font-bold tabular-nums text-editorial-identity"
+                            >
+                                {i + 1}
+                            </span>
+                            <span className="pt-0.5">{step}</span>
+                        </li>
+                    ))}
+                </ol>
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1">
+                    <DocLink href={LINKS.printGuide} decoration="decoration-editorial-identity-orange">
+                        Ver criterios y paso a paso (PDF)
+                    </DocLink>                  
+                  
                     <a
-                        key={protocol.href}
-                        href={protocol.href}
+                        href={LINKS.printForm}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                        className={`inline-flex h-11 items-center gap-2 rounded-lg bg-editorial-identity-orange px-5 text-sm font-semibold text-editorial-identity shadow-sm transition hover:bg-editorial-identity-orange-hover ${focusRing}`}
                     >
-                        {protocol.label}
+
+                        Solicitar impresión 3D
                         <ArrowUpRight className="h-4 w-4" aria-hidden />
-                        <span className="sr-only">(se abre en una pestaña nueva)</span>
+                        <span className="sr-only">(formulario, se abre en una pestaña nueva)</span>
                     </a>
-                ))}
+
+                </div>
             </div>
         </div>
     </section>
@@ -84,9 +162,10 @@ const ProtocolNotice = () => (
 const InteractiveCard =({ title, description, href, color = "blue" }: CardProps) => {
 
     const colorStyles = {
-        blue: "hover:border-blue-400",
+        // Azul y naranja del identificador; el verde de cursos se mantiene.
+        blue: "hover:border-editorial-identity",
         green: "hover:border-green-400",
-        orange: "hover:border-orange-400",
+        orange: "hover:border-editorial-identity-orange",
     };
 
     const content = (
@@ -205,15 +284,19 @@ export default async function Dashboard() {
         <div className="min-h-screen flex flex-col justify-center items-center bg-white">
             <CarouselHome />
             <Banner />
-            <ProtocolNotice />
 
+            {/* Sin sesión, los servicios van después de la bienvenida (PublicDashboard);
+                con sesión no hay bienvenida, así que van arriba. */}
             {userId ? (
+                <>
+                <AulaServices className="mt-6" />
                 <AuthenticatedDashboard
                     userId={userId}
                     closestEvent={closestEvent}
                     latestCourse={latestCourse}
                     latestArticle={latestArticle}
                 />
+                </>
             ) : (
                 <PublicDashboard
                     closestEvent={closestEvent}
@@ -355,11 +438,14 @@ const PublicDashboard = ({
             </div>
         </div>
 
+        <AulaServices className="mt-10" />
+
         {/* 🔥 Título */}
         <div className="mt-16 text-center">
             <h2 className="text-3xl md:text-4xl font-bold relative inline-block">
                 Últimas novedades
-                <span className="block h-1 bg-blue-400 mt-2 rounded-full"></span>
+                {/* Naranja del identificador, como el botón de impresión 3D */}
+                <span className="block h-1 bg-editorial-identity-orange mt-2 rounded-full"></span>
             </h2>
         </div>
 
