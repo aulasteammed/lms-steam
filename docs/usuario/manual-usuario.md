@@ -2,14 +2,13 @@
 
 ## 1. Objetivo
 
-Este manual explica cómo usar la plataforma LMS STEAM para:
+Este manual explica cómo usar la plataforma Aula STEAM para:
 
 - iniciar sesión,
-- explorar cursos,
-- inscribirse,
-- avanzar por módulos,
-- presentar evaluaciones,
-- consultar certificados.
+- buscar cursos e inscribirse,
+- avanzar por módulos y presentar evaluaciones,
+- obtener y verificar constancias,
+- consultar eventos, el blog y la Trayectoria del aula.
 
 ## 2. Acceso a la plataforma
 
@@ -17,51 +16,96 @@ Este manual explica cómo usar la plataforma LMS STEAM para:
 2. Haga clic en **Iniciar sesión** o **Registrarse**.
 3. Complete el proceso de autenticación.
 
+Sin iniciar sesión se pueden ver Inicio, Quienes somos, Agendate, Explorar cursos, Trayectoria y Blog.
+
 ## 3. Navegación principal
 
-Las secciones principales para estudiantes son:
+| Menú | Contenido |
+|------|-----------|
+| `Inicio` | Presentación del aula y acceso rápido a contenidos |
+| `Quienes somos` | Historia del Aula STEAM |
+| `Agendate` | Próximos eventos |
+| `Explorar cursos` | Catálogo de cursos con búsqueda y categorías |
+| `Trayectoria` | Mapa de proyectos, participaciones y alianzas |
+| `Blog` | Historias, perfiles y noticias |
+| `Mis cursos` | Cursos inscritos y progreso (con sesión iniciada) |
 
-- `Inicio`: resumen y acceso rápido a contenidos.
-- `Buscar`: catálogo de cursos por categorías.
-- `Mis cursos`: cursos inscritos y progreso.
-- `Feed`: eventos y novedades.
+## 4. Búsqueda e inscripción a cursos
 
-## 4. Inscripción a cursos
-
-1. Ingrese a `Buscar`.
-2. Seleccione un curso.
-3. Haga clic en **Inscribirme**.
+1. Ingrese a `Explorar cursos`.
+2. Escriba en **Buscar un curso** o elija una categoría.
+3. Abra un curso y haga clic en **Inscribirse**.
 4. Verifique que el curso aparezca en `Mis cursos`.
 
-## 5. Consumo de módulos y progreso
+## 5. Módulos y progreso
 
 1. Abra un curso inscrito.
-2. Seleccione un módulo del menú lateral.
-3. Visualice el contenido (video, texto, recursos).
-4. Marque el avance o complete actividades si aplica.
+2. Seleccione un módulo del menú lateral. Cada módulo se habilita al completar el anterior.
+3. Vea el video y los recursos del módulo.
+4. Complete el módulo aprobando su evaluación o con **Marcar como completo**.
 
 ## 6. Evaluaciones
 
-1. Ingrese al módulo evaluable.
-2. Abra la evaluación disponible.
-3. Responda preguntas según el tipo (selección única/múltiple, secuencia, abiertas).
-4. Envíe el intento y revise su puntaje e historial.
+1. En el menú lateral del curso, abra la evaluación del módulo.
+2. Haga clic en **Comenzar evaluación** y responda (selección única, selección múltiple, respuesta abierta o secuencia).
+3. Envíe el intento y revise su puntaje e historial. Se aprueba con 80 o más.
+4. Si agota los intentos sin aprobar, recibirá un correo. Acérquese al Aula STEAM para pedir el **código de reintento**, escríbalo en la evaluación y haga clic en **Aplicar código** para obtener 2 intentos más.
 
-## 7. Certificados
+## 7. Constancias
 
-1. Finalice los requisitos del curso.
-2. Ingrese a la sección de certificados del curso.
-3. Visualice y descargue el certificado (cuando esté habilitado).
+1. Complete todos los módulos del curso.
+2. En el menú lateral del curso aparece **Constancia**.
+3. Visualice la constancia y descárguela con **Descargar constancia**.
+4. **Compartir constancia** abre el enlace público de verificación, que puede enviar a quien necesite comprobarla.
 
-## 8. Recomendaciones de uso
+### Verificar una constancia
+
+Abra el enlace de verificación (`/certificate/verify/...`). No requiere iniciar sesión. La página muestra **Constancia verificada** con el nombre del estudiante y el curso, o un mensaje si la constancia no es válida.
+
+## 8. Agendate (eventos)
+
+1. Ingrese a `Agendate`.
+2. Vea los próximos eventos o elija un día en el calendario.
+3. Haga clic en la imagen para ampliarla.
+4. Haga clic en **Inscribirme** para abrir el formulario de inscripción del evento.
+
+## 9. Blog
+
+1. Ingrese a `Blog`. Los artículos están agrupados por año.
+2. Abra un artículo para leerlo. En celular se lee como diapositivas.
+3. Use el botón de compartir para enviar el enlace.
+
+## 10. Trayectoria
+
+### 10.1 Mapa y línea de tiempo
+
+1. Ingrese a `Trayectoria`.
+2. Elija el tipo: proyectos, participaciones o alianzas.
+3. Elija un año en la línea de tiempo para ver sus tarjetas.
+4. Desplácese por las tarjetas o haga clic en un punto del mapa.
+
+### 10.2 Proyectos
+
+Desde la tarjeta de un proyecto se abre su página: fotos, ubicación, historia, instituciones, publicaciones e informes.
+
+### 10.3 Publicaciones
+
+En **Publicaciones** (`/trayectoria/publicaciones`) están los periódicos, revistas, cartillas e informes de todos los proyectos.
+
+1. Haga clic en **Leer** para abrir el lector.
+2. Pase las páginas con las flechas o el teclado (`←` `→`).
+3. Use `+` y `−` para acercar, y el botón de pantalla completa.
+4. Use **Descargar** para guardar el PDF.
+
+## 11. Recomendaciones de uso
 
 - Use una conexión estable para reproducir contenido multimedia.
 - Mantenga sus datos de acceso seguros.
 - Cierre sesión en equipos compartidos.
 
-## 9. Soporte
+## 12. Soporte
 
-Si presenta problemas de acceso, contenido o certificados, contacte al equipo administrador del Aula STEAM con:
+Si presenta problemas de acceso, contenido o constancias, contacte al equipo administrador del Aula STEAM con:
 
 - nombre completo,
 - correo registrado,

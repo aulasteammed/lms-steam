@@ -7,6 +7,7 @@
 - Base de datos MongoDB accesible
 - Cuenta y credenciales de Clerk
 - Cuenta y credenciales de UploadThing
+- Cuenta y credenciales de Resend
 
 ## 2. Instalación en entorno de desarrollo
 
@@ -23,20 +24,7 @@ cd lms-steam
 npm install
 ```
 
-3. Crear archivo `.env` basado en `.env.example` y completar variables:
-
-```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
-DATABASE_URL=
-UPLOADTHING_SECRET=
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_TEACHER_ID=
-```
+3. Crear archivo `.env` basado en `.env.example` y completar las variables descritas en [variables de entorno](variables-entorno.md).
 
 4. Generar cliente Prisma (si no se genera automáticamente):
 
@@ -44,7 +32,14 @@ NEXT_PUBLIC_TEACHER_ID=
 npx prisma generate
 ```
 
-5. Ejecutar en local:
+5. Si la base de datos es nueva, crear índices y categorías:
+
+```bash
+npx prisma db push
+npm run db:seed
+```
+
+6. Ejecutar en local:
 
 ```bash
 npm run dev
@@ -56,8 +51,17 @@ npm run dev
 - `npm run build`: compilación de producción.
 - `npm run start`: ejecución en modo producción.
 - `npm run lint`: validación de código.
-- `npm run db:seed`: carga de datos semilla.
-- `npm run db:migrate-course-categories`: script de migración de categorías.
+
+### 3.1 Scripts de datos
+
+Se ejecutan con `tsx` contra la base de `DATABASE_URL`.
+
+| Script | Qué hace | Cuándo correrlo |
+|--------|----------|-----------------|
+| `npm run db:seed` (`scripts/seed.ts`) | Crea las 49 categorías de cursos definidas en el script. Las que ya existen no se modifican | Al preparar una base nueva y cuando se agreguen categorías al script. Se puede repetir |
+| `npm run db:migrate-course-categories` (`scripts/migrate-course-categories.ts`) | Copia el campo `categoryId` de los cursos que lo tengan a la tabla `CourseCategory` | Una sola vez, en bases con cursos que tengan `categoryId`. En una base nueva no hace cambios. Se puede repetir sin duplicar |
+
+`db:seed` usa una transacción de Prisma, que requiere un clúster de MongoDB con transacciones (réplica, como MongoDB Atlas).
 
 ## 4. Despliegue a producción (referencia)
 
