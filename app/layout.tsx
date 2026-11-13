@@ -5,17 +5,22 @@ import {esES} from "@clerk/localizations";
 
 import "./globals.css";
 import { ToasterProvider } from "@/components/providers/toaster-provider";
+import { defaultShareMetadata } from "@/lib/share-metadata";
 import React from 'react';
 
 const inter = Inter({ subsets: ["latin"] });
 
+const description =
+  "Cursos, blog y mapa de proyectos, alianzas y participaciones del Aula STEAM Sonny Jiménez, Facultad de Minas, Universidad Nacional de Colombia sede Medellín.";
+
 export const metadata: Metadata = {
+  ...defaultShareMetadata(description),
   metadataBase: new URL("https://lms-aula-steam.vercel.app"),
   title: {
     default: "Aula STEAM Sonny Jiménez",
     template: "%s | Aula STEAM",
   },
-  description: "Cursos, blog y mapa de proyectos, alianzas y participaciones del Aula STEAM Sonny Jiménez, Facultad de Minas, Universidad Nacional de Colombia sede Medellín.",
+  description,
   keywords: [
     "Aula STEAM",
     "Sonny Jiménez",

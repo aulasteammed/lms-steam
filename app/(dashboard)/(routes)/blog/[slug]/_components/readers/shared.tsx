@@ -2,6 +2,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Share2 } from "lucide-react";
+import { sharePage } from "@/lib/share-link";
 import { SocialIcon } from "../../../_components/social-icons";
 import { normalizeSocialPlatform } from "../../../_components/social-icons";
 
@@ -345,6 +347,11 @@ export function TopBar({ article, focusMode, onToggleFocus }: {
                 <span className="text-[10px] text-[#12110f] truncate max-w-[280px]">{article.title}</span>
             </Link>
             <div className="flex items-center gap-2">
+                <button onClick={() => sharePage(article.title)}
+                    className="flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wide uppercase rounded-full border bg-white border-[#e2ddd8] text-[#8a8682] hover:border-[#12110f] hover:text-[#12110f] transition-all">
+                    <Share2 className="w-3 h-3" />
+                    Compartir
+                </button>
                 <button onClick={onToggleFocus}
                     className={["flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wide uppercase rounded-full border transition-all",
                         focusMode

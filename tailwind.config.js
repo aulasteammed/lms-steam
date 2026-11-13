@@ -19,12 +19,33 @@ module.exports = withUt({
 			},
 		},
 		extend: {
+			fontFamily: {
+				// Títulos de la parte editorial (blog y Trayectoria): Playfair Display.
+				// La variable la definen los layouts de esas secciones con next/font.
+				editorial: ['var(--font-serif)', 'Playfair Display', 'Georgia', 'serif'],
+			},
 			colors: {
-				// Colores del identificador del Aula. El naranja es claro: el texto
-				// encima va en `identity` (7:1), nunca en blanco (2.3:1).
+				// Paleta editorial del blog, que también usa Trayectoria. `identity` es el
+				// azul del identificador del Aula; `cta` es el naranja del blog oscurecido
+				// lo mínimo para que el texto blanco cumpla WCAG AA (4.55:1).
 				editorial: {
+					ink: '#12110f',
+					body: '#3a3a3a',
+					soft: '#5d5955',
+					muted: '#8a8682',
+					rule: '#cfc9c2',
+					line: '#e2ddd8',
+					chip: '#f0ede8',
+					paper: '#fafaf8',
+					accent: '#e8622a',
+					'accent-soft': '#fbeee6',
+					cta: '#c94f1c',
+					'cta-hover': '#b8481a',
 					identity: '#1b1472',
+					'identity-hover': '#120d55',
 					'identity-soft': '#ecebf6',
+					// Naranja del identificador (letras "Sonny Jiménez"). Es claro: el texto
+					// encima va en `identity` (7:1), nunca en blanco (2.3:1).
 					'identity-orange': '#f39200',
 					'identity-orange-hover': '#de8400',
 					'identity-orange-soft': '#fff3df',

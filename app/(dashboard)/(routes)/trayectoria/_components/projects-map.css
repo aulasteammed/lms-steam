@@ -1,0 +1,166 @@
+/*
+ * Puntos del mapa de /trayectoria. Cada tipo de registro tiene su color, tomado
+ * de la paleta editorial (tailwind.config.js): proyectos en el naranja del blog,
+ * participaciones en el azul del menú del sitio y alianzas en el azul del identificador.
+ */
+.project-marker {
+  --marker: #c94f1c; /* editorial-cta */
+  --marker-strong: #b8481a; /* editorial-cta-hover */
+  --marker-ring: rgba(232, 98, 42, 0.3);
+  position: relative;
+  display: block;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.project-marker.is-participation {
+  --marker: #0369a1; /* sky-700 */
+  --marker-strong: #075985; /* sky-800 */
+  --marker-ring: rgba(3, 105, 161, 0.28);
+}
+
+.project-marker.is-alliance {
+  --marker: #1b1472; /* editorial-identity */
+  --marker-strong: #120d55; /* editorial-identity-hover */
+  --marker-ring: rgba(27, 20, 114, 0.25);
+}
+
+/* Área táctil de 44 px alrededor del punto de 26 px: se ve igual, pero se acierta con el dedo */
+.project-marker::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 9999px;
+}
+
+/* Grupo de puntos cercanos: más grande y con la cantidad adentro */
+.project-marker.is-cluster {
+  width: 42px;
+  height: 42px;
+}
+
+.project-marker__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--marker);
+  color: #fff;
+  /* La variable la define el layout de Trayectoria (IBM Plex Sans, como el blog). */
+  font: 600 15px/1 var(--font-sans, ui-sans-serif), system-ui, sans-serif;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 2px rgba(18, 17, 15, 0.2), 0 4px 10px rgba(18, 17, 15, 0.25);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-marker.is-cluster .project-marker__dot {
+  box-shadow: 0 0 0 5px var(--marker-ring), 0 4px 10px rgba(18, 17, 15, 0.25);
+}
+
+/* Solo con mouse: en pantallas táctiles el hover se queda pegado tras tocar */
+@media (hover: hover) and (pointer: fine) {
+  .project-marker:hover .project-marker__dot {
+    transform: scale(1.1);
+  }
+  .project-marker:hover .project-marker__label {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+.project-marker:focus-visible {
+  outline: none;
+}
+
+.project-marker:focus-visible .project-marker__dot {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--marker);
+}
+
+.project-marker.is-active {
+  z-index: 2;
+}
+
+/* Los demás lugares del registro abierto: resaltados, sin etiqueta */
+.project-marker.is-related {
+  z-index: 1;
+}
+
+.project-marker.is-related .project-marker__dot {
+  background: var(--marker-strong);
+  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(18, 17, 15, 0.3);
+}
+
+.project-marker.is-active .project-marker__dot {
+  background: var(--marker-strong);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 6px var(--marker-ring), 0 4px 12px rgba(18, 17, 15, 0.3);
+}
+
+/* Proyectos con periódico o revista: punto azul en la esquina del marcador */
+.project-marker.has-publication::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: #1b1472; /* azul del identificador */
+  border: 2px solid #fff;
+}
+
+/* Etiqueta con el nombre, a la derecha del punto */
+.project-marker__label {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translate(-6px, -50%);
+  /* Los nombres largos se parten en dos líneas en vez de salirse del mapa */
+  width: max-content;
+  max-width: min(240px, 60vw);
+  white-space: normal;
+  background: #fff;
+  color: #12110f; /* editorial-ink */
+  font: 600 14px/1.2 var(--font-sans, ui-sans-serif), system-ui, sans-serif;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(226, 221, 216, 0.9); /* editorial-line */
+  box-shadow: 0 4px 14px rgba(18, 17, 15, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* El nombre también aparece al llegar con el teclado */
+.project-marker:focus-visible .project-marker__label,
+.project-marker.is-active .project-marker__label {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* Los créditos del mapa suben para no quedar debajo de la línea de tiempo */
+.maplibregl-ctrl-bottom-right {
+  bottom: 64px;
+}
+
+/* Columna de cards sin barra de scroll visible */
+.story-scroller {
+  scrollbar-width: none;
+}
+.story-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-marker__dot,
+  .project-marker__label,
+  .story-card {
+    transition: none !important;
+  }
+}

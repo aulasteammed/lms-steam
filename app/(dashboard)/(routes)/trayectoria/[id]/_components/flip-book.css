@@ -1,0 +1,15 @@
+/* Páginas del lector tipo libro */
+.flip-page {
+  background: #fff;
+  overflow: hidden;
+}
+
+.flip-page img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}

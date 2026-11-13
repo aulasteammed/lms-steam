@@ -9,6 +9,7 @@ import {
   Calendar,
   Award,
   BookOpen,
+  MapPinned,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SidebarItem } from "./sidebar-item";
@@ -45,6 +46,11 @@ const guestRoutes = [
     href: "/search",
   },
   {
+    icon: MapPinned,
+    label: "Trayectoria",
+    href: "/trayectoria",
+  },
+  {
     icon: BookOpen,
     label: "Blog",
     href: "/blog",
@@ -73,6 +79,11 @@ const authenticatedRoutes = [
     href: "/search",
   },
   {
+    icon: MapPinned,
+    label: "Trayectoria",
+    href: "/trayectoria",
+  },
+  {
     icon: BookOpen,
     label: "Blog",
     href: "/blog",
@@ -99,6 +110,11 @@ const teacherRoutes = [
     icon: BookOpen,
     label: "Blog",
     href: "/teacher/blog",
+  },
+  {
+    icon: MapPinned,
+    label: "Trayectoria",
+    href: "/teacher/trayectoria",
   },
   {
     icon: Award,

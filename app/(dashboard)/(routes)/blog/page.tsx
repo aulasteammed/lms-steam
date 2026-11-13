@@ -1,9 +1,16 @@
 ﻿import Link from "next/link";
 import Image from "next/image";
 import { db } from "@/lib/db";
+import { shareMetadata } from "@/lib/share-metadata";
 import { BlogFeedClient } from "./_components/blog-feed-client";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = shareMetadata({
+    title:       "Blog",
+    description: "Historias, perfiles y noticias del Aula STEAM Sonny Jiménez.",
+    path:        "/blog",
+});
 
 const TEMPLATE_LABELS: Record<string, string> = {
     cover_person:   "Personaje",

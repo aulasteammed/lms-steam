@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Playfair trae números "antiguos" (el 2 de "MK2" o los años bajan de la línea).
+   En los títulos editoriales se usan los alineados, que se leen mejor en fechas. */
+.font-editorial {
+  font-variant-numeric: lining-nums;
+}
+
 html,
 body,
 :root {

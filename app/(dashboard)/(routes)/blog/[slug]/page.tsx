@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
+import { shareMetadata } from "@/lib/share-metadata";
 import { ReaderCoverPerson } from "./_components/readers/reader-cover-person";
 import { ReaderFullArticle } from "./_components/readers/reader-full-article";
 import { ReaderNewsShort } from "./_components/readers/reader-news-short";
@@ -10,12 +11,21 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const article = await db.article.findUnique({ where: { slug } });
+    const article = await db.article.findUnique({
+        where:  { slug, status: "published" },
+        select: { title: true, subtitle: true, hookPhrase: true, coverImage: true, authorName: true, publishedAt: true },
+    });
     if (!article) return {};
-    return {
+    return shareMetadata({
         title:       article.title,
-        description: article.subtitle ?? undefined,
-    };
+        description: article.subtitle ?? article.hookPhrase ?? undefined,
+        path:        `/blog/${slug}`,
+        images:      [article.coverImage],
+        article:     {
+            publishedTime: article.publishedAt?.toISOString(),
+            authors:       [article.authorName],
+        },
+    });
 }
 
 export default async function BlogArticlePage({ params }: Props) {

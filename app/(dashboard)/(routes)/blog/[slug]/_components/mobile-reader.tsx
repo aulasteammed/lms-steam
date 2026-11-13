@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Share2 } from "lucide-react";
+import { sharePage } from "@/lib/share-link";
 
 const MONO  = "var(--font-mono, 'IBM Plex Mono', monospace)";
 const SERIF = "var(--font-serif, 'Playfair Display', Georgia, serif)";
@@ -122,6 +124,12 @@ function CoverSlide({ article, accent, totalPages }: {
 
     return (
         <div className="relative w-full h-full flex flex-col" style={{ background: dark }}>
+            <button onClick={() => sharePage(article.title)} aria-label="Compartir el artículo"
+                className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-white"
+                style={{ background: "rgba(0,0,0,0.35)" }}>
+                <Share2 className="w-4 h-4" />
+            </button>
+
             {/* Cover image */}
             {article.coverImage ? (
                 <div className="relative w-full flex-1 min-h-0">
@@ -244,6 +252,13 @@ function EndSlide({ article, accent, next, viewCount }: {
                 </svg>
                 {viewCount.toLocaleString("es-CO")} vistas
             </div>
+
+            <button onClick={() => sharePage(article.title)}
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-medium text-white"
+                style={{ background: accent, fontFamily: MONO }}>
+                <Share2 className="w-3.5 h-3.5" />
+                Compartir
+            </button>
 
             {/* Next article */}
             {next && (

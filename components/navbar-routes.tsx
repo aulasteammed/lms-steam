@@ -1,7 +1,7 @@
 'use client';
 
 import { UserButton, useAuth } from '@clerk/nextjs';
-import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck, CircleUserRound, Printer } from 'lucide-react';
+import { LogIn, UserRoundCog, UserRound, Home, Package, ClipboardList, PackageCheck, CircleUserRound, Layers3Icon, } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -52,7 +52,7 @@ export const NavbarRoutes = () => {
                     {/* Impresiones 3D*/}
                     <Link href='https://aplicativo-impresiones-3d.vercel.app/' target='_blank'>
                         <Button size="sm" variant="outline">
-                            <Printer className="h-4 w-4 mr-2 text-orange-600" />
+                            <Layers3Icon className="h-4 w-4 mr-2 text-orange-600" />
                             Impresión 3D
                         </Button>
                     </Link>

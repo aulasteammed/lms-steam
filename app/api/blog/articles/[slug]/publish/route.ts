@@ -4,18 +4,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
+import { shortSlug } from "@/lib/slug";
 import { ArticleStatus } from "@prisma/client";
-
-function toSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-")
-        .slice(0, 60);
-}
 
 async function uniqueSlug(base: string, excludeId: string): Promise<string> {
     let slug   = base || "sin-titulo";
@@ -103,9 +93,12 @@ export async function PATCH(
                 : null;
 
         if (action === "publish") {
-            const base = toSlug(article.title ?? "") || "sin-titulo";
-            const candidate = await uniqueSlug(base, article.id);
-            if (candidate !== slug) newSlug = candidate;
+            // Ya compartido una vez, el enlace no cambia aunque cambie el título.
+            if (!article.publishedAt) {
+                const base = shortSlug(article.title ?? "") || "sin-titulo";
+                const candidate = await uniqueSlug(base, article.id);
+                if (candidate !== slug) newSlug = candidate;
+            }
 
             status = ArticleStatus.published;
             if (!publishedAt) publishedAt = new Date();

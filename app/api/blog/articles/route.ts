@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isTeacher } from "@/lib/teacher";
+import { shortSlug } from "@/lib/slug";
 
 /**
  * GET /api/blog/articles
@@ -71,14 +72,7 @@ export async function POST(req: Request) {
         }
 
         // Generar slug desde el título
-        const baseSlug = title
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[^a-z0-9\s-]/g, "")
-            .trim()
-            .replace(/\s+/g, "-")
-            .slice(0, 60);
+        const baseSlug = shortSlug(title) || "sin-titulo";
 
         // Evitar slugs duplicados
         let slug   = baseSlug;

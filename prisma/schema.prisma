@@ -357,3 +357,196 @@ model ArticleView {
   sessionId String? 
   viewedAt  DateTime @default(now())
 }
+
+
+enum TimelineEntryType {
+  project
+  participation
+  alliance
+}
+
+enum TimelineEntryStatus {
+  draft
+  published
+}
+
+enum ParticipationModality {
+  in_person
+  virtual
+  hybrid
+}
+
+enum TimelineDocumentKind {
+  newspaper
+  magazine
+  booklet
+  book
+  report
+  deliverable
+  other
+}
+
+
+type TimelineImage {
+  url    String
+  alt    String
+  credit String?
+}
+
+
+/// Un lugar del registro: su nombre y su punto en el mapa.
+type TimelineLocation {
+  /// "Guapi, Cauca".
+  name      String
+  latitude  Float
+  longitude Float
+}
+
+type TimelineStory {
+  title      String
+  paragraphs String[]
+}
+
+type TimelineQuote {
+  text   String
+  author String
+  role   String?
+}
+
+/// Una página de un documento, como imagen para el visor.
+type TimelineDocumentPage {
+  url      String
+  /// Versión de mayor resolución para el zoom. Vacío si se guarda un solo tamaño.
+  urlLarge String?
+}
+
+/// Un registro del mapa y la línea de tiempo: proyecto, participación o alianza.
+model TimelineEntry {
+  id     String              @id @default(auto()) @map("_id") @db.ObjectId
+  type   TimelineEntryType
+  status TimelineEntryStatus @default(draft)
+
+  /// Forma la dirección de la página: /trayectoria/<slug>. Lleva el año de
+  /// finalización (entre-aguas-2026) y no cambia al editar el título.
+  slug             String   @unique
+  /// Direcciones anteriores, que redirigen a la actual. Se llena cuando un
+  /// registro en curso se cierra y su slug gana el año.
+  previousSlugs    String[]
+  /// Nombre del proyecto, de la participación o de la alianza.
+  title            String
+  /// Máximo 250 caracteres.
+  shortDescription String
+
+  /// Año de inicio. En participaciones, el año en que ocurrió.
+  startYear Int
+  /// Año de cierre. Vacío = en curso (se ubica en el año actual).
+  endYear   Int?
+
+  /// Resumen de la ubicación: "Santo Domingo Savio, Comuna 1, Medellín" o,
+  /// con varios lugares, "Cauca, Chocó y Antioquia".
+  locationText String
+  /// Lugares del registro, máximo 6: en el mapa sale un punto por cada uno.
+  /// Vacío en participaciones virtuales: van en la línea de tiempo, no en el mapa.
+  locations    TimelineLocation[]
+
+  images TimelineImage[]
+
+  /// Proyecto: instituciones involucradas. Alianza: la institución aliada.
+  /// Participación: las instituciones aliadas con las que fue el aula (quien
+  /// organizó el evento va aparte, en `organizer`).
+  institutionIds String[]              @db.ObjectId
+  institutions   TimelineInstitution[] @relation(fields: [institutionIds], references: [id])
+
+  // ── Solo proyectos ──
+  story            TimelineStory?
+  quote            TimelineQuote?
+  acknowledgements String?
+  externalLinkUrl  String?
+  externalLinkText String?
+  documents        TimelineDocument[]
+
+  // ── Solo participaciones ──
+  participationDate DateTime?
+  modality          ParticipationModality?
+  /// Por qué se participó.
+  reason            String?
+  speakerName       String?
+  speakerRole       String?
+  /// Quién organizó el evento. Es texto libre y no una institución del
+  /// registro: muchas veces no es aliada del aula.
+  organizer         String?
+
+  // ── Participaciones y alianzas ──
+  /// Proyectos o participaciones con los que se relaciona este registro.
+  relatedEntryIds String[] @db.ObjectId
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Mapa y línea de tiempo: lo publicado, por tipo.
+  @@index([status, type])
+  // Página de un proyecto: participaciones y alianzas que lo mencionan.
+  @@index([relatedEntryIds])
+  // Todo lo hecho con una institución.
+  @@index([institutionIds])
+  // Redirección desde una dirección anterior.
+  @@index([previousSlugs])
+}
+
+/// Institución u organización. Se registra una sola vez y se enlaza desde
+/// los proyectos, participaciones y alianzas en los que aparece.
+model TimelineInstitution {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  /// Nombre completo, sin siglas sueltas.
+  name    String  @unique
+  /// Evita duplicados por tildes o mayúsculas: se arma a partir del nombre.
+  slug    String  @unique
+  /// Sigla, si tiene: "UNAL".
+  acronym String?
+  website String?
+
+  entryIds String[]        @db.ObjectId
+  entries  TimelineEntry[] @relation(fields: [entryIds], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Documento de un proyecto que se lee en el visor y se descarga:
+/// periódico, revista, informe u otro entregable.
+model TimelineDocument {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  entryId String        @db.ObjectId
+  entry   TimelineEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  /// Forma la dirección del visor: /trayectoria/<slug-proyecto>/lector/<slug>.
+  slug        String
+  title       String
+  kind        TimelineDocumentKind
+  description String?
+
+  /// PDF original, para la descarga.
+  pdfUrl       String
+  pdfSizeBytes Int?
+
+  /// Páginas convertidas a imagen al subir el PDF.
+  pages      TimelineDocumentPage[]
+  pageCount  Int
+  /// Tamaño de una página en píxeles; da la proporción de la hoja al visor.
+  pageWidth  Int
+  pageHeight Int
+
+  /// Orden dentro del proyecto. El primero que no sea informe va en el encabezado.
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Visor: un documento por la dirección /trayectoria/<proyecto>/lector/<slug>.
+  @@unique([entryId, slug])
+  // Página del proyecto: sus documentos, ya ordenados.
+  @@index([entryId, position])
+}

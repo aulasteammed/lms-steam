@@ -46,9 +46,16 @@ const Banner = () => (
 );
 
 
+/**
+ * Servicios del aula, visibles para todos en el inicio. Son dos cosas de
+ * distinta naturaleza y por eso se muestran distinto:
+ * - El protocolo de uso es una norma: se lee antes de venir.
+ * - La impresión 3D es un trámite: tiene pasos y termina en un formulario.
+ */
 const LINKS = {
     roomProtocol: "https://drive.google.com/file/d/18kGWk8PDbAggv8_WgjHXAn3QSeaQv7Iw/view",
     printGuide: "https://drive.google.com/file/d/1jR-W-020pH57sdDuqaDmNQpiVzHHLCqt/view",
+    /** Formulario de solicitud; también está en la guía (PDF). */
     printForm: "https://forms.gle/icnQhctzt5rzAUnC8",
 };
 
@@ -137,7 +144,6 @@ const AulaServices = ({ className = "" }: { className?: string }) => (
                         href={LINKS.printForm}
                         target="_blank"
                         rel="noopener noreferrer"
-
                         className={`ml-auto inline-flex h-11 items-center gap-2 rounded-lg bg-editorial-identity-orange px-5 text-sm font-semibold text-editorial-identity shadow-sm transition hover:bg-editorial-identity-orange-hover ${focusRing}`}
                     >
 
