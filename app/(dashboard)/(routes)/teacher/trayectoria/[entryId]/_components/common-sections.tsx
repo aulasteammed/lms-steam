@@ -715,34 +715,112 @@ export const RelatedSection = ({ draft, onChange, options }: RelatedSectionProps
             ))}
         </ul>
       )}
-      edit={(ids, setIds) => (
-        <div className="max-h-64 space-y-2 overflow-y-auto rounded-md border bg-white p-3">
-          {available.length === 0 && (
-            <p className="text-sm italic text-slate-500">Todavía no hay otros registros.</p>
-          )}
-          {available.map((option) => (
-            <div key={option.id} className="flex items-start gap-2">
-              <Checkbox
-                id={`related-${option.id}`}
-                className="mt-0.5"
-                checked={ids.includes(option.id)}
-                onCheckedChange={(checked) =>
-                  setIds(
-                    checked === true ? [...ids, option.id] : ids.filter((id) => id !== option.id)
-                  )
-                }
-              />
-              <Label htmlFor={`related-${option.id}`} className="font-normal leading-snug">
-                {option.title}
-                <span className="ml-1.5 text-xs text-slate-500">
-                  {TYPE_LABELS[option.type].singular}
-                </span>
-              </Label>
-            </div>
-          ))}
-        </div>
-      )}
+      edit={(ids, setIds) => <RelatedPicker options={available} ids={ids} setIds={setIds} />}
       onSave={(relatedEntryIds) => onChange({ relatedEntryIds })}
     />
+  );
+};
+
+/** "Educación STEAM" → "educacion steam", para buscar sin importar tildes ni mayúsculas. */
+const searchable = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+
+type RelatedPickerProps = {
+  options: RelatedOption[];
+  ids: string[];
+  setIds: (ids: string[]) => void;
+};
+
+/**
+ * Buscador + lista de casillas. Los ya elegidos se muestran arriba como
+ * etiquetas, para poder quitarlos aunque la búsqueda los oculte de la lista.
+ */
+const RelatedPicker = ({ options, ids, setIds }: RelatedPickerProps) => {
+  const [query, setQuery] = useState("");
+
+  const toggle = (id: string, checked: boolean) =>
+    setIds(checked ? [...ids, id] : ids.filter((selected) => selected !== id));
+
+  const selected = options.filter((option) => ids.includes(option.id));
+  const terms = searchable(query).split(/\s+/).filter(Boolean);
+  const matches = options.filter((option) => {
+    const haystack = searchable(`${option.title} ${TYPE_LABELS[option.type].singular}`);
+    return terms.every((term) => haystack.includes(term));
+  });
+
+  if (options.length === 0) {
+    return (
+      <div className="rounded-md border bg-white p-3">
+        <p className="text-sm italic text-slate-500">Todavía no hay otros registros.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {selected.length > 0 && (
+        <ul className="flex flex-wrap gap-1.5" aria-label="Registros seleccionados">
+          {selected.map((option) => (
+            <li
+              key={option.id}
+              className="flex items-center gap-1.5 rounded-full border bg-white py-0.5 pl-2.5 pr-1 text-sm"
+            >
+              <span className={cn("h-2 w-2 shrink-0 rounded-full", TYPE_STYLES[option.type].dot)} />
+              <span className="max-w-[16rem] truncate">{option.title}</span>
+              <button
+                type="button"
+                onClick={() => toggle(option.id, false)}
+                className="rounded-full p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                aria-label={`Quitar ${option.title}`}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Input
+        type="search"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Buscar por nombre o tipo…"
+        aria-label="Buscar proyectos y participaciones"
+        className="bg-white"
+      />
+
+      <div className="max-h-64 space-y-2 overflow-y-auto rounded-md border bg-white p-3">
+        {matches.length === 0 && (
+          <p className="text-sm italic text-slate-500">
+            Ningún registro coincide con &quot;{query.trim()}&quot;.
+          </p>
+        )}
+        {matches.map((option) => (
+          <div key={option.id} className="flex items-start gap-2">
+            <Checkbox
+              id={`related-${option.id}`}
+              className="mt-0.5"
+              checked={ids.includes(option.id)}
+              onCheckedChange={(checked) => toggle(option.id, checked === true)}
+            />
+            <Label htmlFor={`related-${option.id}`} className="font-normal leading-snug">
+              {option.title}
+              <span className="ml-1.5 text-xs text-slate-500">
+                {TYPE_LABELS[option.type].singular}
+              </span>
+            </Label>
+          </div>
+        ))}
+      </div>
+
+      {terms.length > 0 && (
+        <p className="text-xs text-slate-500">
+          {matches.length} de {options.length} registros
+        </p>
+      )}
+    </div>
   );
 };
