@@ -20,6 +20,15 @@ module.exports = withUt({
 		},
 		extend: {
 			colors: {
+				// Colores del identificador del Aula. El naranja es claro: el texto
+				// encima va en `identity` (7:1), nunca en blanco (2.3:1).
+				editorial: {
+					identity: '#1b1472',
+					'identity-soft': '#ecebf6',
+					'identity-orange': '#f39200',
+					'identity-orange-hover': '#de8400',
+					'identity-orange-soft': '#fff3df',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
