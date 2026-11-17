@@ -91,7 +91,7 @@ UploadThing se usa para carga de archivos. Se recomienda:
 
 - Verificar límites de tamaño y tipo de archivo permitidos.
 - Revisar periódicamente archivos obsoletos o no referenciados.
-- Confirmar que `UPLOADTHING_SECRET` esté vigente.
+- Confirmar que `UPLOADTHING_TOKEN` esté vigente.
 - Validar carga y visualización de imágenes, videos o adjuntos después de cambios en cursos y módulos.
 
 ## 8. Cuidados con evaluaciones y certificados
@@ -99,7 +99,7 @@ UploadThing se usa para carga de archivos. Se recomienda:
 Los flujos de evaluación tienen impacto directo en el progreso del usuario. Se recomienda ante cambios en este apartado:
 
 - Probar creación, publicación y consulta de evaluaciones.
-- Validar preguntas de selección única, selección múltiple, secuencia, localización y abiertas cuando aplique.
+- Validar preguntas de selección única, selección múltiple, secuencia y abiertas.
 - Revisar reglas de intentos máximos y reintentos.
 - Confirmar que los resultados se registren correctamente en `EvaluationResult`.
 - Verificar generación y consulta de certificados después de cambios en progreso o evaluaciones.
@@ -117,19 +117,75 @@ Antes de actualizar dependencias:
 
 ## 10. Flujos críticos para validar
 
-Después de cada mantenimiento, validar como mínimo:
+El proyecto no tiene pruebas automatizadas. Después de cada mantenimiento se valida manualmente con esta lista, usando una cuenta de profesor y una de estudiante. Basta con probar los módulos afectados por el cambio y la sección 10.1.
 
-- inicio de sesión y registro,
-- navegación del dashboard,
-- búsqueda de cursos,
-- inscripción a un curso,
-- visualización de módulos,
-- actualización de progreso,
-- carga de archivos,
-- visualización de certificados,
-- acceso a rutas administrativas/docente.
+### 10.1 General
 
-## 12. Monitoreo recomendado
+- [ ] Iniciar sesión, registrarse y cerrar sesión.
+- [ ] Sin sesión se ven Inicio, Quienes somos, Agendate, Explorar cursos, Trayectoria y Blog.
+- [ ] Una cuenta que no es profesor es redirigida al abrir `/teacher/...`.
+- [ ] "Modo Profesor" y "Modo Estudiante" cambian el menú lateral.
+
+### 10.2 Cursos y módulos (profesor)
+
+- [ ] Crear un curso y completar todos sus campos, con varias categorías.
+- [ ] Subir imagen y un anexo.
+- [ ] Crear módulos y cambiar su orden arrastrando.
+- [ ] Configurar video de YouTube y vista previa de un módulo.
+- [ ] Publicar y despublicar un módulo y el curso.
+
+### 10.3 Cursos (estudiante)
+
+- [ ] Buscar por título y por categoría en Explorar cursos.
+- [ ] Inscribirse y ver el curso en Mis cursos.
+- [ ] Un módulo bloqueado se habilita al completar el anterior.
+- [ ] "Marcar como completo" actualiza la barra de progreso.
+
+### 10.4 Evaluaciones y reintentos
+
+- [ ] Crear una pregunta de cada tipo y publicar la evaluación.
+- [ ] Presentar la evaluación: aprobar (80 o más) marca el módulo como completado.
+- [ ] Agotar los intentos sin aprobar: llega el correo de intentos agotados.
+- [ ] Canjear el código de `/teacher/courses`: se habilitan 2 intentos y el código cambia.
+- [ ] Un código usado o incorrecto es rechazado.
+
+### 10.5 Constancias
+
+- [ ] Al completar el curso aparece "Constancia" en el menú.
+- [ ] Descargar la constancia en PDF.
+- [ ] El enlace de verificación abre sin sesión y muestra "Constancia verificada".
+- [ ] En `/teacher/certificates`: filtrar por curso y año, descargar una constancia y el ZIP.
+
+### 10.6 Blog
+
+- [ ] Crear un artículo, cambiar plantilla y colores, agregar bloques e imágenes.
+- [ ] El autoguardado conserva los cambios al recargar.
+- [ ] Publicar, despublicar, archivar y eliminar.
+- [ ] El artículo publicado aparece en `/blog` y se lee en escritorio y celular.
+- [ ] Al llegar al final del artículo aumenta el conteo de vistas.
+- [ ] Al compartir el enlace, la vista previa muestra título e imagen.
+
+### 10.7 Eventos
+
+- [ ] Crear un evento con imagen y enlace de inscripción.
+- [ ] El evento aparece en `/feed` y en el calendario.
+- [ ] "Inscribirme" abre el enlace y suma un clic en el panel.
+- [ ] Eliminar el evento.
+
+### 10.8 Trayectoria
+
+- [ ] Crear un proyecto, una participación y una alianza.
+- [ ] Agregar ubicación con coordenadas y con enlace de Google Maps.
+- [ ] Subir fotos y un PDF; el PDF termina de convertirse en páginas.
+- [ ] Publicar: el registro aparece en el mapa, en su año de la línea de tiempo y en su página.
+- [ ] El lector pasa páginas, hace zoom y descarga el PDF.
+- [ ] El documento aparece en `/trayectoria/publicaciones`.
+
+### 10.9 Analítica
+
+- [ ] `/teacher/analytics` carga sus cuatro secciones con datos.
+
+## 11. Monitoreo recomendado
 
 Se recomienda monitorear:
 
@@ -142,7 +198,7 @@ Se recomienda monitorear:
 - errores de envío de correos,
 - crecimiento de almacenamiento y número de documentos en colecciones principales.
 
-## 13. Plan de reversión
+## 12. Plan de reversión
 
 Todo mantenimiento debe tener una ruta de retorno:
 
@@ -153,7 +209,7 @@ Todo mantenimiento debe tener una ruta de retorno:
 - restaurar base de datos solo si hubo afectación de datos,
 - validar nuevamente flujos críticos después de revertir.
 
-## 14. Registro de mantenimiento
+## 13. Registro de mantenimiento
 
 Se recomienda mantener una bitácora con:
 
@@ -166,7 +222,7 @@ Se recomienda mantener una bitácora con:
 - incidentes encontrados,
 - acciones posteriores requeridas.
 
-## 15. Necesidades operativas del sistema
+## 14. Necesidades operativas del sistema
 
 Para operar correctamente, el sistema necesita:
 
