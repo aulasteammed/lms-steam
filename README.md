@@ -69,7 +69,7 @@ Descripción de cada carpeta en [arquitectura del sistema](docs/tecnica-arquitec
 
 ## 📖 Documentación
 
-Índice completo en [docs/README.md](docs/README.md). Para contribuir, ver [CONTRIBUTING.md](CONTRIBUTING.md); historial de cambios en [CHANGELOG.md](CHANGELOG.md).
+Índice completo en [docs/README.md](docs/README.md). Para contribuir, ver [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 👥 Autores
 

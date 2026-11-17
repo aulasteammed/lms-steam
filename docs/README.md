@@ -29,4 +29,4 @@ Esta carpeta centraliza la documentación funcional y técnica del sistema.
 
 - [Base de datos campo por campo](../prisma/documentation.md)
 - [Contenido de la portada de Trayectoria](../content/README.md)
-- [README del proyecto](../README.md) · [Cómo contribuir](../CONTRIBUTING.md) · [Historial de cambios](../CHANGELOG.md)
+- [README del proyecto](../README.md) · [Cómo contribuir](../CONTRIBUTING.md)

@@ -59,6 +59,5 @@ Detalle en [instalación y despliegue](docs/tecnica-arquitectura/instalacion-des
 
 Además:
 
-- Agregar el cambio en [CHANGELOG.md](CHANGELOG.md), en la sección del mes.
 - Si el cambio agrega un flujo nuevo, sumarlo a la checklist de [mantenimiento](docs/tecnica-arquitectura/mantenimiento.md#10-flujos-críticos-para-validar).
 - La documentación describe lo que existe, en español y con las rutas de los archivos en lugar de bloques de código largos. Los diagramas van en Mermaid.
